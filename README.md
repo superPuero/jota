@@ -1,7 +1,5 @@
 # jota
 
-> A hand-crafted compiler for the Jota programming language, written entirely in C99.
-
 
 ---
 
@@ -9,13 +7,7 @@
 
 ---
 
-## ✨ Language Features
-
-* **Strong Static Typing:** [Add details about your type system, e.g., primitive types, structs, arrays].
-* **Clean Syntax:** [Mention any syntactical inspirations, like Rust-style variable declarations].
-* **Feature 3:** [Add another cool feature of your language].
-* **Feature 4:** [Add another cool feature].
-
+## Language Features
 ### Gettin Started:
 ```
 git clone [https://github.com/YOUR_USERNAME/jota.git](https://github.com/YOUR_USERNAME/jota.git)
