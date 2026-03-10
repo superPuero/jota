@@ -33,16 +33,13 @@ void dump_ast_internal(jo_ast_node_t* node, int indent)
 {
     if (!node) return;
 
-    // Print indentation
     for (int i = 0; i < indent; ++i) 
     {
         printf("  ");
     }
 
-    // Print the current node type
     printf("[%s]", jo_ast_node_type_to_stirng(node->type));
 
-    // Handle node-specific data and recurse into children
     switch (node->type) 
     {
         case jo_ast_entry:
