@@ -1,15 +1,12 @@
 # jota
 
----
 
-## Roadmap
+### Roadmap
 
 Lexing done
 Ast Building 90%
 Semantic Analysis 0%
 Code Generation 0%
-
----
 ### Gettin Started:
 ```
 git clone [https://github.com/YOUR_USERNAME/jota.git](https://github.com/YOUR_USERNAME/jota.git)
