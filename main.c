@@ -223,6 +223,6 @@ int main(int argc, char** argv)
 		dump_ast(ast_entry);
 	}
 
-	jo_sema_analyze(ast_entry);
+	// jo_sema_analyze(ast_entry);
 
 }
