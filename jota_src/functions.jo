@@ -1,17 +1,17 @@
-five :: fn(void -> [234]u32) 5
+five: fn(void -> [234]u32) :: 5
 
-returns :: fn(void -> u32) { 5 }
+returns: fn(void -> u32) :: { 5 }
 
-one_arg :: fn(x: u32 -> void) {}
+one_arg: fn(x: u32 -> void) :: {}
 
-one_arg_returns :: fn(x: u32 -> u32) { return x; }
+one_arg_returns: fn(x: u32 -> u32) :: { return x; }
 
-two_args_returns :: fn(x: u32, y: u32 -> u32) { return x + y; }
+two_args_returns: fn(x: u32, y: u32 -> u32) :: { return x + y; }
 
-sum :: fn(x: u32, y: u32 -> u32) x + y
+sum: fn(x: u32, y: u32 -> u32) :: x + y
 
-sum :: fn(u32, f: fn(u32)){}
+sum: fn(u32, f: fn(u32)) :: {}
 
-main :: fn() {
+main: fn :: {
 	sum(12, sum(123)[12])
 }
