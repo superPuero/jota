@@ -9,6 +9,8 @@ make
 ```
 
 ### Using compiler
+```
+./jota jota_src/test.jo -ast -token
+```
 * **-tokens** dump tokens into stdout
 * **-ast** dump abstract syntax tree into stdout
-**./jota jota_src/test.jo -ast -token**
