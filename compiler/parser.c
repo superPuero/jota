@@ -505,15 +505,15 @@ jo_ast_node_t* jo_parse_type_function(jo_parser_t* parser)
 	return type_function_node;
 }
 
-jo_ast_node_t* jo_parse_construct_fn(jo_parser_t* parser)
-{	
-	jo_ast_node_t* construct_fn_node = jo_make_ast_node(jo_ast_construct_fn);
+// jo_ast_node_t* jo_parse_construct_fn(jo_parser_t* parser)
+// {	
+// 	jo_ast_node_t* construct_fn_node = jo_make_ast_node(jo_ast_construct_fn);
 	
-	construct_fn_node->data.construct_fn.type = jo_parse_type_function(parser);
-	construct_fn_node->data.construct_fn.body_expression = jo_parse_expression(parser);
+// 	construct_fn_node->data.construct_fn.type = jo_parse_type_function(parser);
+// 	construct_fn_node->data.construct_fn.body_expression = jo_parse_expression(parser);
 	
-	return construct_fn_node;
-}
+// 	return construct_fn_node;
+// }
 
 jo_ast_node_t* jo_parse_identifier(jo_parser_t* parser)
 {
@@ -526,49 +526,31 @@ jo_ast_node_t* jo_parse_identifier(jo_parser_t* parser)
 	return identifier_node;
 }
 
-bool jo_parser_at_declaration(jo_parser_t* parser)
-{
-	return jo_parser_current(parser)->type == jo_token_identifier && jo_parser_peek_next(parser)->type == jo_token_colon;
-}
-
 bool jo_parser_at_bridge(jo_parser_t* parser)
 {
 	return jo_parser_current(parser)->type == jo_token_colon && jo_parser_peek_next(parser)->type == jo_token_colon;
 }
-	
-jo_ast_node_t* jo_parse_construct(jo_parser_t* parser)
+
+void jo_parser_consume_bridge(jo_parser_t* parser)
 {
-	jo_ast_node_t* construct_variable = jo_make_ast_node(jo_ast_construct_variable);
-	construct_variable->data.construct_variable.type = jo_parse_type(parser);
-	
-	if(jo_parser_current(parser)->type == jo_token_equals)
-	{
-		jo_parser_consume(parser, jo_token_equals);				
-		construct_variable->data.construct_variable.initializing_expression = jo_parse_expression(parser);
-	}
-	// alternative assigment syntax (x: u32 :: 42)
-	else if(jo_parser_at_bridge(parser))
-	{
-		jo_parser_consume(parser, jo_token_colon);
-		jo_parser_consume(parser, jo_token_colon);				
-
-		construct_variable->data.construct_variable.initializing_expression = jo_parse_expression(parser);
-	}	
-
-	return construct_variable;
+	jo_parser_consume(parser, jo_token_colon);
+	jo_parser_consume(parser, jo_token_colon);				
 }
 
-jo_ast_node_t* jo_parse_construct_non_variable(jo_parser_t* parser)
+bool jo_parser_at_assign_sign(jo_parser_t* parser)
 {
-	switch (jo_parser_current(parser)->type)
+	return jo_parser_current(parser)->type == jo_token_equals || jo_parser_at_bridge(parser);
+}
+
+void jo_parser_consume_assign_sign(jo_parser_t* parser)
+{
+	if(jo_parser_current(parser)->type == jo_token_equals)
 	{
-	case jo_token_keyword_fn:
-		return jo_parse_construct_fn(parser);
-		break;	
-	
-	default:
-		jo_parser_unexpected(parser, "expected non variable construct declaration");
-		break;
+		jo_parser_consume(parser, jo_token_equals);		
+	}
+	else if(jo_parser_at_bridge(parser))
+	{
+		jo_parser_consume_bridge(parser);				
 	}
 }
 
@@ -576,13 +558,27 @@ jo_ast_node_t* jo_parse_declaration(jo_parser_t* parser)
 {
 	jo_ast_node_t* declaration_node = jo_make_ast_node(jo_ast_declaration);
 
-	if(jo_parser_at_declaration(parser))
+	// declaration identifier is optional
+	if(jo_parser_current(parser)->type == jo_token_identifier && jo_parser_peek_next(parser)->type == jo_token_colon)
 	{
 		declaration_node->data.declaration.identifier = jo_parse_identifier(parser);
 		jo_parser_consume(parser, jo_token_colon);
 	}
 
-	declaration_node->data.declaration.construct = jo_parse_construct(parser);
+	if(jo_parser_at_assign_sign(parser)) // assignment with type deduction
+	{		
+		jo_parser_consume_assign_sign(parser);
+		declaration_node->data.declaration.initialize_expression = jo_parse_expression(parser);
+	}
+	else
+	{
+		declaration_node->data.declaration.type = jo_parse_type(parser);
+		if(jo_parser_at_assign_sign(parser))
+		{
+			jo_parser_consume_assign_sign(parser);
+			declaration_node->data.declaration.initialize_expression = jo_parse_expression(parser);
+		}
+	}
 
 	return declaration_node;
 }

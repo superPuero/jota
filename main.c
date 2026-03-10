@@ -104,19 +104,8 @@ void dump_ast_internal(jo_ast_node_t* node, int indent)
         case jo_ast_declaration:
             printf("\n");
             dump_ast_internal(node->data.declaration.identifier, indent + 1);
-            dump_ast_internal(node->data.declaration.construct, indent + 1);
-            break;
-
-        case jo_ast_construct_variable:
-            printf("\n");
-            dump_ast_internal(node->data.construct_variable.type, indent + 1);
-            dump_ast_internal(node->data.construct_variable.initializing_expression, indent + 1);
-            break;
-
-        case jo_ast_construct_fn:
-            printf("\n");
-            dump_ast_internal(node->data.construct_fn.type, indent + 1);
-            dump_ast_internal(node->data.construct_fn.body_expression, indent + 1);
+            dump_ast_internal(node->data.declaration.type, indent + 1);
+            dump_ast_internal(node->data.declaration.initialize_expression, indent + 1);
             break;
 
         case jo_ast_unary_opperation:
@@ -192,6 +181,9 @@ int main(int argc, char** argv)
 
 	bool dtokens = false;
 	bool dast = false;
+	bool dsema = false;
+
+	bool dtest = false;
 
 	for(jo_u32 i = 2; i < argc; i++)
 	{
@@ -202,6 +194,10 @@ int main(int argc, char** argv)
 		else if(strcmp(argv[i], "-tokens") == 0)
 		{
 			dtokens = true;
+		}
+		else if(strcmp(argv[i], "-sema") == 0)
+		{
+			dsema = true;
 		}
 		else
 		{
@@ -223,6 +219,9 @@ int main(int argc, char** argv)
 		dump_ast(ast_entry);
 	}
 
-	// jo_sema_analyze(ast_entry);
+	if(dsema)
+	{
+		jo_sema_analyze(ast_entry);
+	}
 
 }

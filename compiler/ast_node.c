@@ -20,8 +20,7 @@ const char* jo_ast_node_type_to_stirng(jo_ast_node_type_t type)
 
 		jo_stringify_case(jo_ast_identifier);	
 		jo_stringify_case(jo_ast_declaration);
-		jo_stringify_case(jo_ast_construct_variable);
-		jo_stringify_case(jo_ast_construct_fn);
+		
 		jo_stringify_case(jo_ast_unary_opperation);
 		jo_stringify_case(jo_ast_binary_opperation);
 		jo_stringify_case(jo_ast_apply_operation);

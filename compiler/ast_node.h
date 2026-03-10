@@ -19,8 +19,6 @@ typedef enum
 
 	jo_ast_identifier,	
 	jo_ast_declaration,
-	jo_ast_construct_variable,
-	jo_ast_construct_fn,
 	jo_ast_unary_opperation,
 	jo_ast_binary_opperation,
 	jo_ast_apply_operation,
@@ -111,22 +109,11 @@ struct jo_ast_node
 	
 		struct
 		{
-			jo_ast_node_t* identifier;			
-			jo_ast_node_t* construct;
+			jo_ast_node_t* identifier;						
+			jo_ast_node_t* type;
+			jo_ast_node_t* initialize_expression;
 		} declaration;		
 		
-		struct 
-		{
-			jo_ast_node_t* type;
-			jo_ast_node_t* body_expression;						
-		} construct_fn;
-
-		struct 
-		{
-			jo_ast_node_t* initializing_expression;
-			jo_ast_node_t* type;
-		} construct_variable;
-
 		struct 
 		{
 			jo_ast_node_t* inner;
