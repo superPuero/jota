@@ -10,7 +10,7 @@
 
 ### Gettin Started:
 ```
-git clone [https://github.com/YOUR_USERNAME/jota.git](https://github.com/YOUR_USERNAME/jota.git)
+git clone https://github.com/superPuero/jota
 cd jota
 make
 ```
