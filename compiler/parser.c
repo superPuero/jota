@@ -480,22 +480,27 @@ jo_ast_node_t* jo_parse_type_function(jo_parser_t* parser)
 	jo_parser_consume(parser, jo_token_keyword_fn);
 
 	jo_ast_node_t* type_function_node = jo_make_ast_node(jo_ast_type_function);
+	
+	if(jo_parser_current(parser)->type == jo_token_open_paren)
+	{
+		jo_parser_consume(parser, jo_token_open_paren);
 
-	type_function_node->data.type_function.parameters = jo_parse_type_function_parameters(parser);	
+		if(jo_parser_current(parser)->type != jo_token_close_paren)
+		{
+			type_function_node->data.type_function.parameters = jo_parse_declaration_list(parser);
+				
+			// ->
+			if(jo_parser_current(parser)->type == jo_token_minus)
+			{
+				jo_parser_consume(parser, jo_token_minus);
+				jo_parser_consume(parser, jo_token_close_angle_bracket);
+				type_function_node->data.type_function.return_type = jo_parse_type(parser);
+			}
+		}
 		
-	// ->
-	if(jo_parser_current(parser)->type == jo_token_minus)
-	{
-		jo_parser_consume(parser, jo_token_minus);
-		jo_parser_consume(parser, jo_token_close_angle_bracket);
+		jo_parser_consume(parser, jo_token_close_paren);
 	}
-	//
-	if(jo_parser_current(parser)->type != jo_token_close_paren)
-	{
-		type_function_node->data.type_function.return_type = jo_parse_type(parser);
-	}
-			
-	jo_parser_consume(parser, jo_token_close_paren);
+
 	
 	return type_function_node;
 }

@@ -1,6 +1,6 @@
 string: struct(data: *u8, occupied: u32, capacity: u32)
 
-one: fn(->u32) :: 1
+one: fn :: 1
 
 sum: fn(x: u32, y: u32, z: u32 -> u32) = x + y + z
 

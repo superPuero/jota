@@ -210,7 +210,7 @@ int main(int argc, char** argv)
 		}
 	}
 	
-	jo_token_dyn_array_t tokens = jo_lex_file("jota_src/test.jo");
+	jo_token_dyn_array_t tokens = jo_lex_file(argv[1]);
 	if(dtokens)
 	{
 		dump_tokens(&tokens);
