@@ -1,0 +1,23 @@
+sum: fn(x: u32, y: u32) 
+{
+	return x + y;
+}
+
+sum_2: fn(x: u32, y: u32)
+{ 
+	x + y
+}
+
+sum_3: fn(x: u32, y: u32) x + y
+
+sum_4: fn(x: u32, y: u32) =
+{
+	return x + y;
+}
+
+sum_5: fn(x: u32, y: u32) =
+{ 
+	x + y
+}
+
+sum_6: fn(x: u32, y: u32) = x + y
