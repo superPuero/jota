@@ -198,11 +198,11 @@ int main(int argc, char** argv)
 
 	for(jo_u32 i = 2; i < argc; i++)
 	{
-		if(strcmp(argv[i], "ast") == 0)
+		if(strcmp(argv[i], "-ast") == 0)
 		{
 			dast = true;
 		}
-		else if(strcmp(argv[i], "tokens") == 0)
+		else if(strcmp(argv[i], "-tokens") == 0)
 		{
 			dtokens = true;
 		}
