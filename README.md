@@ -1,12 +1,5 @@
 # jota
 
-
----
-
-## Overview
-
----
-
 ## Language Features
 ### Gettin Started:
 ```
