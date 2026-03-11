@@ -17,7 +17,7 @@ make
 
 ### Using compiler
 ```
-./jota jota_src/test.jo -ast -token
+./jota jota_src/test.jo -ast -tokens
 ```
 * **-tokens** dump tokens into stdout
 * **-ast** dump abstract syntax tree into stdout
