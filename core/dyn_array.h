@@ -6,7 +6,7 @@
 #include "types.h"
 
 #define jo_dyn_array_growth_coef 2
-#define jo_dyn_array_initial_capacity 8
+#define jo_dyn_array_initial_capacity 128
 
 #define jo_decl_dyn_array(type)\
 typedef struct\

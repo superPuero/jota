@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+typedef bool jo_bool;
+
 typedef uint8_t jo_u8;
 typedef int8_t jo_i8;
 

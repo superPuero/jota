@@ -1,23 +1,29 @@
-string: struct(data: *u8, occupied: u32, capacity: u32)
+one :: fn 1
 
-one: fn :: 1
+sum :: fn(x: u32, y: u32, z: u32 -> u32) {}
 
-sum: fn(x: u32, y: u32, z: u32 -> u32) = x + y + z
-
-main: fn(void -> u32) ::
-{	
+main :: fn(void -> u32)
+{		
 	5 + { { x: u32 = 32; return x + 3; } + 2 };
+
+	x: u32 = 42;
+	x := 42;
+	x := 42;
+	
+ 
+	y := 42;
+
+	for x in 10 y += x;
+
+	ptr: *fn(x: u32 -> u32);
 
 	mat: [4][4]u32;
 
-	x: u32 = if foo 
-	{
-		x + y
-	}
-	else if bar {
-		f: [123]*fn(void->void);
-		12
-	};
+	x: u32 = if foo {
+		 x + y 
+	}  else if bar {
+		12	
+	} else 4;
 
 	pair: (u32, i32) = 0;		
 	func: *fn(u32, u32 -> u32) = 0;

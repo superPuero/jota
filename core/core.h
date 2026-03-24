@@ -4,5 +4,6 @@
 #include "types.h"
 #include "dyn_array.h"
 #include "utils.h"
+#include "string.h"
 
 #endif

@@ -1,0 +1,45 @@
+line: 1 colum: 2 type: jo_token_identifier (io)
+line: 1 colum: 5 type: jo_token_bridge
+line: 1 colum: 12 type: jo_token_keyword_import
+line: 1 colum: 13 type: jo_token_open_parenthesis
+line: 1 colum: 25 type: jo_token_literal_string (core/io.jo)
+line: 1 colum: 26 type: jo_token_close_parenthesis
+line: 3 colum: 3 type: jo_token_identifier (sum)
+line: 3 colum: 6 type: jo_token_bridge
+line: 3 colum: 9 type: jo_token_keyword_fn
+line: 3 colum: 10 type: jo_token_open_parenthesis
+line: 3 colum: 11 type: jo_token_identifier (x)
+line: 3 colum: 12 type: jo_token_colon
+line: 3 colum: 16 type: jo_token_keyword_i64
+line: 3 colum: 17 type: jo_token_comma
+line: 3 colum: 19 type: jo_token_identifier (y)
+line: 3 colum: 20 type: jo_token_colon
+line: 3 colum: 24 type: jo_token_keyword_i64
+line: 3 colum: 25 type: jo_token_close_parenthesis
+line: 3 colum: 28 type: jo_token_arrow
+line: 3 colum: 32 type: jo_token_keyword_i64
+line: 4 colum: 1 type: jo_token_open_curly_bracket
+line: 5 colum: 10 type: jo_token_keyword_return
+line: 5 colum: 12 type: jo_token_identifier (x)
+line: 5 colum: 14 type: jo_token_plus
+line: 5 colum: 16 type: jo_token_identifier (y)
+line: 6 colum: 1 type: jo_token_close_curly_bracket
+line: 8 colum: 4 type: jo_token_identifier (main)
+line: 8 colum: 7 type: jo_token_bridge
+line: 8 colum: 10 type: jo_token_keyword_fn
+line: 8 colum: 13 type: jo_token_arrow
+line: 8 colum: 17 type: jo_token_keyword_i64
+line: 9 colum: 1 type: jo_token_open_curly_bracket
+line: 10 colum: 5 type: jo_token_identifier (x)
+line: 10 colum: 8 type: jo_token_walrus
+line: 10 colum: 14 type: jo_token_literal_i64 (12412)
+line: 10 colum: 17 type: jo_token_keyword_as
+line: 10 colum: 20 type: jo_token_keyword_i8
+line: 10 colum: 23 type: jo_token_keyword_as
+line: 10 colum: 26 type: jo_token_keyword_u8
+line: 10 colum: 29 type: jo_token_keyword_as
+line: 10 colum: 33 type: jo_token_keyword_i64
+line: 11 colum: 10 type: jo_token_keyword_return
+line: 11 colum: 12 type: jo_token_identifier (x)
+line: 12 colum: 1 type: jo_token_close_curly_bracket
+line: 13 colum: 0 type: jo_token_eof
