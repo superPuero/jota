@@ -669,7 +669,12 @@ void jo_bytecode_emit_function(jo_bytecode_context* bcc, jo_bytecode_fn* bcfn, j
     jo_ast_literal_fn* literal_fn = &decl_node->initialize_expression->data.literal_fn;
 
 	if(literal_fn->intrinsic) return;
-
+	
+	for(jo_usze param_id = 0; param_id < literal_fn->parameters.occupied; param_id++)
+	{
+				literal_fn->parameters.data[param_id]->resolved_symbol.location = param_id;
+	}
+		
 	bcfn->reg_counter = literal_fn->parameters.occupied;
     jo_bytecode_emit_block(bcc, bcfn, &literal_fn->block->data.block);
 }
