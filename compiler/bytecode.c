@@ -672,7 +672,7 @@ void jo_bytecode_emit_function(jo_bytecode_context* bcc, jo_bytecode_fn* bcfn, j
 	
 	for(jo_usize param_id = 0; param_id < literal_fn->parameters.occupied; param_id++)
 	{
-				literal_fn->parameters.data[param_id]->resolved_symbol.location = param_id;
+				literal_fn->parameters.data[param_id]->resolved_symbol->location = param_id;
 	}
 		
 	bcfn->reg_counter = literal_fn->parameters.occupied;
