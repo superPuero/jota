@@ -6,6 +6,7 @@
 #include <string.h>
 
 typedef bool jo_bool;
+typedef jo_bool jo_success;
 
 typedef uint8_t jo_u8;
 typedef int8_t jo_i8;

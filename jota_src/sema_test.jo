@@ -3,12 +3,18 @@ sum :: fn(x: i64, y: i64) -> i64
 	return x + y
 }
 
+
+mul :: fn(x: i64, y: i64) -> i64
+{
+	return x * y
+}
+
 main :: fn -> i64
 {
 	x := 40;
 	y := 2;
 
-	z := sum(100, 0);
+	z := mul(x, y) + sum(x, y);
 
 	return z
 }

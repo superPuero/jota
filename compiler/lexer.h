@@ -11,6 +11,8 @@
 
 typedef struct 
 {
+	jo_arena_t* arena;
+
 	jo_token_dyn_array_t tokens;
 
 	char* data;
@@ -36,6 +38,6 @@ bool jo_lexer_content_is(jo_lexer_t *lexer, const char *keyword);
 void jo_lexer_reset_content(jo_lexer_t *lexer);
 void jo_handle_content_break(jo_lexer_t *lexer, jo_token_dyn_array_t *tokens);
 void jo_lexer_newline(jo_lexer_t *lexer);
-jo_lexer_t jo_lex_file(const char *filename);
+jo_success jo_lex_file(jo_lexer_t* lexer, const char *filename);
 
 #endif

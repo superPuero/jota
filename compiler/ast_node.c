@@ -15,6 +15,8 @@ const char* jo_ast_node_type_to_stirng(jo_ast_node_type_t type)
 		jo_stringify_case(jo_ast_type_type_primitive);
 		jo_stringify_case(jo_ast_type_type_fn);
 		jo_stringify_case(jo_ast_type_type_tuple);
+		jo_stringify_case(jo_ast_type_type_struct);
+		jo_stringify_case(jo_ast_type_type_type);
 
 		jo_stringify_case(jo_ast_type_literal_u64);
 		jo_stringify_case(jo_ast_type_literal_i64);

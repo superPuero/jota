@@ -7,10 +7,10 @@
 
 typedef struct
 {
+	jo_arena_t* arena;
 	jo_lexer_t* lexer;
 	jo_u32 current_token;
 } jo_parser_t;
-
 
 jo_ast_node_t* jo_parse_stmt_block(jo_parser_t* parser);
 jo_ast_node_t* jo_make_ast_node(jo_ast_node_type_t type);
@@ -47,4 +47,5 @@ jo_ast_node_t* jo_parse_declaration(jo_parser_t* parser);
 jo_ast_node_ptr_dyn_array_t jo_parse_declarations(jo_parser_t* parser);
 jo_ast_node_ptr_dyn_array_t jo_parse_namespace_content(jo_parser_t* parser);
 jo_ast_node_t* jo_parse(jo_parser_t* parser);
+
 #endif

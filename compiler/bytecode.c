@@ -325,6 +325,8 @@ jo_u32 jo_bytecode_find_function(jo_bytecode_context* bcc, const char* identifie
 
 jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* fn, jo_ast_node_t* expr)
 {
+	jo_ast_node_t* decl_identifier_node = expr->data.decl.identifier;
+
 	switch (expr->type)
 	{
 	case jo_ast_type_decl:
@@ -351,15 +353,15 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 				mov.as.mov.to = to_reg;
 				jo_dyn_array_append(&bcc->bc, mov);
 
-				expr->resolved_symbol->location = mov.as.mov.to;
+				decl_identifier_node->resolved_symbol->location = mov.as.mov.to;
 			}
 			else
 			{
-				expr->resolved_symbol->location = fn->reg_counter++;
+				decl_identifier_node->resolved_symbol->location = fn->reg_counter++;
 				
 			}
 			
-			return expr->resolved_symbol->location;
+			return decl_identifier_node->resolved_symbol->location;
 		}
 
 		break;
@@ -672,10 +674,9 @@ void jo_bytecode_emit_function(jo_bytecode_context* bcc, jo_bytecode_fn* bcfn, j
 	
 	for(jo_usize param_id = 0; param_id < literal_fn->parameters.occupied; param_id++)
 	{
-				literal_fn->parameters.data[param_id]->resolved_symbol->location = param_id;
+		literal_fn->parameters.data[param_id]->resolved_symbol->location = bcfn->reg_counter++;
 	}
 		
-	bcfn->reg_counter = literal_fn->parameters.occupied;
     jo_bytecode_emit_block(bcc, bcfn, &literal_fn->block->data.block);
 }
 

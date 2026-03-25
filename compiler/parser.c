@@ -34,9 +34,12 @@ void jo_parser_unexpected(jo_parser_t* parser, const char* err)
 	jo_err("unexpected: %s at line %d column %d got %s", err, jo_parser_current(parser)->line, jo_parser_current(parser)->column, jo_token_type_to_string(jo_parser_current(parser)->type));
 }
 
-jo_ast_node_t* jo_make_ast_node(jo_ast_node_type_t type)
+// @Perf: swap to areana based node allocation
+jo_ast_node_t* jo_make_ast_node(/*jo_arena_t* arena,*/ jo_ast_node_type_t type)
 {
 	jo_ast_node_t* node = calloc(sizeof(jo_ast_node_t), 1);
+	// jo_ast_node_t* node = jo_arena_push(arena, sizeof(node));
+	// memset(node, 0, sizeof(jo_ast_node_t*));
 	node->type = type;
 	return node;
 }
@@ -491,6 +494,18 @@ jo_ast_node_t* jo_parse_expr_assignment(jo_parser_t* parser)
 // 	jo_parser_consume()
 // }
 
+jo_ast_node_t* jo_parse_literal_struct(jo_parser_t* parser)
+{
+	jo_parser_consume(parser, jo_token_keyword_struct);
+	jo_ast_node_t* literal_struct_node = jo_make_ast_node(jo_ast_type_literal_struct); 
+	
+	jo_parser_consume(parser, jo_token_open_curly_bracket);
+	literal_struct_node->data.literal_struct.members = jo_parse_declaration_list(parser); 
+	jo_parser_consume(parser, jo_token_close_curly_bracket);
+
+	return literal_struct_node;
+}
+
 jo_ast_node_t* jo_parse_primary_expression(jo_parser_t* parser)
 {
 	if(jo_parser_current(parser)->kind == jo_token_kind_literal
@@ -504,9 +519,9 @@ jo_ast_node_t* jo_parse_primary_expression(jo_parser_t* parser)
 	case jo_token_keyword_fn:
 		return jo_parse_literal_fn(parser);
 		break;
-	// case jo_token_keyword_struct:
-		// return jo_parse_literal_struct(parser);
-		// break;
+	case jo_token_keyword_struct:
+		return jo_parse_literal_struct(parser);
+		break;
 	case jo_token_identifier:
 		if(jo_parser_peek_next(parser)->type == jo_token_colon
 		 || jo_parser_peek_next(parser)->type == jo_token_walrus

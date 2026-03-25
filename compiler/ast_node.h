@@ -22,6 +22,8 @@ typedef enum
 	jo_ast_type_type_primitive,
 	jo_ast_type_type_fn,
 	jo_ast_type_type_tuple,
+	jo_ast_type_type_struct,
+	jo_ast_type_type_type,
 
 	jo_ast_type_literal_u64,
 	jo_ast_type_literal_i64,
@@ -44,6 +46,8 @@ typedef enum
 	jo_ast_type_literal_fn,
 	jo_ast_type_literal_struct,
 	jo_ast_type_literal_import,
+
+
 
 	jo_ast_type_literal_type,
 
@@ -83,10 +87,20 @@ typedef struct jo_ast_node jo_ast_node_t;
 jo_decl_dyn_array_named(jo_ast_node_t, jo_ast_node_dyn_array_t);
 jo_decl_dyn_array_named(jo_ast_node_t*, jo_ast_node_ptr_dyn_array_t);
 
+typedef struct 
+{
+	jo_ast_node_t* type_node;
+}jo_ast_type_type;
+
 typedef struct
 {
 	jo_string path;
 } jo_ast_directive_load;
+
+typedef struct
+{
+	jo_ast_node_ptr_dyn_array_t members;
+} jo_ast_type_struct;
 
 typedef struct
 {
@@ -203,7 +217,6 @@ typedef struct
 
 typedef struct
 {
-	jo_ast_node_t* parameters;
 	jo_ast_node_ptr_dyn_array_t members;
 } jo_ast_literal_struct;
 
@@ -298,7 +311,7 @@ struct jo_ast_node
 		jo_ast_literal_import 		literal_import;
 		jo_ast_literal_type 		literal_type;
 
-        jo_string identifier;
+        jo_string 					identifier;
 
 		jo_ast_decl_namespace 	decl_namesapce;
 		jo_ast_directive_load 	directive_load;
@@ -316,7 +329,8 @@ struct jo_ast_node
 		jo_ast_type_array 		type_array;
 		jo_ast_type_fn 			type_fn;
 		jo_ast_type_tuple 		type_tuple;
-
+		jo_ast_type_struct 		type_struct;
+		jo_ast_type_type 		type_type;
     } data;
 };
 

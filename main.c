@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "compiler/compile_options.h"
 #include "compiler/lexer.h"
 #include "compiler/parser.h"
 #include "compiler/symbol.h"
@@ -32,7 +33,6 @@ void dump_tokens(jo_lexer_t* lexer)
 		}
 	);
 }
-
 
 static void print_indent(int indent) {
     for (int i = 0; i < indent; i++) {
@@ -140,6 +140,12 @@ static void dump_ast_internal(jo_ast_node_t* node, int indent) {
             dump_ast_internal(node->data.literal_fn.return_type, indent + 1);
             dump_ast_internal(node->data.literal_fn.block, indent + 1);
             break;
+		case jo_ast_type_literal_struct:
+            printf("\n");
+			jo_dyn_array_iter(&node->data.literal_struct.members, i, {
+				dump_ast_internal(node->data.literal_struct.members.data[i], indent + 1);
+            });
+	            break;
 
         // --- Expressions ---
         case jo_ast_type_expr_op_unary:
@@ -235,85 +241,54 @@ void dump_bytecode(jo_bytecode_context* bcc)
 			jo_bytecode_dump_op(bcc, op);
 		}
 	);
-   
-
 }
 
 int main(int argc, char** argv)
 {
+	jo_arena_t arena = jo_arena_make(jo_Mb(1));
 
-	if(argc < 2)
+	jo_compile_options compile_opt = jo_compie_options_parse_from_args(argc, argv);	
+
+	if(!compile_opt.success)
 	{
-		printf("prodive soruce file to parse");
 		return 1;
 	}
 
-	bool dtokens = false;
-	bool dast = false;
-	bool dsema = false;
-	bool dtest = false;
-	bool dbytecode = false;
-	bool dinterp = false;
-
-	for(jo_u32 i = 2; i < argc; i++)
+	if(compile_opt.tokens)
 	{
-		if(strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "-h") == 0)
-		{
-		}
-		if(strcmp(argv[i], "-ast") == 0)
-		{
-			dast = true;
-		}
-		else if(strcmp(argv[i], "-tokens") == 0 || strcmp(argv[i], "-t") == 0)
-		{
-			dtokens = true;
-		}
-		else if(strcmp(argv[i], "-sema") == 0)
-		{
-			dsema = true;
-		}
-		else if(strcmp(argv[i], "-test") == 0)
-		{
-			dtest = true;
-		}
-		else if(strcmp(argv[i], "-bytecode") == 0 || strcmp(argv[i], "-bc") == 0)
-		{
-			dbytecode = true;
-		}
-		else if(strcmp(argv[i], "-interp") == 0 || strcmp(argv[i], "-i") == 0)
-		{
-			dinterp = true;
-		}
-		else
-		{
-			printf("unrecognized argument: %s", argv[i]);
-			return 1;
-		}
-
-	}
-
-	jo_lexer_t lexer = jo_lex_file(argv[1]);
-	if(dtokens)
-	{
+		jo_lexer_t lexer = {0};
+		lexer.arena = &arena; 
+		jo_lex_file(&lexer, argv[1]);
 		dump_tokens(&lexer);
 	}
 
-	jo_parser_t parser = { .lexer = &lexer };
-	jo_ast_node_t* ast_module = jo_parse(&parser);
-	
-	if(dast)
+	//@Important: code repetition is intentional
+
+	if(compile_opt.ast)
 	{
+		jo_lexer_t lexer = {.arena = &arena};
+		jo_lex_file(&lexer, argv[1]);	
+		jo_parser_t parser = { .arena = &arena, .lexer = &lexer };
+		jo_ast_node_t* ast_module = jo_parse(&parser);
 		dump_ast(ast_module);
 	}
 
-	if(dsema)
+	if(compile_opt.sema)
 	{
+		jo_lexer_t lexer = {.arena = &arena};
+		jo_lex_file(&lexer, argv[1]);	
+		jo_parser_t parser = { .arena = &arena, .lexer = &lexer };
+		jo_ast_node_t* ast_module = jo_parse(&parser);
 		jo_scope_t s = {0};
 		jo_sema_analyze(ast_module, &s);
 	}
 
-	if(dbytecode)
+	if(compile_opt.bytecode)
 	{
+		jo_lexer_t lexer = {.arena = &arena};
+		jo_lex_file(&lexer, argv[1]);	
+		jo_parser_t parser = { .arena = &arena, .lexer = &lexer };
+		jo_ast_node_t* ast_module = jo_parse(&parser);
 		jo_scope_t s = {0};
 		jo_sema_analyze(ast_module, &s);
 		jo_bytecode_context bcc = jo_make_bytecode(&ast_module->data.module);
@@ -321,8 +296,12 @@ int main(int argc, char** argv)
 	}
 
 
-	if(dinterp)
+	if(compile_opt.interp)
 	{
+		jo_lexer_t lexer = {.arena = &arena};
+		jo_lex_file(&lexer, argv[1]);	
+		jo_parser_t parser = { .arena = &arena, .lexer = &lexer };
+		jo_ast_node_t* ast_module = jo_parse(&parser);
 		jo_scope_t s = {0};
 		jo_sema_analyze(ast_module, &s);
 		jo_bytecode_context bcc = jo_make_bytecode(&ast_module->data.module);
