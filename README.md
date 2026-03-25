@@ -7,7 +7,7 @@
 - **done** ast building 
 - **done** semantic analysis
 - **done** bytecode generation
-- **done** interpeting
+- **done** interpreting
 - **soon** native code generation (x86 64)
 
 ### Gettin Started:
