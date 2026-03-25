@@ -4,8 +4,10 @@
 ### Roadmap
 
 - [x] Lexing
-- [ ] Ast Building (90%)
-- [ ] Semantic Analysis
+- [x] Ast Building 
+- [x] Semantic Analysis
+- [x] Bytecode gene
+- [x] Interpeting
 - [ ] Code Generation
 
 ### Gettin Started:
@@ -17,7 +19,9 @@ make
 
 ### Using compiler
 ```
-./jota jota_src/test.jo -ast -tokens
+./jota jota_src/test.jo -ast -t
 ```
-* **-tokens** dump tokens into stdout
+* **-tokens, -t** dump tokens into stdout
 * **-ast** dump abstract syntax tree into stdout
+* **-bc** dump bytecode into stdout
+* **-interp, -i** run/interperent bytecode
