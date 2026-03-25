@@ -3,12 +3,12 @@
 
 ### Roadmap
 
-- [x] Lexing
-- [x] Ast Building 
-- [x] Semantic Analysis
-- [x] Bytecode gene
-- [x] Interpeting
-- [ ] Code Generation
+- **done** lexing
+- **done** ast building 
+- **done** semantic analysis
+- **done** bytecode generation
+- **done** interpeting
+- **soon** native code generation (x86 64)
 
 ### Gettin Started:
 ```
