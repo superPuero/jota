@@ -454,28 +454,28 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 				switch (expr->data.expr_op_binary.operator_type)
 				{
 					case jo_token_plus_equals:
-						// fn->reg_counter--;
+						fn->reg_counter--;
 						dest_reg = left_reg;
 					case jo_token_plus:
 						jo_bytecode_instr_binary_suite(add);
 						break;
 
 					case jo_token_star_equals:
-						// fn->reg_counter--;
+						fn->reg_counter--;
 						dest_reg = left_reg;
 					case jo_token_star:
 						jo_bytecode_instr_binary_suite(mul);
 						break;
 
 					case jo_token_slash_equals:
-						// fn->reg_counter--;
+						fn->reg_counter--;
 						dest_reg = left_reg;
 					case jo_token_slash:
 						jo_bytecode_instr_binary_suite(div);
 						break;
 
 					case jo_token_minus_equals:
-						// fn->reg_counter--;
+						fn->reg_counter--;
 						dest_reg = left_reg;
 					case jo_token_minus:
 						jo_bytecode_instr_binary_suite(sub);
@@ -503,7 +503,6 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 					case jo_token_equals:
 					{
 						fn->reg_counter--;
-
 						dest_reg = left_reg;
 						jo_bytecode_op mov = {0};
 						mov.instr = jo_bytecode_instr_mov;

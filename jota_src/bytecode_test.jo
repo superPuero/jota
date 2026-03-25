@@ -1,6 +1,0 @@
-add :: fn(x: i64, y: i64 -> i64) { x + y }
-
-main :: fn(void -> i64)
-{
-    y := 12 * 4;
-}

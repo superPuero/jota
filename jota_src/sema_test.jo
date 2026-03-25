@@ -3,7 +3,6 @@ sum :: fn(x: i64, y: i64) -> i64
 	return x + y
 }
 
-
 mul :: fn(x: i64, y: i64) -> i64
 {
 	return x * y
@@ -11,10 +10,21 @@ mul :: fn(x: i64, y: i64) -> i64
 
 main :: fn -> i64
 {
-	x := 40;
-	y := 2;
+	x := 12
 
-	z := mul(x, y) + sum(x, y);
+	if x > 5
+	{
+		y := true
 
-	return z
+		if y
+		{
+			x = 42
+		}
+	}
+	else
+	{
+		x = sum(x, 12)
+	}
+
+	return x
 }
