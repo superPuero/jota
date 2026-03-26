@@ -1,6 +1,6 @@
 main :: fn -> i64
 {
-	return factorial(5) + fibbonacci(36)
+	return factorial(5) + fibbonacci(10)
 }
 
 fibbonacci :: fn(x: i64) -> i64
