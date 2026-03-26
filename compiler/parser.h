@@ -13,13 +13,11 @@ typedef struct
 } jo_parser_t;
 
 jo_ast_node_t* jo_parse_stmt_block(jo_parser_t* parser);
-jo_ast_node_t* jo_make_ast_node(jo_ast_node_type_t type);
 jo_token_t* jo_parser_peek(jo_parser_t* parser, jo_u32 offset);
 jo_token_t* jo_parser_peek_next(jo_parser_t* parser);
 void jo_parser_advance(jo_parser_t* parser);
 jo_token_t* jo_parser_current(jo_parser_t* parser);
 void jo_parser_unexpected(jo_parser_t* parser, const char* err);
-jo_ast_node_t* jo_make_ast_node(jo_ast_node_type_t type);
 jo_token_t* jo_parser_consume(jo_parser_t* parser, jo_token_type_t expected);
 jo_ast_node_ptr_dyn_array_t jo_parse_construct_fn_parameters(jo_parser_t* parser);
 jo_ast_node_t* jo_parse_type_primitive(jo_parser_t* parser);

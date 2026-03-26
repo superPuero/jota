@@ -656,7 +656,7 @@ void jo_bytecode_emit_stmt(jo_bytecode_context* bcc,  jo_bytecode_fn* fn, jo_ast
 
 void jo_bytecode_emit_block(jo_bytecode_context* bcc, jo_bytecode_fn* fn, jo_ast_block* ast_block)
 {
-	for(jo_usize i = 0; i < ast_block->statements.occupied; i++)
+	for(jo_uz i = 0; i < ast_block->statements.occupied; i++)
 	{
 		jo_ast_node_t* stmt = ast_block->statements.data[i];
 
@@ -671,7 +671,7 @@ void jo_bytecode_emit_function(jo_bytecode_context* bcc, jo_bytecode_fn* bcfn, j
 
 	if(literal_fn->intrinsic) return;
 	
-	for(jo_usize param_id = 0; param_id < literal_fn->parameters.occupied; param_id++)
+	for(jo_uz param_id = 0; param_id < literal_fn->parameters.occupied; param_id++)
 	{
 		literal_fn->parameters.data[param_id]->resolved_symbol->location = bcfn->reg_counter++;
 	}

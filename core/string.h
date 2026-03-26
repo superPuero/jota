@@ -10,8 +10,8 @@
 typedef struct
 {
 	jo_u8* data;
-	jo_usize size;
-	jo_usize capacity;
+	jo_uz size;
+	jo_uz capacity;
 } jo_string;
 
 bool jo_str_ends_with(const char* str, const char* suffix);

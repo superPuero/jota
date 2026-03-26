@@ -87,6 +87,9 @@ typedef struct jo_ast_node jo_ast_node_t;
 jo_decl_dyn_array_named(jo_ast_node_t, jo_ast_node_dyn_array_t);
 jo_decl_dyn_array_named(jo_ast_node_t*, jo_ast_node_ptr_dyn_array_t);
 
+// jo_declare_ada(jo_ast_node_t, jo_ast_node_dyn_array_t);
+// jo_declare_ada(jo_ast_node_t*, jo_ast_node_ptr_dyn_array_t);
+
 typedef struct 
 {
 	jo_ast_node_t* type_node;
@@ -333,5 +336,8 @@ struct jo_ast_node
 		jo_ast_type_type 		type_type;
     } data;
 };
+
+void jo_dump_ast_node(jo_ast_node_t* node, jo_u32 indent);
+jo_ast_node_t* jo_ast_node_make(jo_arena_t* arena, jo_ast_node_type_t type);
 
 #endif

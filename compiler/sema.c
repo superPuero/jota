@@ -9,12 +9,11 @@
 #define jo_sema_resolve_primitive_type_case(type)\
 case jo_ast_type_literal_##type:\
 	{\
-		jo_ast_node_t* type_node = jo_make_ast_node(jo_ast_type_type_primitive);\
+		jo_ast_node_t* type_node = jo_ast_node_make(sema->arena, jo_ast_type_type_primitive);\
 		type_node->data.type_primitive = jo_token_keyword_##type;\
 		node->resolved_type = type_node;\
 		break;\
 	}
-
 
 bool jo_type_is_pointer(jo_ast_node_t* type)
 {
@@ -128,7 +127,7 @@ jo_string jo_sema_type_string(jo_ast_node_t* t1)
 		jo_ast_type_fn* type_fn = &t1->data.type_fn;
 		jo_string str = jo_string_from("fn(");
 
-		for(jo_usize param_i = 0; param_i < t1->data.type_fn.parameters.occupied; param_i++)
+		for(jo_uz param_i = 0; param_i < t1->data.type_fn.parameters.occupied; param_i++)
 		{
 			jo_string param_str = jo_sema_type_string(t1->data.type_fn.parameters.data[param_i]);
 	
@@ -216,7 +215,7 @@ bool jo_sema_types_are_equal(jo_ast_node_t* t1, jo_ast_node_t* t2)
 
 		bool pass = true;
 
-		for(jo_usize arg_i; arg_i < fn1->parameters.occupied; arg_i++)
+		for(jo_uz arg_i; arg_i < fn1->parameters.occupied; arg_i++)
 		{
 			pass = jo_sema_types_are_equal(fn1->parameters.data[arg_i]->data.decl.specified_type, fn2->parameters.data[arg_i]->data.decl.specified_type);
 			if(!pass) return false;
@@ -272,7 +271,7 @@ void jo_sema_resolve_expr_op_call(jo_sema_t* sema, jo_scope_t* outer_scope, jo_a
 			expr->data.expr_op_call.arguments.occupied);
 	}
 
-	for(jo_usize arg_i = 0; arg_i < expr->data.expr_op_call.arguments.occupied; arg_i++)
+	for(jo_uz arg_i = 0; arg_i < expr->data.expr_op_call.arguments.occupied; arg_i++)
 	{
 		jo_sema_resolve_expr(sema, outer_scope, expr->data.expr_op_call.arguments.data[arg_i]);
 		if(!jo_sema_types_are_equal(
@@ -331,7 +330,7 @@ void jo_sema_resolve_expr_op_binary_type(jo_sema_t* sema, jo_scope_t* outer_scop
 					}
 					else
 					{
-						jo_ast_node_t* implicit_cast_node = jo_make_ast_node(jo_ast_type_expr_as_cast);
+						jo_ast_node_t* implicit_cast_node = jo_ast_node_make(sema->arena, jo_ast_type_expr_as_cast);
 						implicit_cast_node->data.expr_as_cast.expr = right_expr_type;
 						implicit_cast_node->data.expr_as_cast.to_type = left_expr_type->resolved_type;
 						implicit_cast_node->data.expr_as_cast.implicit = true;						
@@ -393,10 +392,10 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 	case jo_ast_type_literal_string:
 	{
-		jo_ast_node_t* array_type_node = jo_make_ast_node(jo_ast_type_type_array);
-		array_type_node->data.type_array.array_size_expression = jo_make_ast_node(jo_ast_type_literal_u32);
+		jo_ast_node_t* array_type_node = jo_ast_node_make(sema->arena, jo_ast_type_type_array);
+		array_type_node->data.type_array.array_size_expression = jo_ast_node_make(sema->arena,jo_ast_type_literal_u32);
 		array_type_node->data.type_array.array_size_expression->data.literal_u32 = node->data.literal_string.size;
-		array_type_node->data.type_array.inner = jo_make_ast_node(jo_ast_type_type_primitive);
+		array_type_node->data.type_array.inner = jo_ast_node_make(sema->arena,jo_ast_type_type_primitive);
 		array_type_node->data.type_array.inner->data.type_primitive = jo_token_keyword_u8;
 		node->resolved_type = array_type_node;
 		break;
@@ -404,7 +403,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 	case jo_ast_type_literal_fn:
     {
-        jo_ast_node_t* type_node = jo_make_ast_node(jo_ast_type_type_fn);
+        jo_ast_node_t* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_fn);
         type_node->data.type_fn.return_type = node->data.literal_fn.return_type;
 
 		jo_dyn_array_iter(&node->data.literal_fn.parameters, it,
@@ -419,7 +418,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 	case jo_ast_type_literal_struct:
     {
-        jo_ast_node_t* type_node = jo_make_ast_node(jo_ast_type_type_struct);
+        jo_ast_node_t* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_struct);
 
 		jo_dyn_array_iter(&node->data.literal_struct.members, it,
 			{
@@ -434,7 +433,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 	case jo_ast_type_literal_bool:
 	{
-		jo_ast_node_t* type_node = jo_make_ast_node(jo_ast_type_type_primitive);
+		jo_ast_node_t* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_primitive);
 		type_node->data.type_primitive = jo_token_keyword_bool;
 		node->resolved_type = type_node;
 		break;
@@ -551,7 +550,7 @@ void jo_sema_resolve_block(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node
 	jo_ast_literal_fn* literal_parent_fn = &literal_parent_fn_node->data.literal_fn;
 	jo_scope_t* fn_block_scope = jo_scope_push(outer_scope, "block");
 	
-	for(jo_usize i = 0; i < block->data.block.statements.occupied; i++)
+	for(jo_uz i = 0; i < block->data.block.statements.occupied; i++)
 	{
 		jo_ast_node_t* stmt = block->data.block.statements.data[i];
 		
@@ -589,9 +588,11 @@ void jo_analyze_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* de
 	switch (decl_node->resolved_type->type)
 	{
 	case jo_ast_type_type_fn:
+	{
 		jo_scope_t* fn_scope = jo_scope_push(outer_scope, decl_node->data.decl.identifier->data.identifier.data);
 		jo_sema_analyze_literal_fn(sema, fn_scope, decl_node->data.decl.initialize_expression);
 		break;
+	}
 
 	case jo_ast_type_type_struct:
 		break;
@@ -607,7 +608,7 @@ void jo_sema_analyze_module(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_nod
     jo_ast_module* module = &module_node->data.module;
 
     // module-space declaration are position independent
-	for(jo_usize i = 0; i < module->content.occupied; i++)
+	for(jo_uz i = 0; i < module->content.occupied; i++)
 	{
 	    jo_ast_node_t* current_content = module->content.data[i];
 
@@ -630,14 +631,14 @@ void jo_sema_analyze_module(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_nod
 		}
 	}
   
-	for(jo_usize i = 0; i < module->content.occupied; i++)	
+	for(jo_uz i = 0; i < module->content.occupied; i++)	
 	{
 	    jo_ast_node_t* current_content = module->content.data[i];
 
 		switch (current_content->type)
 		{
 		case jo_ast_type_decl:
-			jo_sema_analyze_literal_fn(sema, outer_scope, current_content->data.decl.initialize_expression);
+			jo_analyze_decl(sema, &sema->global_scope, current_content);
 			break;
 
 		default:
@@ -688,7 +689,7 @@ void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 					}
 					else
 					{
-						jo_ast_node_t* implicit_cast_node = jo_make_ast_node(jo_ast_type_expr_as_cast);
+						jo_ast_node_t* implicit_cast_node = jo_ast_node_make(sema->arena,jo_ast_type_expr_as_cast);
 						implicit_cast_node->data.expr_as_cast.expr = decl->initialize_expression;
 						implicit_cast_node->data.expr_as_cast.to_type = decl->specified_type;
 						implicit_cast_node->data.expr_as_cast.implicit = true;						
@@ -700,19 +701,17 @@ void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 			}
 				
 		}
-
+		
 		decl_node->resolved_type = decl->specified_type;
 	}
 }
 
 
-bool jo_sema_analyze(jo_ast_node_t* module, jo_scope_t* global_scope)
+bool jo_sema_analyze(jo_sema_t* sema, jo_ast_node_t* module)
 {
-	jo_sema_t sema = {0};
+	jo_sema_analyze_module(sema, &sema->global_scope, module);
 
-	jo_sema_analyze_module(&sema, global_scope, module);
-
-	if(sema.errors.occupied > 0)
+	if(sema->errors.occupied > 0)
 	{
 		return false;
 	}

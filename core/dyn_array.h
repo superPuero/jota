@@ -20,8 +20,8 @@ typedef struct\
 typedef struct\
 {\
 	type* data;\
-	jo_usize occupied;\
-	jo_usize capacity;\
+	jo_uz occupied;\
+	jo_uz capacity;\
 } typename;
 
 #define jo_dyn_array_append(arr, ...)\
@@ -44,9 +44,8 @@ memset(arr, 0, sizeof(*arr))\
 
 #define jo_dyn_array_iter(arr, itername, ...)\
 {\
-	for(jo_usize itername = 0; itername < (arr)->occupied; itername++)\
+	for(jo_uz itername = 0; itername < (arr)->occupied; itername++)\
 	__VA_ARGS__\
 }
-
 
 #endif

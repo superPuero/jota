@@ -16,3 +16,6 @@ CC = gcc
 
 compile:
 	$(CC) -g -O0 -std=c99 main.c $(CORE_SRC) $(COMPILER_SRC) -o jota.exe	
+
+release:
+	$(CC) -O3 -march=native -std=c99 main.c $(CORE_SRC) $(COMPILER_SRC) -o jota.exe	

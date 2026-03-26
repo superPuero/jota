@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 typedef bool jo_bool;
 typedef jo_bool jo_success;
@@ -23,8 +24,9 @@ typedef int64_t jo_i64;
 typedef float jo_f32;
 typedef double jo_f64;
 
-typedef size_t jo_usize;
-typedef ptrdiff_t jo_isize;
+typedef size_t jo_uz;
+typedef ptrdiff_t jo_iz;
+typedef uintptr_t jo_ptr;
 
 
 

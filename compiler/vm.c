@@ -2,8 +2,8 @@
 
 #define jo_binary_op_case(operation, type)\
 *(type*)(vm->registers + call_frame->base_register + op.as.binary_op.dest) = \
-                    *(type*)(vm->registers + call_frame->base_register + op.as.binary_op.a) operation \
-                    *(type*)(vm->registers + call_frame->base_register + op.as.binary_op.b)
+                    (*(type*)(vm->registers + call_frame->base_register + op.as.binary_op.a) operation \
+                    *(type*)(vm->registers + call_frame->base_register + op.as.binary_op.b))
 
 #define jo_cast_case(to_type, from_type)\
 *(jo_##to_type*)(vm->registers + call_frame->base_register + op.as.cast.dest) = \
@@ -97,14 +97,14 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 				continue; // skip ip increment
 				break;
 			case jo_bytecode_instr_jmp_if:
-				if (vm->registers[op.as.jmp_if.cond_reg])
+				if (vm->registers[call_frame->base_register + op.as.jmp_if.cond_reg])
 				{
 					vm->ip += op.as.jmp_if.offset;
 					continue; // skip ip increment
 				}
 				break;
-			case jo_bytecode_instr_jmp_if_not:
-				if (!vm->registers[op.as.jmp_if_not.cond_reg])
+			case jo_bytecode_instr_jmp_if_not:		
+				if (!vm->registers[call_frame->base_register + op.as.jmp_if_not.cond_reg])
 				{
 					vm->ip += op.as.jmp_if_not.offset;
 					continue; // skip ip increment
@@ -190,7 +190,7 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
                 new_frame.ret_reg = op.as.call.dest;
 				new_frame.ret_ip = vm->ip + 1;
 
-				for(jo_usize i = 0; i < op.as.call.arg_count; i++)
+				for(jo_uz i = 0; i < op.as.call.arg_count; i++)
 				{
 					memcpy(&vm->registers[new_frame.base_register + i], &vm->registers[call_frame->base_register + op.as.call.first_arg + i], sizeof(jo_value64));
 				}

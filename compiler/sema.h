@@ -19,6 +19,8 @@ jo_decl_dyn_array_named(jo_ast_decl_namespace*, jo_namespace_stack_t)
 
 typedef struct
 {
+	jo_arena_t* arena;
+	jo_scope_t global_scope;
 	jo_sema_err_dyn_array_t errors;
 	jo_namespace_stack_t namespace_stack;
 } jo_sema_t;
@@ -32,6 +34,6 @@ void jo_sema_resolve_block(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node
 void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* stmt, jo_ast_node_t* literal_parent_fn_node);
 void jo_sema_analyze_literal_fn(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* literal_fn_node);
 
-bool jo_sema_analyze(jo_ast_node_t* entry_node, jo_scope_t* global_scope);
+bool jo_sema_analyze(jo_sema_t* sema, jo_ast_node_t* module);
 
 #endif

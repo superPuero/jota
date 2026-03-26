@@ -86,7 +86,7 @@ void jo_lexer_make_token(jo_lexer_t* lexer, jo_token_type_t type, jo_token_kind 
 
 	jo_lexer_reset_token(lexer);
 
-	jo_dyn_array_append(&lexer->tokens, tok);
+	jo_ada_append(lexer->arena, &lexer->tokens, tok);
 }
 
 void jo_lexer_newline(jo_lexer_t* lexer)
@@ -204,7 +204,7 @@ void jo_lexer_parse_identifier(jo_lexer_t* lexer)
 		jo_lexer_advance_one(lexer);
 	}
 
-	for(jo_usize i = 0; i < sizeof(jo_keyword_map)/sizeof(jo_keyword_map[0]); i++)
+	for(jo_uz i = 0; i < sizeof(jo_keyword_map)/sizeof(jo_keyword_map[0]); i++)
 	{
 		if(jo_lexer_try_match_content_make_token(lexer, jo_keyword_map[i].identifier, jo_keyword_map[i].type, jo_keyword_map[i].kind)) return;
 	}
@@ -353,7 +353,7 @@ jo_success jo_lexer_open_and_load(jo_lexer_t* lexer, const char* filename)
 	fseek(file, 0, SEEK_END);
 	lexer->data_size =  ftell(file);
 	rewind(file);
-	lexer->data = jo_arena_push(lexer->arena, lexer->data_size + 1);
+	lexer->data = jo_arena_alloc(lexer->arena, lexer->data_size + 1);
 
 	fread(lexer->data, 1, lexer->data_size, file);
 	lexer->data[lexer->data_size] = '\0';
@@ -397,9 +397,6 @@ jo_success jo_lex_file(jo_lexer_t* lexer, const char* filename)
 	}
 
 	jo_lexer_lex(lexer);
-
-	//@TODO: manage lifetime in main(), lexer needs to live vong enough so for token content lookup
-	// jo_lexer_close(&lexer);
 
 	return true;
 }

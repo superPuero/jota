@@ -161,6 +161,6 @@ typedef struct
 	jo_token_kind kind;
 } jo_token_t;
 
-jo_decl_dyn_array_named(jo_token_t, jo_token_dyn_array_t);
+// jo_decl_dyn_array_named(jo_token_t, jo_token_dyn_array_t);
 
 #endif

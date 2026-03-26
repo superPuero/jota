@@ -1,10 +1,11 @@
+#include <assert.h>
+#include <stdio.h>
 #include "arena.h"
 
-jo_arena_t jo_arena_make(uint32_t capacity)
+jo_arena_t jo_arena_make(jo_uz capacity)
 {
 	return (jo_arena_t){.mem = malloc(capacity), .markers = 0, .current_marker = 0, .current = 0 , .capacity = capacity};
 }
-
 
 void jo_arena_free(jo_arena_t* arena)
 {
@@ -21,9 +22,38 @@ void jo_arena_pop_to_marker(jo_arena_t *arena)
 	arena->current = arena->markers[--arena->current_marker];
 }
 
-void* jo_arena_push(jo_arena_t *arena, uint32_t size)
+void* jo_arena_alloc_aligned(jo_arena_t *arena, jo_uz size, jo_uz alignment)
 {	
-	char* curr = arena->mem + arena->current;
+	jo_ptr unaligned_current = (jo_ptr)(arena->mem + arena->current);
+	jo_u32 align_offset = (jo_u32)(((unaligned_current + (alignment - 1)) & ~(alignment - 1)) - unaligned_current);
+	arena->current += align_offset;
+
+	char* out = arena->mem + arena->current;
 	arena->current += size;
-	return curr;
+
+	if(arena->current > arena->capacity)
+	{
+		assert(0 && "arena overflow");
+	}
+
+	return out;
+}
+
+void* jo_arena_alloc_aligned_zeroed(jo_arena_t *arena, jo_uz size, jo_uz alignment)
+{	
+	char* out = jo_arena_alloc_aligned(arena, size, alignment);
+	memset(out, 0, size);
+	return out;
+}
+
+void* jo_arena_alloc(jo_arena_t *arena, jo_uz size)
+{	
+	return jo_arena_alloc_aligned(arena, size, 1);
+}
+
+void* jo_arena_alloc_zeroed(jo_arena_t *arena, jo_uz size)
+{	
+	char* out = jo_arena_alloc(arena, size);
+	memset(out, 0, size);
+	return out;
 }
