@@ -217,7 +217,7 @@ bool jo_sema_types_are_equal(jo_ast_node_t* t1, jo_ast_node_t* t2)
 
 		bool pass = true;
 
-		for(jo_uz arg_i; arg_i < fn1->parameters.occupied; arg_i++)
+		for(jo_uz arg_i = 0; arg_i < fn1->parameters.occupied; arg_i++)
 		{
 			pass = jo_sema_types_are_equal(fn1->parameters.data[arg_i]->data.decl.specified_type, fn2->parameters.data[arg_i]->data.decl.specified_type);
 			if(!pass) return false;

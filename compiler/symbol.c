@@ -5,7 +5,7 @@ jo_symbol_t jo_make_symbol(const char* identifier, jo_symbol_kind_t kind)
 	jo_symbol_t symbol ={0};
 
 	symbol.kind = kind;
-	memcpy(symbol.identifier.data, identifier, strlen(identifier));
+	symbol.identifier = jo_string_from(identifier);
 
 	return symbol;
 }
