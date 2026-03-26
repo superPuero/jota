@@ -19,7 +19,7 @@ make
 
 ### Using compiler
 ```
-./jota jota_src/test.jo -ast -t
+./jota jota_src/example.jo -ast -t
 ```
 * **-tokens, -t** dump tokens into stdout
 * **-ast** dump abstract syntax tree into stdout
