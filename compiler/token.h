@@ -15,16 +15,8 @@ typedef enum
 {
 	jo_token_undefined = 0,
 	jo_token_identifier,
-	jo_token_literal_u8,
-	jo_token_literal_i8,
-	jo_token_literal_u16,
-	jo_token_literal_i16,
-	jo_token_literal_u32,
-	jo_token_literal_i32,	
-	jo_token_literal_u64,
-	jo_token_literal_i64,
-	jo_token_literal_f32,
-	jo_token_literal_f64,
+	jo_token_literal_integer,
+	jo_token_literal_fp,
 	jo_token_literal_string,
 
 	jo_token_make_keyword_enum(type),	

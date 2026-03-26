@@ -87,7 +87,6 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 
 	while(true)
 	{
-		jo_bytecode_fn* fn = call_frame->fn;
 		jo_bytecode_op op = bcc->bc.data[vm->ip];
 
         switch (op.instr)
@@ -241,13 +240,13 @@ void jo_run_bytecode(jo_bytecode_context* bcc)
 	jo_vm vm = {0};
 
 	jo_call_frame* frame = vm.frames + vm.fc++;
-	frame->fn = bcc->fns.data + jo_bytecode_find_function(bcc, "main");
+	frame->fn = bcc->fns.data + jo_bytecode_find_function_id(bcc, "main");
 	frame->base_register = 0;
 	frame->ret_reg = 0;
-	vm.ip = bcc->fns.data[jo_bytecode_find_function(bcc, "main")].entry_ip;
+	vm.ip = bcc->fns.data[jo_bytecode_find_function_id(bcc, "main")].entry_ip;
 
 	jo_register_id ret_reg = jo_vm_run(&vm, bcc);
 
 	if(ret_reg != jo_null_register)
-		printf("program returned: %d\n", *(jo_i64*)&vm.registers[ret_reg]);
+		printf("program returned: %lld\n", *(jo_i64*)&vm.registers[ret_reg]);
 }

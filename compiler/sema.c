@@ -105,6 +105,8 @@ bool jo_is_primitive_type_implicitly_castable_to(jo_token_type_t primitive_from,
 	{
 		return jo_is_integer_primitive_type_signed(primitive_from) == jo_is_integer_primitive_type_signed(primitive_to);
 	}
+
+	return false;
 }
 
 bool jo_type_is_primitive(jo_ast_node_t* type)
@@ -168,7 +170,7 @@ bool jo_sema_type_is_void(jo_ast_node_t* type_node)
 {
 	if(!type_node)
 	{
-		jo_err("unresolved type\n", "");
+		assert(0 && "unresolved type\n");
 		return false;
 	}
 
@@ -187,13 +189,13 @@ bool jo_sema_types_are_equal(jo_ast_node_t* t1, jo_ast_node_t* t2)
 {
 	if(!t1)
 	{
-		jo_err("unresolved t1\n", "");
+		assert(0 && "unresolved t1\n");
 		return false;
 	}
 
 	if(!t2)
 	{
-		jo_err("unresolved t2\n", "");
+		assert(0 && "unresolved t2\n");
 		return false;
 	}
 
@@ -244,6 +246,7 @@ bool jo_sema_types_are_equal(jo_ast_node_t* t1, jo_ast_node_t* t2)
 		return jo_sema_types_are_equal(t1->data.type_type.type_node, t2->data.type_type.type_node);
 	}
 
+	return false;
 }
 
 void jo_sema_diagnose_type_implic_castabability_to(jo_ast_node_t* t1, jo_ast_node_t* t2)
@@ -261,14 +264,16 @@ void jo_sema_resolve_expr_op_call(jo_sema_t* sema, jo_scope_t* outer_scope, jo_a
 	
 	if(!sym)
 	{
-	    jo_err("call of undeclared identifier %s\n", expr->data.expr_op_call.target->data.identifier.data);
+	    printf("call of undeclared identifier %s\n", expr->data.expr_op_call.target->data.identifier.data);
+		assert(0);
 	}
 
 	if(sym->ast_node->resolved_type->data.type_fn.parameters.occupied != expr->data.expr_op_call.arguments.occupied)
 	{
-		jo_err("argument coutnt missmatch, expected %u, got %u\n", 
+		printf("argument coutnt missmatch, expected %llu, got %llu\n", 
 			sym->ast_node->resolved_type->data.type_fn.parameters.occupied, 
 			expr->data.expr_op_call.arguments.occupied);
+		assert(0);
 	}
 
 	for(jo_uz arg_i = 0; arg_i < expr->data.expr_op_call.arguments.occupied; arg_i++)
@@ -278,12 +283,13 @@ void jo_sema_resolve_expr_op_call(jo_sema_t* sema, jo_scope_t* outer_scope, jo_a
 			sym->ast_node->resolved_type->data.type_fn.parameters.data[arg_i], 
 			expr->data.expr_op_call.arguments.data[arg_i]->resolved_type))
 		{
-				jo_err("argument provided for %s call at index %u has unexpected type, expected %s got %s",
+				printf("argument provided for %s call at index %llu has unexpected type, expected %s got %s",
 					sym->identifier.data,
 					arg_i,
 					jo_sema_type_string(sym->ast_node->resolved_type->data.type_fn.parameters.data[arg_i]).data,
 					jo_sema_type_string(expr->data.expr_op_call.arguments.data[arg_i]->resolved_type).data
 				);
+				assert(0);
 		}
 	}
 
@@ -311,37 +317,13 @@ void jo_sema_resolve_expr_op_binary_type(jo_sema_t* sema, jo_scope_t* outer_scop
 	{ 
 		if(!jo_sema_types_are_equal(left_expr_type, right_expr_type))
 		{
-			if (left_expr_type->type == jo_ast_type_type_primitive && 
-					right_expr_type->type == jo_ast_type_type_primitive)
-				{
-					if(!jo_is_primitive_type_implicitly_castable_to(
-						left_expr_type->data.type_primitive, 
-						right_expr_type->data.type_primitive))
-					{
-						jo_string spec_type_str = jo_sema_type_string(left_expr_type);
-						jo_string resolved_type_str = jo_sema_type_string(right_expr_type);
+			// jo_string spec_type_str = jo_sema_type_string(left_expr_type);
+			// jo_string resolved_type_str = jo_sema_type_string(right_expr_type);
 			
-						printf("%s is not implicitly castable to %s\n", spec_type_str.data, resolved_type_str.data);
+			// printf("%s is not implicitly castable to %s\n", spec_type_str.data, resolved_type_str.data);
 			
-						jo_string_free(&spec_type_str);
-						jo_string_free(&resolved_type_str);
-	
-						assert(0);
-					}
-					else
-					{
-						jo_ast_node_t* implicit_cast_node = jo_ast_node_make(sema->arena, jo_ast_type_expr_as_cast);
-						implicit_cast_node->data.expr_as_cast.expr = right_expr_type;
-						implicit_cast_node->data.expr_as_cast.to_type = left_expr_type->resolved_type;
-						implicit_cast_node->data.expr_as_cast.implicit = true;						
-						printf("cast inserted\n");
-				
-						expr->data.expr_op_binary.right_expression = implicit_cast_node;
-
-					}
-				}	
+			assert(0);
 		}
-
 	}
 }
 
@@ -353,16 +335,18 @@ void jo_sema_resolve_expr_assigment(jo_sema_t* sema, jo_scope_t* outer_scope, jo
 
 	if(!sym)
 	{
-		jo_err("undeclared identifier %s", node->data.expr_assignment.target->data.identifier);
+		printf("undeclared identifier %s", node->data.expr_assignment.target->data.identifier.data);
+		assert(0);
 	}
 
 
 	if(!jo_sema_types_are_equal(sym->ast_node->resolved_type, node->data.expr_assignment.expression->resolved_type))
 	{
-		jo_err("can not assign expression of a type %s to variable %s of type %s"
+		printf("can not assign expression of a type %s to variable %s of type %s"
 				, jo_token_type_to_string(node->data.expr_assignment.expression->resolved_type->data.type_primitive)
-				, node->data.expr_assignment.target->data.identifier
+				, node->data.expr_assignment.target->data.identifier.data
 				, jo_token_type_to_string(sym->ast_node->resolved_type->data.type_primitive));
+		assert(0);
 	}
 
 }
@@ -379,22 +363,15 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 	switch (node->type)
 	{
-		jo_sema_resolve_primitive_type_case(i8);
-		jo_sema_resolve_primitive_type_case(u8);
-		jo_sema_resolve_primitive_type_case(i16);
-		jo_sema_resolve_primitive_type_case(u16);
-		jo_sema_resolve_primitive_type_case(i32);
-		jo_sema_resolve_primitive_type_case(u32);
 		jo_sema_resolve_primitive_type_case(i64);
 		jo_sema_resolve_primitive_type_case(u64);
-		jo_sema_resolve_primitive_type_case(f32);
 		jo_sema_resolve_primitive_type_case(f64);
 
 	case jo_ast_type_literal_string:
 	{
 		jo_ast_node_t* array_type_node = jo_ast_node_make(sema->arena, jo_ast_type_type_array);
-		array_type_node->data.type_array.array_size_expression = jo_ast_node_make(sema->arena,jo_ast_type_literal_u32);
-		array_type_node->data.type_array.array_size_expression->data.literal_u32 = node->data.literal_string.size;
+		array_type_node->data.type_array.array_size_expression = jo_ast_node_make(sema->arena, jo_ast_type_literal_u64);
+		array_type_node->data.type_array.array_size_expression->data.literal_u64 = node->data.literal_string.size;
 		array_type_node->data.type_array.inner = jo_ast_node_make(sema->arena,jo_ast_type_type_primitive);
 		array_type_node->data.type_array.inner->data.type_primitive = jo_token_keyword_u8;
 		node->resolved_type = array_type_node;
@@ -457,7 +434,8 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 		jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope, node->data.identifier.data);
 		if(!sym)
 		{
-			jo_err("undeclared identifier %s", node->data.identifier.data);
+			printf("undeclared identifier %s", node->data.identifier.data);
+			assert(0);
 		}
 		
 		node->resolved_type = sym->ast_node->resolved_type;
@@ -508,7 +486,7 @@ void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 	case jo_ast_type_stmt_return:
 		if(!literal_parent_fn_node)
 		{
-			jo_err("non fn block cant have return statement", "");
+			assert(0 && "non fn block cant have return statement");
 		}
 	
 		if(stmt->data.stmt_return.expression)
@@ -517,18 +495,20 @@ void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 			if(!jo_sema_types_are_equal(stmt->data.stmt_return.expression->resolved_type, literal_parent_fn->return_type))
 			{
-				jo_err("function return type %s does not match return expression type %s"
+				printf("function return type %s does not match return expression type %s"
 					, jo_token_type_to_string(literal_parent_fn->return_type->data.type_primitive)
 					, jo_token_type_to_string(stmt->data.stmt_return.expression->resolved_type->data.type_primitive));
+				assert(0);
 			}
 		}
 		else
 		{
 			if(!jo_sema_type_is_void(literal_parent_fn->return_type))
 			{
-				jo_err("function return type %s does not match return expression type %s"
+				printf("function return type %s does not match return expression type %s"
 					, jo_token_type_to_string(literal_parent_fn->return_type->data.type_primitive)
 					, jo_token_type_to_string(stmt->data.stmt_return.expression->resolved_type->data.type_primitive));
+				assert(0);
 			}
 		}
 
@@ -547,7 +527,6 @@ void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 void jo_sema_resolve_block(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* block, jo_ast_node_t* literal_parent_fn_node)
 {
-	jo_ast_literal_fn* literal_parent_fn = &literal_parent_fn_node->data.literal_fn;
 	jo_scope_t* fn_block_scope = jo_scope_push(outer_scope, "block");
 	
 	for(jo_uz i = 0; i < block->data.block.statements.occupied; i++)
@@ -656,7 +635,7 @@ void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 	if(decl->is_static)
 	{
-		if(!decl->initialize_expression) { jo_err("static declaration may not have no initlialize exression\n",""); }		
+		if(!decl->initialize_expression) { assert(0 && "static declaration may not have no initlialize exression\n"); }		
 	}
 
 	if(decl->initialize_expression)
@@ -671,33 +650,42 @@ void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 		{
 			if(!jo_sema_types_are_equal(decl->specified_type, decl->initialize_expression->resolved_type))
 			{
-				if (decl->specified_type->type == jo_ast_type_type_primitive && 
-					decl->initialize_expression->resolved_type->type == jo_ast_type_type_primitive)
-				{
-					if(!jo_is_primitive_type_implicitly_castable_to(
-						decl->specified_type->data.type_primitive, 
-						decl->initialize_expression->resolved_type->data.type_primitive))
-					{
-						jo_string spec_type_str = jo_sema_type_string(decl->specified_type);
-						jo_string resolved_type_str = jo_sema_type_string(decl->initialize_expression->resolved_type);
+				jo_string spec_type_str = jo_sema_type_string(decl->specified_type);
+				jo_string resolved_type_str = jo_sema_type_string(decl->initialize_expression->resolved_type);
 			
-						printf("specified declaration type of %s(%s) has initilize expression type %s\n that is not implicitly castable to it", decl->identifier->data.identifier.data, spec_type_str.data, resolved_type_str.data);
-			
-						jo_string_free(&spec_type_str);
-						jo_string_free(&resolved_type_str);
-						assert(0);
-					}
-					else
-					{
-						jo_ast_node_t* implicit_cast_node = jo_ast_node_make(sema->arena,jo_ast_type_expr_as_cast);
-						implicit_cast_node->data.expr_as_cast.expr = decl->initialize_expression;
-						implicit_cast_node->data.expr_as_cast.to_type = decl->specified_type;
-						implicit_cast_node->data.expr_as_cast.implicit = true;						
+				printf("declaration of %s has specified type %s but has initilize expression type %s\n", 
+					decl->identifier->data.identifier.data, 
+					spec_type_str.data, 
+					resolved_type_str.data);
+				assert(0);
 				
-						decl->initialize_expression = implicit_cast_node;
+				// if (decl->specified_type->type == jo_ast_type_type_primitive && 
+				// 	decl->initialize_expression->resolved_type->type == jo_ast_type_type_primitive)
+				// {
+				// 	if(!jo_is_primitive_type_implicitly_castable_to(
+				// 		decl->specified_type->data.type_primitive, 
+				// 		decl->initialize_expression->resolved_type->data.type_primitive))
+				// 	{
+				// 		jo_string spec_type_str = jo_sema_type_string(decl->specified_type);
+				// 		jo_string resolved_type_str = jo_sema_type_string(decl->initialize_expression->resolved_type);
+			
+				// 		printf("specified declaration type of %s(%s) has initilize expression type %s\n that is not implicitly castable to it", decl->identifier->data.identifier.data, spec_type_str.data, resolved_type_str.data);
+			
+				// 		jo_string_free(&spec_type_str);
+				// 		jo_string_free(&resolved_type_str);
+				// 		assert(0);
+				// 	}
+				// 	else
+				// 	{
+				// 		jo_ast_node_t* implicit_cast_node = jo_ast_node_make(sema->arena,jo_ast_type_expr_as_cast);
+				// 		implicit_cast_node->data.expr_as_cast.expr = decl->initialize_expression;
+				// 		implicit_cast_node->data.expr_as_cast.to_type = decl->specified_type;
+				// 		implicit_cast_node->data.expr_as_cast.implicit = true;						
+				
+				// 		decl->initialize_expression = implicit_cast_node;
 	
-					}
-				}							
+				// 	}
+				// }							
 			}
 				
 		}

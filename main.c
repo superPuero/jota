@@ -18,11 +18,8 @@ void dump_tokens(jo_lexer_t* lexer)
 			switch (tokens->data[it].type)
 			{
 			case jo_token_identifier:
-			case jo_token_literal_u64:
-			case jo_token_literal_i64:
-			case jo_token_literal_f32:
-			case jo_token_literal_f64:
-			case jo_token_literal_string:
+			case jo_token_literal_integer:
+			case jo_token_literal_fp:
 				printf("line: %u colum: %u type: %u %s (%.*s)\n", tokens->data[it].line, tokens->data[it].column, tokens->data[it].type, jo_token_type_to_string(tokens->data[it].type), tokens->data[it].content_len, tokens->data[it].content);
 				break;
 
@@ -58,17 +55,17 @@ void dump_bytecode(jo_bytecode_context* bcc)
 	);
 }
 
+
 int main(int argc, char** argv)
 {	
 	jo_compile_options compile_opt = jo_compie_options_parse_from_args(argc, argv);	
 	
 	if(!compile_opt.success)
 	{
-		printf("compile options parsing err\n");
 		return 1;
 	}
 		
-	jo_arena_t arena = jo_arena_make(jo_Mb(10));
+	jo_arena_t arena = jo_arena_make(jo_Mb(10), "compiler");
 	
 	//@Important: code repetition is intentional
 	if(compile_opt.tokens)
@@ -78,7 +75,6 @@ int main(int argc, char** argv)
 		dump_tokens(&lexer);
 	}
 
-
 	if(compile_opt.ast)
 	{
 		jo_lexer_t lexer = {.arena = &arena};		
@@ -86,7 +82,6 @@ int main(int argc, char** argv)
 		jo_parser_t parser = { .arena = &arena, .lexer = &lexer };	
 		jo_ast_node_t* ast_module = jo_parse(&parser);
 		jo_dump_ast_node(ast_module, 0);
-
 	}
 
 	if(compile_opt.sema)
@@ -111,7 +106,6 @@ int main(int argc, char** argv)
 		dump_bytecode(&bcc);
 	}
 
-
 	if(compile_opt.interp)
 	{
 		jo_lexer_t lexer = {.arena = &arena};
@@ -123,6 +117,6 @@ int main(int argc, char** argv)
 		jo_bytecode_context bcc = jo_make_bytecode(&ast_module->data.module);
 		jo_run_bytecode(&bcc);
 	}
-	
+
 	jo_arena_free(&arena);
 }

@@ -1,3 +1,10 @@
+CC = gcc
+
+COMMON_CC_OPT = -Wall -Wextra -std=c99 
+
+DEBUG_CC_OPT = -g -O0
+RELEASE_CC_OPT = -O3 -march=native
+
 CORE_SRC = 	core/string.c \
        		core/arena.c \
 
@@ -12,10 +19,10 @@ COMPILER_SRC = \
        compiler/bytecode.c \
        compiler/vm.c \
 
-CC = gcc
+
 
 compile:
-	$(CC) -g -O0 -std=c99 main.c $(CORE_SRC) $(COMPILER_SRC) -o jota.exe	
+	$(CC) $(COMMON_CC_OPT) $(DEBUG_CC_OPT) main.c $(CORE_SRC) $(COMPILER_SRC) -o jota.exe	
 
 release:
-	$(CC) -O3 -march=native -std=c99 main.c $(CORE_SRC) $(COMPILER_SRC) -o jota.exe	
+	$(CC) $(COMMON_CC_OPT) $(RELEASE_CC_OPT) main.c $(CORE_SRC) $(COMPILER_SRC) -o jota.exe	

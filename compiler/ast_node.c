@@ -22,17 +22,6 @@ const char* jo_ast_node_type_to_stirng(jo_ast_node_type_t type)
 
 		jo_stringify_case(jo_ast_type_literal_u64);
 		jo_stringify_case(jo_ast_type_literal_i64);
-
-		jo_stringify_case(jo_ast_type_literal_u32);
-		jo_stringify_case(jo_ast_type_literal_i32);
-
-		jo_stringify_case(jo_ast_type_literal_u16);
-		jo_stringify_case(jo_ast_type_literal_i16);
-
-		jo_stringify_case(jo_ast_type_literal_u8);
-		jo_stringify_case(jo_ast_type_literal_i8);
-
-		jo_stringify_case(jo_ast_type_literal_f32);
 		jo_stringify_case(jo_ast_type_literal_f64);
 
 		jo_stringify_case(jo_ast_type_literal_string);
@@ -92,13 +81,11 @@ void jo_dump_ast_node(jo_ast_node_t* node, jo_u32 indent)
 	switch (node->type)
 	{	
 	case jo_ast_type_literal_u64:
-		printf(" %u\n", node->data.literal_u64);
+		printf(" %llu\n", node->data.literal_u64);
 		break;
 	case jo_ast_type_literal_i64:
-		printf(" %i\n", node->data.literal_i64);
+		printf(" %lli\n", node->data.literal_i64);
 		break;
-	case jo_ast_type_literal_f32:
-		printf(" %f\n", node->data.literal_f32);
 	case jo_ast_type_literal_f64:
 		printf(" %f\n", node->data.literal_f64);
 		break;

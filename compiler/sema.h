@@ -3,11 +3,8 @@
 
 #include "ast_node.h"
 #include "symbol.h"
-
+	
 #define jo_sema_max_err_len 256
-
-// #define jo_sema_report_err(sema_ptr, fmt, ...)\
-// jo_dyn_array_append(sema_ptr)->error
 
 typedef struct
 {

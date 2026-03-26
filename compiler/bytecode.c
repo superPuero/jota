@@ -81,6 +81,9 @@ switch (expr->data.expr_as_cast.expr->resolved_type->data.type_primitive)\
 	case jo_token_keyword_bool:\
 		instr = jo_bytecode_instr_cast_bool_##to_type;\
 		break;\
+	default:\
+		assert(0);\
+		break;\
 }
 
 #define jo_bytecode_instr_binary_suite(op)\
@@ -142,7 +145,7 @@ bool jo_bytecode_type_is_void(jo_ast_node_t* type_node)
 {
 	if(!type_node)
 	{
-		jo_err("unresolved type\n", "");
+		assert(0 && "unresolved type\n");
 		return false;
 	}
 
@@ -212,19 +215,19 @@ void jo_bytecode_dump_op(jo_bytecode_context* bcc, jo_bytecode_op* op)
 	switch (op->instr)
 	{
 		case jo_bytecode_instr_mov_imm:
-			printf("r%u, %#x", op->as.mov_imm.to, op->as.mov_imm.value);
+			printf("r%u, %llx", op->as.mov_imm.to, op->as.mov_imm.value);
 			break;
 
 		case jo_bytecode_instr_jmp:
-			printf("%llu", op->as.jmp.offset);
+			printf("%u", op->as.jmp.offset);
 			break;
 
 		case jo_bytecode_instr_jmp_if:
-			printf("r%u, %llu", op->as.jmp_if.cond_reg, op->as.jmp_if.offset);
+			printf("r%u, %u", op->as.jmp_if.cond_reg, op->as.jmp_if.offset);
 			break;
 
 		case jo_bytecode_instr_jmp_if_not:
-			printf("r%u, %llu", op->as.jmp_if_not.cond_reg, op->as.jmp_if_not.offset);
+			printf("r%u, %u", op->as.jmp_if_not.cond_reg, op->as.jmp_if_not.offset);
 			break;
 
 		case jo_bytecode_instr_mov:
@@ -311,7 +314,7 @@ void jo_bytecode_dump_op(jo_bytecode_context* bcc, jo_bytecode_op* op)
 	printf("\n");
 }
 
-jo_u32 jo_bytecode_find_function(jo_bytecode_context* bcc, const char* identifier)
+jo_u32 jo_bytecode_find_function_id(jo_bytecode_context* bcc, const char* identifier)
 {
 	jo_dyn_array_iter(&bcc->fns, it,
 		{
@@ -321,6 +324,8 @@ jo_u32 jo_bytecode_find_function(jo_bytecode_context* bcc, const char* identifie
 			}
 		}
 	);
+
+	return -1;
 }
 
 jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* fn, jo_ast_node_t* expr)
@@ -370,7 +375,8 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 		{	
 			if(!expr->resolved_symbol)
 			{
-				jo_err("undeclared identifier %s", expr->data.identifier.data);
+				printf("undeclared identifier %s", expr->data.identifier.data);
+				assert(0);
 			}
 			return expr->resolved_symbol->location;
 			break;
@@ -456,6 +462,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 					case jo_token_plus_equals:
 						fn->reg_counter--;
 						dest_reg = left_reg;
+						// fall through
 					case jo_token_plus:
 						jo_bytecode_instr_binary_suite(add);
 						break;
@@ -463,6 +470,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 					case jo_token_star_equals:
 						fn->reg_counter--;
 						dest_reg = left_reg;
+						// fall through
 					case jo_token_star:
 						jo_bytecode_instr_binary_suite(mul);
 						break;
@@ -470,6 +478,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 					case jo_token_slash_equals:
 						fn->reg_counter--;
 						dest_reg = left_reg;
+						// fall through
 					case jo_token_slash:
 						jo_bytecode_instr_binary_suite(div);
 						break;
@@ -477,6 +486,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 					case jo_token_minus_equals:
 						fn->reg_counter--;
 						dest_reg = left_reg;
+						// fall through
 					case jo_token_minus:
 						jo_bytecode_instr_binary_suite(sub);
 						break;
@@ -527,15 +537,8 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 		}
 		break;
 
-	jo_bytecode_mov_imm_case(i8);
-	jo_bytecode_mov_imm_case(u8);
-	jo_bytecode_mov_imm_case(i16);
-	jo_bytecode_mov_imm_case(u16);
-	jo_bytecode_mov_imm_case(i32);
-	jo_bytecode_mov_imm_case(u32);
 	jo_bytecode_mov_imm_case(i64);
 	jo_bytecode_mov_imm_case(u64);
-	jo_bytecode_mov_imm_case(f32);
 	jo_bytecode_mov_imm_case(f64);
 
 	jo_bytecode_mov_imm_case(bool);
@@ -564,7 +567,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 		op.as.call.is_void_call = void_call;
 		op.as.call.dest = dest_reg;
 		op.as.call.first_arg = fn->reg_counter;
-		op.as.call.function_index = jo_bytecode_find_function(bcc, expr->data.expr_op_call.target->data.identifier.data);
+		op.as.call.function_index = jo_bytecode_find_function_id(bcc, expr->data.expr_op_call.target->data.identifier.data);
 
 		for(jo_u32 i = 0; i < args_ids_counter; i++)
 		{
@@ -581,8 +584,11 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 		return dest_reg;
 	}
 	default:
+		assert(0);
 		break;
 	}
+
+	return jo_null_register;
 }
 
 void jo_bytecode_emit_stmt(jo_bytecode_context* bcc,  jo_bytecode_fn* fn, jo_ast_node_t* stmt_node)
@@ -696,7 +702,7 @@ jo_bytecode_context jo_make_bytecode(jo_ast_module* module)
 	jo_dyn_array_iter(&module->content, it, {
         jo_ast_node_t* node = module->content.data[it];
         if(node->data.decl.initialize_expression->resolved_type->type == jo_ast_type_type_fn) {
-            jo_u32 fn_index = jo_bytecode_find_function(&bcc, node->data.decl.identifier->data.identifier.data);
+            jo_u32 fn_index = jo_bytecode_find_function_id(&bcc, node->data.decl.identifier->data.identifier.data);
 
             bcc.fns.data[fn_index].entry_ip = bcc.bc.occupied;
 

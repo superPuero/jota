@@ -27,17 +27,6 @@ typedef enum
 
 	jo_ast_type_literal_u64,
 	jo_ast_type_literal_i64,
-
-	jo_ast_type_literal_u32,
-	jo_ast_type_literal_i32,
-
-	jo_ast_type_literal_u16,
-	jo_ast_type_literal_i16,
-
-	jo_ast_type_literal_u8,
-	jo_ast_type_literal_i8,
-
-	jo_ast_type_literal_f32,
 	jo_ast_type_literal_f64,
 
 	jo_ast_type_literal_string,
@@ -46,8 +35,6 @@ typedef enum
 	jo_ast_type_literal_fn,
 	jo_ast_type_literal_struct,
 	jo_ast_type_literal_import,
-
-
 
 	jo_ast_type_literal_type,
 
@@ -281,17 +268,6 @@ struct jo_ast_node
 
         jo_u64 literal_u64;
         jo_i64 literal_i64;
-
- 		jo_u64 literal_u32;
-        jo_i64 literal_i32;
-
-		jo_u64 literal_u16;
-        jo_i64 literal_i16;
-
-		jo_u64 literal_u8;
-        jo_i64 literal_i8;
-
-		jo_f32 literal_f32;
         jo_f64 literal_f64;
 
         bool literal_bool;

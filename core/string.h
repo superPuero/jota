@@ -9,7 +9,7 @@
 
 typedef struct
 {
-	jo_u8* data;
+	char* data;
 	jo_uz size;
 	jo_uz capacity;
 } jo_string;

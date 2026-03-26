@@ -1,12 +1,10 @@
-// nochekin
-
 // $ (static) -> purely compile time (similar to c++ consteval) 
 addable :: $fn(T: type) -> bool
 {
-	// $valid_code tries to typecheck the content of {...} returns $bool that represents the validity of inner code
-	// $valid_code accepts comma separated list of declarations, that will act as the mock/fake instances of a give type
-	// !!! $valid_code returns evaluation of the type checker, not that of the ast, so invalid syntax is not allowed
-	return $valid_code(left: T, right: T) {
+	// $type_check tries to typecheck the content of {...} returns $bool that represents the validity of inner code
+	// $type_check accepts comma separated list of declarations, that will act as the mock/fake instances of a give type
+	// !!! $type_check returns evaluation of the type checker, not that of the ast, so invalid syntax is not allowed
+	return $type_check(left: T, right: T) {
 		left + right
 	}
 }
@@ -14,8 +12,9 @@ addable :: $fn(T: type) -> bool
 // angle brackets enclosed identifier (ex: <T>) represents the generic infer unit, this means that it will act as an anchor for the semantic analyzer
 // for type inferring
 // every generic type of the procedure mush appear exactly once in any of the generic infer units
-// generic infer unit accepts comma separated identifiers of compile time predicates that has corresponding signature $fn(T) -> bool
-add :: fn(left: <addable T>, right: T) -> type_of(right + left)
+add :: fn(left: <T>, right: T) -> type_of(right + left) 
+	$require(addable(T), "T must be addable")
 {
+
 	return right + left
 }

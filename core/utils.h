@@ -11,8 +11,4 @@
 case value:\
 return #value
 
-#define jo_err(fmt, ...)\
-fprintf(stderr, fmt"\n", __VA_ARGS__);\
-exit(1)
-
 #endif	

@@ -10,7 +10,7 @@ jo_token_t* jo_parser_peek(jo_parser_t* parser, jo_u32 offset)
 		return parser->lexer->tokens.data + parser->current_token + offset;
 	}
 
-	jo_err("unexpected end %s", "");
+	assert(0 && "unexpected end %s");
 }
 
 jo_token_t* jo_parser_peek_next(jo_parser_t* parser)
@@ -23,32 +23,6 @@ void jo_parser_advance(jo_parser_t* parser)
 	parser->current_token++;
 }
 
-
-void dump_tokens_2(jo_lexer_t* lexer)
-{
-	jo_token_da_t* tokens = &lexer->tokens;
-
-	jo_dyn_array_iter(tokens, it,
-		{
-			switch (tokens->data[it].type)
-			{
-			case jo_token_identifier:
-			case jo_token_literal_u64:
-			case jo_token_literal_i64:
-			case jo_token_literal_f32:
-			case jo_token_literal_f64:
-			case jo_token_literal_string:
-				printf("line: %u colum: %u type: %s (%.*s)\n", tokens->data[it].line, tokens->data[it].column, jo_token_type_to_string(tokens->data[it].type), tokens->data[it].content_len, tokens->data[it].content);
-				break;
-
-			default:
-				printf("line: %u colum: %u type: %s\n", tokens->data[it].line,  tokens->data[it].column, jo_token_type_to_string(tokens->data[it].type));
-				break;
-			}
-		}
-	);
-}
-
 jo_token_t* jo_parser_current(jo_parser_t* parser)
 {
 	// dump_tokens_2(parser->lexer);
@@ -56,8 +30,9 @@ jo_token_t* jo_parser_current(jo_parser_t* parser)
 }
 
 void jo_parser_unexpected(jo_parser_t* parser, const char* err)
-{
-	jo_err("unexpected: %s at line %d column %d got %s", err, jo_parser_current(parser)->line, jo_parser_current(parser)->column, jo_token_type_to_string(jo_parser_current(parser)->type));
+{	
+	printf("unexpected: %s at line %d column %d got %s", err, jo_parser_current(parser)->line, jo_parser_current(parser)->column, jo_token_type_to_string(jo_parser_current(parser)->type));
+	assert(0);
 }
 
 jo_token_t* jo_parser_consume(jo_parser_t* parser, jo_token_type_t expected)
@@ -65,11 +40,12 @@ jo_token_t* jo_parser_consume(jo_parser_t* parser, jo_token_type_t expected)
     jo_token_t* current = jo_parser_current(parser);
     if(current->type != expected)
     {
-        jo_err("unexpected token %s, expected %s at line %d column %d",
+        printf("unexpected token %s, expected %s at line %d column %d",
             jo_token_type_to_string(current->type),
             jo_token_type_to_string(expected),
             current->line,
 			current->column);
+		assert(0);
     }
 
 	jo_parser_advance(parser);
@@ -118,11 +94,6 @@ jo_ast_node_t* jo_parse_type_primitive(jo_parser_t* parser)
 	return type_primitive_node;
 }
 
-jo_ast_node_ptr_dyn_array_t jo_parse_type_extent(jo_parser_t* parser)
-{
-	return (jo_ast_node_ptr_dyn_array_t){0};
-}
-
 jo_ast_node_t* jo_parse_type(jo_parser_t* parser)
 {
 	if(jo_parser_current(parser)->kind == jo_token_kind_type_primitive){ return jo_parse_type_primitive(parser); }
@@ -159,6 +130,9 @@ jo_ast_node_t* jo_parse_type(jo_parser_t* parser)
 
 	case jo_token_keyword_fn:
 		type_node = jo_parse_type_fn(parser);
+		break;
+	default:
+		assert(0);
 		break;
 	}
 	//------------------------------------------------------------------
@@ -335,100 +309,26 @@ jo_ast_node_t* jo_parse_literal_expression(jo_parser_t* parser)
 			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_string);
 			literal_node->data.literal_string = jo_string_from_n(jo_parser_current(parser)->content, jo_parser_current(parser)->content_len);
 			break;
-		case jo_token_literal_u64:
-			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_u64);
-			literal_node->data.literal_u64 = strtoull(jo_parser_current(parser)->content, &end, 10);
-			break;
 
-		case jo_token_literal_i64:
+		case jo_token_literal_integer:
 			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_i64);
 			literal_node->data.literal_i64 = strtoll(jo_parser_current(parser)->content, &end, 10);
-			break;
-
-		case jo_token_literal_u32:
-			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_u32);
-			literal_node->data.literal_u32 = strtoul(jo_parser_current(parser)->content, &end, 10);
-			break;
-		case jo_token_literal_i32:
-			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_i32);
-			literal_node->data.literal_i32 = strtol(jo_parser_current(parser)->content, &end, 10);
-			break;
-
-		case jo_token_literal_u16:
-		{
-			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_u16);
-			jo_u32 valueU16 = strtoul(jo_parser_current(parser)->content, &end, 10);
-
-			if (jo_parser_current(parser)->content == end) return false;
-		    if (*end != '\0') return false;
-
-			if (errno == ERANGE || valueU16 > UINT16_MAX)
+			if (errno == ERANGE)
 			{
-				jo_err("invalid u16%s", "\n");
+				errno = 0;
+				literal_node->type = jo_ast_type_literal_u64;
+				literal_node->data.literal_u64 = strtoull(jo_parser_current(parser)->content, &end, 10);
+				if (errno == ERANGE)
+				{
+					printf("integer literal [%.*s] is too big to be contained in 64 bits\n", 
+						jo_parser_current(parser)->content_len, 
+						jo_parser_current(parser)->content);
+					assert(0);
+				}
 			}
-
-			literal_node->data.literal_u16 = (jo_u16)valueU16;
-			break;
-		}
-
-		case jo_token_literal_i16:
-		{
-			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_i16);
-			jo_i32 valueI16 = strtol(jo_parser_current(parser)->content, &end, 10);
-
-			if (jo_parser_current(parser)->content == end) return false;
-		    if (*end != '\0') return false;
-
-			if (errno == ERANGE || valueI16 < INT16_MIN || valueI16 > INT16_MAX)
-			{
-				jo_err("invalid i16%s", "\n");
-			}
-
-			literal_node->data.literal_i16 = (jo_i16)valueI16;
-			break;
-		}
-
-		case jo_token_literal_u8:
-		{
-			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_u8);
-			jo_u32 valueU8 = strtoul(jo_parser_current(parser)->content, &end, 10);
-
-			if (jo_parser_current(parser)->content == end) return false;
-		    if (*end != '\0') return false;
-
-			if (errno == ERANGE || valueU8 > UINT8_MAX)
-			{
-				jo_err("invalid u8%s", "\n");
-			}
-
-			literal_node->data.literal_u8 = (jo_u8)valueU8;
-			break;
-		}
-
-		case jo_token_literal_i8:
-		{
-			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_i8);
-			jo_i32 valueI8 = strtol(jo_parser_current(parser)->content, &end, 10);
-
-			if (jo_parser_current(parser)->content == end) return false;
-		    if (*end != '\0') return false;
-
-			if (errno == ERANGE || valueI8 < INT8_MIN || valueI8 > INT8_MAX)
-			{
-				printf("%d < %d: %d\n", valueI8, INT8_MIN, valueI8 < INT8_MIN);
-				jo_err("invalid i8%s", "\n");
-			}
-
-			literal_node->data.literal_i8 = (jo_i8)valueI8;
-			break;
-		}
-
-		case jo_token_literal_f32:
-			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_f32);
-			literal_node->data.literal_f32 = strtof(jo_parser_current(parser)->content, &end);
 			break;
 
-		case jo_token_literal_f64:
+		case jo_token_literal_fp:
 			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_f64);
 			literal_node->data.literal_f64 = strtod(jo_parser_current(parser)->content, &end);
 			break;
@@ -561,6 +461,8 @@ jo_ast_node_t* jo_parse_primary_expression(jo_parser_t* parser)
 		jo_parser_unexpected(parser, "expected expression");
 		break;
 	}
+
+	return NULL;
 }
 
 
@@ -805,7 +707,6 @@ jo_ast_node_t* jo_parse_module_content(jo_parser_t* parser)
 	{
 	case jo_token_hash:
 		assert(0 && "directive parse");
-		// return jo_parse_directive(parser);
 		break;
 
 	default:

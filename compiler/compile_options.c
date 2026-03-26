@@ -7,12 +7,12 @@ jo_compile_options jo_compie_options_parse_from_args(int argc, char** argv)
 
 	if(argc < 2)
 	{
-		printf("prodive soruce file to parse");
+		printf("prodive soruce file to parse\n");
 		opt.success = false;
 		return opt;
 	}
 
-	for(jo_u32 i = 2; i < argc; i++)
+	for(jo_i32 i = 2; i < argc; i++)
 	{
 		if(strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "-h") == 0)
 		{

@@ -223,7 +223,7 @@ void jo_bytecode_emit_function(jo_bytecode_context* bcc,  jo_bytecode_fn* bcfn, 
 jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* fn,  jo_ast_node_t* expr);
 void jo_bytecode_emit_block(jo_bytecode_context* bcc, jo_bytecode_fn* fn, jo_ast_block* ast_block);
 void jo_bytecode_dump_op(jo_bytecode_context* bcc, jo_bytecode_op* op);
-jo_u32 jo_bytecode_find_function(jo_bytecode_context* bcc, const char* identifier);
+jo_u32 jo_bytecode_find_function_id(jo_bytecode_context* bcc, const char* identifier);
 jo_bytecode_context jo_make_bytecode(jo_ast_module* module);
 
 #endif

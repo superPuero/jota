@@ -9,6 +9,7 @@
 #define jo_Gb(expr) jo_Mb(expr) * 1024ULL
 
 #define jo_arena_max_marker_depth 128	
+#define jo_arena_name_max_len 256
 
 typedef struct
 {
@@ -17,6 +18,7 @@ typedef struct
 	jo_u32 current_marker;
 	jo_u32 current;
 	jo_u32 capacity;
+	char name[jo_arena_name_max_len];
 } jo_arena_t;
 
 
@@ -44,7 +46,7 @@ if((arr)->occupied == (arr)->capacity)\
 
 #define jo_arena_palloc(arena, type) jo_arena_alloc_aligned_zeroed(arena, sizeof(type), 8)
 
-jo_arena_t jo_arena_make(jo_uz capacity);
+jo_arena_t jo_arena_make(jo_uz capacity, const char* name);
 void jo_arena_free(jo_arena_t* arena);
 void jo_arena_marker(jo_arena_t *arena);
 void jo_arena_pop_to_marker(jo_arena_t *arena);

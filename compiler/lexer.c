@@ -235,11 +235,11 @@ void jo_lexer_parse_number(jo_lexer_t* lexer)
 
 	if(has_dot)
 	{
-		jo_lexer_make_token(lexer, jo_token_literal_f64, jo_token_kind_literal);
+		jo_lexer_make_token(lexer, jo_token_literal_fp, jo_token_kind_literal);
 	}
 	else
 	{
-		jo_lexer_make_token(lexer, jo_token_literal_i64, jo_token_kind_literal);
+		jo_lexer_make_token(lexer, jo_token_literal_integer, jo_token_kind_literal);
 	}
 }
 
@@ -247,7 +247,6 @@ void jo_lexer_parse_string(jo_lexer_t* lexer)
 {
 	jo_lexer_advance_one(lexer);
 
-	char prev = 0;
 	char curr = jo_lexer_current(lexer);
 
 	lexer->token_start++;
@@ -334,7 +333,7 @@ void jo_lexer_parse_next(jo_lexer_t* lexer)
 	if (jo_lexer_try_match_make_token(lexer, "@", jo_token_at, jo_token_kind_none)) return;
 	if (jo_lexer_try_match_make_token(lexer, "$", jo_token_dollar, jo_token_kind_none)) return;
 
-	if(lexer->current == lexer->data_size) lexer->done = true; return;
+	if(lexer->current == lexer->data_size) { lexer->done = true; return; }
 
 	jo_lexer_advance_one(lexer);
 }
@@ -367,7 +366,7 @@ void jo_lexer_close(jo_lexer_t* lexer)
 	free(lexer->data);
 }
 
-jo_success jo_lexer_lex(jo_lexer_t* lexer)
+void jo_lexer_lex(jo_lexer_t* lexer)
 {
 	jo_lexer_newline(lexer);
 

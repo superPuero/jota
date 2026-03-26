@@ -27,7 +27,7 @@ jo_symbol_t* jo_scope_lookup_symbol(jo_scope_t* scope, const char* identifier)
 
 jo_scope_t* jo_scope_push(jo_scope_t* scope, const char* identifier)
 {
-	jo_scope_t* new_scope = calloc(sizeof(jo_scope_t), 1);
+	jo_scope_t* new_scope = calloc(1, sizeof(jo_scope_t));
 	new_scope->parent = scope;
 	new_scope->identifier = jo_string_from(identifier);
 	return new_scope;

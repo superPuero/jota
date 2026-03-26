@@ -7,16 +7,8 @@ const char* jo_token_type_to_string(jo_token_type_t token)
 	{
 	jo_stringify_case(jo_token_undefined);
 	jo_stringify_case(jo_token_identifier);
-	jo_stringify_case(jo_token_literal_u8);
-	jo_stringify_case(jo_token_literal_i8);
-	jo_stringify_case(jo_token_literal_u16);
-	jo_stringify_case(jo_token_literal_i16);
-	jo_stringify_case(jo_token_literal_u32);
-	jo_stringify_case(jo_token_literal_i32);
-	jo_stringify_case(jo_token_literal_u64);
-	jo_stringify_case(jo_token_literal_i64);
-	jo_stringify_case(jo_token_literal_f32);
-	jo_stringify_case(jo_token_literal_f64);
+	jo_stringify_case(jo_token_literal_integer);
+	jo_stringify_case(jo_token_literal_fp);
 	jo_stringify_case(jo_token_literal_string);
 	jo_stringify_case(jo_token_keyword_type);
 	jo_stringify_case(jo_token_keyword_i8);
