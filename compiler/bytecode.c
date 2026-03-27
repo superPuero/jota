@@ -141,7 +141,7 @@ case jo_ast_type_literal_##type:\
 	}
 
 
-bool jo_bytecode_type_is_void(jo_ast_node_t* type_node)
+bool jo_bytecode_type_is_void(jo_ast_node* type_node)
 {
 	if(!type_node)
 	{
@@ -330,9 +330,9 @@ jo_u32 jo_bytecode_find_function_id(jo_bytecode_context* bcc, const char* identi
 	return -1;
 }
 
-jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* fn, jo_ast_node_t* expr)
+jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* fn, jo_ast_node* expr)
 {
-	jo_ast_node_t* decl_identifier_node = expr->data.decl.identifier;
+	jo_ast_node* decl_identifier_node = expr->data.decl.identifier;
 
 	switch (expr->type)
 	{
@@ -559,7 +559,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 
 		for (jo_u32 i = 0; i < arg_count; i++)
 		{
-			jo_ast_node_t* arg_expr = expr->data.expr_op_call.arguments.data[i];
+			jo_ast_node* arg_expr = expr->data.expr_op_call.arguments.data[i];
 			args_ids[args_ids_counter++] = jo_bytecode_emit_expr(bcc, fn, arg_expr);
 		}
 
@@ -593,7 +593,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 	return jo_null_register;
 }
 
-void jo_bytecode_emit_stmt(jo_bytecode_context* bcc,  jo_bytecode_fn* fn, jo_ast_node_t* stmt_node)
+void jo_bytecode_emit_stmt(jo_bytecode_context* bcc,  jo_bytecode_fn* fn, jo_ast_node* stmt_node)
 {
 	switch (stmt_node->type)
 	{
@@ -666,13 +666,13 @@ void jo_bytecode_emit_block(jo_bytecode_context* bcc, jo_bytecode_fn* fn, jo_ast
 {
 	for(jo_uz i = 0; i < ast_block->statements.occupied; i++)
 	{
-		jo_ast_node_t* stmt = ast_block->statements.data[i];
+		jo_ast_node* stmt = ast_block->statements.data[i];
 
 		jo_bytecode_emit_stmt(bcc, fn,  stmt);
 	}
 }
 
-void jo_bytecode_emit_function(jo_bytecode_context* bcc, jo_bytecode_fn* bcfn, jo_ast_node_t* node)
+void jo_bytecode_emit_function(jo_bytecode_context* bcc, jo_bytecode_fn* bcfn, jo_ast_node* node)
 {
     jo_ast_decl* decl_node = &node->data.decl;
     jo_ast_literal_fn* literal_fn = &decl_node->initialize_expression->data.literal_fn;
@@ -691,7 +691,7 @@ void jo_make_bytecode(jo_bytecode_context* bcc, jo_ast_module* module)
 {
 	jo_ada_foreach(&module->content)
 	{
-        jo_ast_node_t* node = *module->content.it;
+        jo_ast_node* node = *module->content.it;
         if(node->data.decl.initialize_expression->resolved_type->type == jo_ast_type_type_fn) {
             jo_bytecode_fn bc_fn = {0};
             bc_fn.label = node->data.decl.identifier->data.identifier;
@@ -702,7 +702,7 @@ void jo_make_bytecode(jo_bytecode_context* bcc, jo_ast_module* module)
 
 	jo_ada_foreach(&module->content)
 	{
-        jo_ast_node_t* node = *module->content.it;
+        jo_ast_node* node = *module->content.it;
 
         if(node->data.decl.initialize_expression->resolved_type->type == jo_ast_type_type_fn) 
 		{

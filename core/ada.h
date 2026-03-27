@@ -6,8 +6,10 @@
 #include "types.h"
 #include "arena.h"
 
+
+// @perf: tweakin these migh be benefitial 
 #define jo_ada_growth_coef 2
-#define jo_ada_initial_capacity 128
+#define jo_ada_initial_capacity 8
 
 #define jo_ada_declare(data_type, decl_type)\
 typedef struct\

@@ -65,206 +65,202 @@ typedef enum
 	jo_ast_type_expr_continue,
 
 	jo_ast_type_block
-} jo_ast_node_type_t;
+} jo_ast_node_type;
 
-const char* jo_ast_node_type_to_stirng(jo_ast_node_type_t type);
+const char* jo_ast_node_type_to_stirng(jo_ast_node_type type);
 
-typedef struct jo_ast_node jo_ast_node_t;
+typedef struct jo_ast_node_s jo_ast_node;
 
-// jo_decl_dyn_array_named(jo_ast_node_t, jo_ast_node_dyn_array_t);
-// jo_decl_dyn_array_named(jo_ast_node_t*, jo_ast_node_ptr_dyn_array_t);
-
-jo_ada_declare(jo_ast_node_t, jo_ast_node_dyn_array_t);
-jo_ada_declare(jo_ast_node_t*, jo_ast_node_ptr_dyn_array_t);
+jo_ada_declare(jo_ast_node*, jo_ast_node_ptr_ada);
 
 typedef struct 
 {
-	jo_ast_node_t* type_node;
+	jo_ast_node* type_node;
 }jo_ast_type_type;
 
 typedef struct
 {
-	jo_str_view_t path;
+	jo_str_view path;
 } jo_ast_directive_load;
 
 typedef struct
 {
-	jo_ast_node_ptr_dyn_array_t members;
+	jo_ast_node_ptr_ada members;
 } jo_ast_type_struct;
 
 typedef struct
 {
-	jo_ast_node_ptr_dyn_array_t content;
+	jo_ast_node_ptr_ada content;
 }jo_ast_module;
 
 typedef struct
 {
-	jo_str_view_t path;
+	jo_str_view path;
 } jo_ast_literal_import;
 
 typedef struct
 {
-	jo_ast_node_ptr_dyn_array_t statements;
+	jo_ast_node_ptr_ada statements;
 }jo_ast_block;
 
 typedef struct
 {
-	jo_ast_node_t* expr;
+	jo_ast_node* expr;
 } jo_ast_stmt_expr;
 
 typedef struct
 {
-	jo_ast_node_t* condition;
-	jo_ast_node_t* true_block;
-	jo_ast_node_t* tail_stmt_if;
-	jo_ast_node_t* false_block;
+	jo_ast_node* condition;
+	jo_ast_node* true_block;
+	jo_ast_node* tail_stmt_if;
+	jo_ast_node* false_block;
 } jo_ast_stmt_ifelse;
 
 typedef struct
 {
-	jo_ast_node_t* left_expression;
-	jo_ast_node_t* right_expression;
-	jo_token_type_t operator_type;
+	jo_ast_node* left_expression;
+	jo_ast_node* right_expression;
+	jo_token_type operator_type;
 	bool self;
 } jo_ast_expr_op_binary;
 
 typedef struct
 {
-	jo_ast_node_t* expr;
-	jo_ast_node_t* to_type;
+	jo_ast_node* expr;
+	jo_ast_node* to_type;
 	bool implicit; 
 } jo_ast_expr_as_cast;
 
 typedef struct
 {
-	jo_ast_node_t* target;
-	jo_str_view_t member_identifier;
+	jo_ast_node* target;
+	jo_str_view member_identifier;
 } jo_ast_expr_member_access;
 
 typedef struct
 {
-	jo_ast_node_t* target;
-	jo_ast_node_t* expression;
+	jo_ast_node* target;
+	jo_ast_node* expression;
 }jo_ast_expr_assignment;
 
 typedef struct
 {
-	jo_ast_node_t* expression;
-	jo_token_type_t operator_type;
+	jo_ast_node* expression;
+	jo_token_type operator_type;
 } jo_ast_expr_op_unary;
 
 typedef struct
 {
-	jo_ast_node_t* expression;
+	jo_ast_node* expression;
 } jo_ast_stmt_return;
 
 typedef struct
 {
-	jo_ast_node_t* iterator;
-	jo_ast_node_t* iterable;
-	jo_ast_node_t* expression;
+	jo_ast_node* iterator;
+	jo_ast_node* iterable;
+	jo_ast_node* expression;
 } jo_ast_stmt_for;
 
 typedef struct
 {
-	jo_ast_node_t* expression;
+	jo_ast_node* expression;
 } jo_ast_expr_expression;
 
 
 typedef struct
 {
-	jo_ast_node_t* declaration;
+	jo_ast_node* declaration;
 } jo_ast_expr_declaration;
 
 typedef struct
 {
-	jo_ast_node_t* target;
-	jo_ast_node_ptr_dyn_array_t arguments;
+	jo_ast_node* target;
+	jo_ast_node_ptr_ada arguments;
 } jo_ast_expr_op_call;
 
 
 typedef struct
 {
-	jo_ast_node_t* target;
-	jo_ast_node_ptr_dyn_array_t arguments;
+	jo_ast_node* target;
+	jo_ast_node_ptr_ada arguments;
 } jo_ast_expr_op_index;
 
 typedef struct
 {
-	jo_ast_node_t* identifier;
-	jo_ast_node_t* specified_type;
-	jo_ast_node_t* initialize_expression;
+	jo_ast_node* identifier;
+	jo_ast_node* specified_type;
+	jo_ast_node* initialize_expression;
 	bool is_static;
 } jo_ast_decl;
 
 typedef struct
 {
-	jo_ast_node_ptr_dyn_array_t parameters;
-	jo_ast_node_t* return_type;
-	jo_ast_node_t* block;
+	jo_ast_node_ptr_ada parameters;
+	jo_ast_node* return_type;
+	jo_ast_node* block;
 	bool intrinsic;
 } jo_ast_literal_fn;
 
 typedef struct
 {
-	jo_ast_node_ptr_dyn_array_t members;
+	jo_ast_node_ptr_ada members;
 } jo_ast_literal_struct;
 
 typedef struct
 {
-	jo_ast_node_t* type;
+	jo_ast_node* type;
 } jo_ast_literal_type;
 
 typedef struct
 {
-	jo_ast_node_t* identifier;
-	jo_ast_node_ptr_dyn_array_t decls_and_directives;
+	jo_ast_node* identifier;
+	jo_ast_node_ptr_ada decls_and_directives;
 } jo_ast_decl_namespace;
 
 typedef struct
 {
-	jo_ast_node_t* inner;
+	jo_ast_node* inner;
 } jo_ast_type_ptr;
 
 
 typedef struct
 {
-	jo_ast_node_t* inner;
+	jo_ast_node* inner;
 } jo_ast_type_ref;
 
 
 typedef struct
 {
-	jo_ast_node_t* inner;
-	jo_ast_node_t* array_size_expression;
+	jo_ast_node* inner;
+	jo_ast_node* array_size_expression;
 } jo_ast_type_array;
 
 
 typedef struct
 {
-	jo_ast_node_ptr_dyn_array_t parameters;
-	jo_ast_node_t* return_type;
+	jo_ast_node_ptr_ada parameters;
+	jo_ast_node* return_type;
 } jo_ast_type_fn;
 
 typedef struct
 {
-	jo_ast_node_ptr_dyn_array_t entries;
+	jo_ast_node_ptr_ada entries;
 } jo_ast_type_tuple;
 
-struct jo_ast_node
+struct jo_ast_node_s
 {
-	jo_ast_node_type_t type;
+	jo_ast_node_type type;
 
 	jo_u32 line;
 	jo_u32 column;
 
-	jo_ast_node_t* resolved_type;
-	jo_symbol_t* resolved_symbol;
+	jo_ast_node* resolved_type;
+	jo_symbol* resolved_symbol;
 
 	union
 	{
 		jo_ast_module module;
-		jo_token_type_t type_primitive;
+		jo_token_type type_primitive;
 
         jo_u64 literal_u64;
         jo_i64 literal_i64;
@@ -272,7 +268,7 @@ struct jo_ast_node
 
         bool literal_bool;
 
-        jo_str_view_t literal_string;
+        jo_str_view literal_string;
 		
 		jo_ast_expr_op_unary 				expr_op_unary;
         jo_ast_expr_op_binary               expr_op_binary;
@@ -290,7 +286,7 @@ struct jo_ast_node
 		jo_ast_literal_import 		literal_import;
 		jo_ast_literal_type 		literal_type;
 
-        jo_str_view_t 				identifier;
+        jo_str_view				identifier;
 
 		jo_ast_decl_namespace 	decl_namesapce;
 		jo_ast_directive_load 	directive_load;
@@ -313,7 +309,7 @@ struct jo_ast_node
     } data;
 };
 
-void jo_dump_ast_node(jo_ast_node_t* node, jo_u32 indent);
-jo_ast_node_t* jo_ast_node_make(jo_arena_t* arena, jo_ast_node_type_t type);
+void jo_dump_ast_node(jo_ast_node* node, jo_u32 indent);
+jo_ast_node* jo_ast_node_make(jo_arena* arena, jo_ast_node_type type);
 
 #endif

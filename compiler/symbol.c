@@ -1,8 +1,8 @@
 #include "symbol.h"
 
-jo_symbol_t jo_make_symbol(jo_arena_t* arena, jo_str_view_t identifier, jo_symbol_kind_t kind)
+jo_symbol jo_make_symbol(jo_arena* arena, jo_str_view identifier, jo_symbol_kind kind)
 {
-	jo_symbol_t symbol ={0};
+	jo_symbol symbol ={0};
 
 	symbol.kind = kind;
 	symbol.identifier = jo_astr_from_view(arena, identifier);
@@ -10,7 +10,7 @@ jo_symbol_t jo_make_symbol(jo_arena_t* arena, jo_str_view_t identifier, jo_symbo
 	return symbol;
 }
 
-jo_symbol_t* jo_scope_lookup_symbol(jo_scope_t* scope, jo_str_view_t identifier)
+jo_symbol* jo_scope_lookup_symbol(jo_scope* scope, jo_str_view identifier)
 {
 	if(!scope) return NULL;
 
@@ -25,15 +25,15 @@ jo_symbol_t* jo_scope_lookup_symbol(jo_scope_t* scope, jo_str_view_t identifier)
 	return jo_scope_lookup_symbol(scope->parent, identifier);
 }
 
-jo_scope_t* jo_scope_push(jo_arena_t* arena, jo_scope_t* scope, jo_str_view_t identifier)
+jo_scope* jo_scope_push(jo_arena* arena, jo_scope* scope, jo_str_view identifier)
 {
-	jo_scope_t* new_scope = jo_arena_palloc(arena, jo_scope_t);
+	jo_scope* new_scope = jo_arena_palloc(arena, jo_scope);
 	new_scope->parent = scope;
 	new_scope->identifier = jo_astr_from_view(arena, identifier);
 	return new_scope;
 }
 
-jo_symbol_t* jo_scope_add_symbol(jo_arena_t* arena, jo_scope_t* scope, jo_symbol_t symbol)
+jo_symbol* jo_scope_add_symbol(jo_arena* arena, jo_scope* scope, jo_symbol symbol)
 {
 	jo_ada_append(arena, &scope->symbol_table, symbol);
 

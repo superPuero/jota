@@ -9,28 +9,28 @@
 typedef struct
 {
 	char err[jo_sema_max_err_len];
-}jo_sema_err_t;
+}jo_sema_err;
 
-jo_ada_declare(jo_sema_err_t, jo_sema_err_dyn_array_t)
-jo_ada_declare(jo_ast_decl_namespace*, jo_namespace_stack_t)
+jo_ada_declare(jo_sema_err, jo_sema_err_ada)
+jo_ada_declare(jo_ast_decl_namespace*, jo_namespace_stack)
 
 typedef struct
 {
-	jo_arena_t* arena;
-	jo_scope_t global_scope;
-	jo_sema_err_dyn_array_t errors;
-	jo_namespace_stack_t namespace_stack;
-} jo_sema_t;
+	jo_arena* arena;
+	jo_scope global_scope;
+	jo_sema_err_ada errors;
+	jo_namespace_stack namespace_stack;
+} jo_sema;
 
-bool jo_sema_types_are_equal(jo_ast_node_t* t1, jo_ast_node_t* t2);
+bool jo_sema_types_are_equal(jo_ast_node* t1, jo_ast_node* t2);
 
-void jo_sema_resolve_expr_literal_fn(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* literal_fn_node);
-void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* expr_node);
-void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* decl_node);
-void jo_sema_resolve_block(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* block, jo_ast_node_t* literal_parent_fn_node);
-void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* stmt, jo_ast_node_t* literal_parent_fn_node);
-void jo_sema_analyze_literal_fn(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* literal_fn_node);
+void jo_sema_resolve_expr_literal_fn(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* literal_fn_node);
+void jo_sema_resolve_expr(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* expr_node);
+void jo_sema_resolve_decl(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* decl_node);
+void jo_sema_resolve_block(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* block, jo_ast_node* literal_parent_fn_node);
+void jo_sema_resolve_stmt(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* stmt, jo_ast_node* literal_parent_fn_node);
+void jo_sema_analyze_literal_fn(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* literal_fn_node);
 
-bool jo_sema_analyze(jo_sema_t* sema, jo_ast_node_t* module);
+bool jo_sema_analyze(jo_sema* sema, jo_ast_node* module);
 
 #endif

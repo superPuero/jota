@@ -19,21 +19,22 @@ typedef struct
 	jo_uz current;
 	jo_uz capacity;
 	char name[jo_arena_name_max_len];
-} jo_arena_t;
+} jo_arena;
 
 #define jo_arena_palloc(arena, type) jo_arena_alloc_aligned_zeroed(arena, sizeof(type), jo_alignof(type))
 
 #define jo_arena_scope(arena)\
-for(int _i = (jo_arena_marker(arena), 0); _i < 1; jo_arena_pop_to_marker(arena), ++_i)
+for(jo_i32 _i = (jo_arena_marker(arena), 0); _i < 1; jo_arena_pop_to_marker(arena), ++_i)
 
-jo_arena_t jo_arena_make(jo_uz capacity, const char* name);
-void jo_arena_free(jo_arena_t* arena);
-void jo_arena_marker(jo_arena_t *arena);
-void jo_arena_pop_to_marker(jo_arena_t *arena);
-void* jo_arena_alloc(jo_arena_t *arena, jo_uz size);
-void* jo_arena_alloc_aligned(jo_arena_t *arena, jo_uz size, jo_uz alignment);
-void* jo_arena_alloc_aligned_zeroed(jo_arena_t *arena, jo_uz size, jo_uz alignment);
-void* jo_arena_alloc(jo_arena_t *arena, jo_uz size);
-void* jo_arena_alloc_zeroed(jo_arena_t *arena, jo_uz size);
+jo_arena jo_arena_make(jo_uz capacity, const char* name);
+void jo_arena_free(jo_arena* arena);
+void jo_arena_marker(jo_arena* arena);
+void jo_arena_pop_to_marker(jo_arena* arena);
+
+void* jo_arena_alloc(jo_arena* arena, jo_uz size);
+void* jo_arena_alloc_aligned(jo_arena* arena, jo_uz size, jo_uz alignment);
+void* jo_arena_alloc_aligned_zeroed(jo_arena* arena, jo_uz size, jo_uz alignment);
+void* jo_arena_alloc(jo_arena*arena, jo_uz size);
+void* jo_arena_alloc_zeroed(jo_arena* arena, jo_uz size);
 
 #endif

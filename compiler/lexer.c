@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 
-jo_token_keyword_entry jo_keyword_map[] = {
+const jo_token_keyword_entry jo_keyword_map[] = {
 	jo_token_make_keyword_entry(type, jo_token_kind_type_primitive),
 	jo_token_make_keyword_entry(i8, jo_token_kind_type_primitive),
 	jo_token_make_keyword_entry(u8, jo_token_kind_type_primitive),
@@ -42,41 +42,94 @@ jo_token_keyword_entry jo_keyword_map[] = {
 	jo_token_make_keyword_entry(intrinsic, jo_token_kind_none),
 };
 
-char jo_lexer_peek(jo_lexer_t* lexer, jo_u32 offset)
+jo_token_basic_entry jo_token_map[] =
+{
+	// multi-char tokens first
+	{"<<=", 3, jo_token_shift_left_equals, jo_token_kind_type_operator},
+	{">>=", 3, jo_token_shift_right_equals, jo_token_kind_none},
+	{"..", 2, jo_token_double_dot, jo_token_kind_type_operator},
+	{"==", 2, jo_token_double_equals, jo_token_kind_type_operator},
+	{"!=", 2, jo_token_not_equals, jo_token_kind_type_operator},
+	{"<=", 2, jo_token_less_equals, jo_token_kind_type_operator},
+	{">=", 2, jo_token_greater_equals, jo_token_kind_type_operator},
+	{"&&", 2, jo_token_logical_and, jo_token_kind_type_operator},
+	{"||", 2, jo_token_logical_or, jo_token_kind_type_operator},
+	{"<<", 2, jo_token_shift_left, jo_token_kind_type_operator},
+	{">>", 2, jo_token_shift_right, jo_token_kind_type_operator},
+	{"->", 2, jo_token_arrow, jo_token_kind_none},
+	{"=>", 2, jo_token_fat_arrow, jo_token_kind_none},
+	{"+=", 2, jo_token_plus_equals, jo_token_kind_type_operator},
+	{"-=", 2, jo_token_minus_equals, jo_token_kind_type_operator},
+	{"*=", 2, jo_token_star_equals, jo_token_kind_type_operator},
+	{"/=", 2, jo_token_slash_equals, jo_token_kind_type_operator},
+	{"%=", 2, jo_token_modulo_equals, jo_token_kind_type_operator},
+	{"&=", 2, jo_token_bitwise_and_equals, jo_token_kind_type_operator},
+	{"|=", 2, jo_token_bitwise_or_equals, jo_token_kind_type_operator},
+	{"^=", 2, jo_token_bitwise_xor_equals, jo_token_kind_type_operator},
+	{"::", 2, jo_token_bridge, jo_token_kind_none},
+	{":=", 2, jo_token_walrus, jo_token_kind_none},
+	{"(", 1, jo_token_open_parenthesis, jo_token_kind_none},
+	{")", 1, jo_token_close_parenthesis, jo_token_kind_none},
+	{"{", 1, jo_token_open_curly_bracket, jo_token_kind_none},
+	{"}", 1, jo_token_close_curly_bracket, jo_token_kind_none},
+	{"[", 1, jo_token_open_square_bracket, jo_token_kind_none},
+	{"]", 1, jo_token_close_square_bracket, jo_token_kind_none},
+	{"<", 1, jo_token_open_angle_bracket, jo_token_kind_type_operator},
+	{">", 1, jo_token_close_angle_bracket, jo_token_kind_type_operator},
+	{"+", 1, jo_token_plus, jo_token_kind_type_operator},
+	{"-", 1, jo_token_minus, jo_token_kind_type_operator},
+	{"*", 1, jo_token_star, jo_token_kind_type_operator},
+	{"/", 1, jo_token_slash, jo_token_kind_type_operator},
+	{"%", 1, jo_token_modulo, jo_token_kind_type_operator},
+	{"=", 1, jo_token_equals, jo_token_kind_type_operator},
+	{"!", 1, jo_token_exclamation_mark, jo_token_kind_type_operator},
+	{"^", 1, jo_token_caret, jo_token_kind_type_operator},
+	{"~", 1, jo_token_tilde, jo_token_kind_type_operator},
+	{",", 1, jo_token_comma, jo_token_kind_none},
+	{".", 1, jo_token_dot, jo_token_kind_none},
+	{"&", 1, jo_token_ampersand, jo_token_kind_none},
+	{";", 1, jo_token_semicolon, jo_token_kind_none},
+	{":", 1, jo_token_colon, jo_token_kind_none},
+	{"#", 1, jo_token_hash, jo_token_kind_none},
+	{"@", 1, jo_token_at, jo_token_kind_none},
+	{"$", 1, jo_token_dollar, jo_token_kind_none},
+};
+
+char jo_lexer_peek(jo_lexer* lexer, jo_u32 offset)
 {
 	return lexer->data[lexer->current + offset];
 }
 
-char jo_lexer_peek_next(jo_lexer_t* lexer)
+char jo_lexer_peek_next(jo_lexer* lexer)
 {
 	return jo_lexer_peek(lexer, 0);
 }
 
-char jo_lexer_current(jo_lexer_t* lexer)
+char jo_lexer_current(jo_lexer* lexer)
 {
 	return lexer->data[lexer->current];
 }
 
-void jo_lexer_advance(jo_lexer_t* lexer, jo_u32 by)
+void jo_lexer_advance(jo_lexer* lexer, jo_u32 by)
 {
 	lexer->column_counter += by;
 	lexer->current += by;
 	lexer->token_len += by;
 }
 
-void jo_lexer_advance_one(jo_lexer_t* lexer)
+void jo_lexer_advance_one(jo_lexer* lexer)
 {
 	jo_lexer_advance(lexer, 1);
 }
 
-void jo_lexer_reset_token(jo_lexer_t* lexer)
+void jo_lexer_reset_token(jo_lexer* lexer)
 {
 	lexer->token_len = 0;
 }
 
-void jo_lexer_make_token(jo_lexer_t* lexer, jo_token_type_t type, jo_token_kind kind)
+void jo_lexer_make_token(jo_lexer* lexer, jo_token_type type, jo_token_kind kind)
 {
-	jo_token_t tok = {0};
+	jo_token tok = {0};
 	tok.type = type;
 	tok.kind = kind;
 	tok.column = lexer->column_counter;
@@ -89,13 +142,13 @@ void jo_lexer_make_token(jo_lexer_t* lexer, jo_token_type_t type, jo_token_kind 
 	jo_ada_append(lexer->arena, &lexer->tokens, tok);
 }
 
-void jo_lexer_newline(jo_lexer_t* lexer)
+void jo_lexer_newline(jo_lexer* lexer)
 {
 	lexer->line_counter++;
 	lexer->column_counter = 0;
 }
 
-void jo_lexer_skip_whitespace_and_comments(jo_lexer_t* lexer)
+void jo_lexer_skip_whitespace_and_comments(jo_lexer* lexer)
 {
     while (true)
     {
@@ -157,10 +210,8 @@ void jo_lexer_skip_whitespace_and_comments(jo_lexer_t* lexer)
     }
 }
 
-bool jo_lexer_match_consume(jo_lexer_t* lexer, const char* str)
+bool jo_lexer_match_consume(jo_lexer* lexer, const char* str, jo_u32 len)
 {
-	jo_u32 len = strlen(str);
-
 	if(strncmp(lexer->token_start, str, len) == 0)
 	{
 		jo_lexer_advance(lexer, len);
@@ -170,9 +221,8 @@ bool jo_lexer_match_consume(jo_lexer_t* lexer, const char* str)
 	return false;
 }
 
-bool jo_lexer_match_content_not_consume(jo_lexer_t* lexer, const char* str)
+bool jo_lexer_match_content_not_consume(jo_lexer* lexer, const char* str, jo_u32 len)
 {
-	jo_u32 len = strlen(str);
 	if(len < lexer->token_len) return false;
 
 	if(strncmp(lexer->token_start, str, len) == 0)
@@ -184,20 +234,20 @@ bool jo_lexer_match_content_not_consume(jo_lexer_t* lexer, const char* str)
 }
 
 
-bool jo_lexer_try_match_make_token(jo_lexer_t* lexer, const char* str, jo_token_type_t type, jo_token_kind kind)
+bool jo_lexer_try_match_make_token(jo_lexer* lexer, const char* str, jo_u32 len, jo_token_type type, jo_token_kind kind)
 {
-	if(jo_lexer_match_consume(lexer, str))  { jo_lexer_make_token(lexer, type, kind); return true; }
+	if(jo_lexer_match_consume(lexer, str, len))  { jo_lexer_make_token(lexer, type, kind); return true; }
 	else { return false; }
 }
 
-bool jo_lexer_try_match_content_make_token(jo_lexer_t* lexer, const char* str, jo_token_type_t type, jo_token_kind kind)
+bool jo_lexer_try_match_content_make_token(jo_lexer* lexer, const char* str, jo_u32 len, jo_token_type type, jo_token_kind kind)
 {
-	if(jo_lexer_match_content_not_consume(lexer, str))  { jo_lexer_make_token(lexer, type, kind); return true; }
+	if(jo_lexer_match_content_not_consume(lexer, str, len))  { jo_lexer_make_token(lexer, type, kind); return true; }
 	else { return false; }
 }
 
 
-void jo_lexer_parse_identifier(jo_lexer_t* lexer)
+void jo_lexer_parse_identifier(jo_lexer* lexer)
 {
 	while(isalpha(jo_lexer_current(lexer))  || isdigit(jo_lexer_current(lexer)) 	|| jo_lexer_current(lexer) == '_')
 	{
@@ -206,13 +256,13 @@ void jo_lexer_parse_identifier(jo_lexer_t* lexer)
 
 	for(jo_uz i = 0; i < sizeof(jo_keyword_map)/sizeof(jo_keyword_map[0]); i++)
 	{
-		if(jo_lexer_try_match_content_make_token(lexer, jo_keyword_map[i].identifier, jo_keyword_map[i].type, jo_keyword_map[i].kind)) return;
+		if(jo_lexer_try_match_content_make_token(lexer, jo_keyword_map[i].identifier,  jo_keyword_map[i].len, jo_keyword_map[i].type, jo_keyword_map[i].kind)) return;
 	}
 
 	jo_lexer_make_token(lexer, jo_token_identifier, jo_token_kind_none);
 }
 
-void jo_lexer_parse_number(jo_lexer_t* lexer)
+void jo_lexer_parse_number(jo_lexer* lexer)
 {
 	bool has_dot = false;
 
@@ -243,7 +293,7 @@ void jo_lexer_parse_number(jo_lexer_t* lexer)
 	}
 }
 
-void jo_lexer_parse_string(jo_lexer_t* lexer)
+void jo_lexer_parse_string(jo_lexer* lexer)
 {
 	jo_lexer_advance_one(lexer);
 
@@ -268,7 +318,7 @@ void jo_lexer_parse_string(jo_lexer_t* lexer)
 	jo_lexer_make_token(lexer, jo_token_literal_string, jo_token_kind_literal);
 }
 
-void jo_lexer_parse_next(jo_lexer_t* lexer)
+void jo_lexer_parse_next(jo_lexer* lexer)
 {
 	jo_lexer_skip_whitespace_and_comments(lexer);
 
@@ -279,67 +329,17 @@ void jo_lexer_parse_next(jo_lexer_t* lexer)
 	if(isdigit(c)) { jo_lexer_parse_number(lexer); return; }
 	if(c == '"') { jo_lexer_parse_string(lexer); return; }
 	
-	// multi-char tokens first
-	if (jo_lexer_try_match_make_token(lexer, "<<=", jo_token_shift_left_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, ">>=", jo_token_shift_right_equals, jo_token_kind_none)) return;
-
-	if (jo_lexer_try_match_make_token(lexer, "..", jo_token_double_dot, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "==", jo_token_double_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "!=", jo_token_not_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "<=", jo_token_less_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, ">=", jo_token_greater_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "&&", jo_token_logical_and, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "||", jo_token_logical_or, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "<<", jo_token_shift_left, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, ">>", jo_token_shift_right, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "->", jo_token_arrow, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "=>", jo_token_fat_arrow, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "+=", jo_token_plus_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "-=", jo_token_minus_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "*=", jo_token_star_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "/=", jo_token_slash_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "%=", jo_token_modulo_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "&=", jo_token_bitwise_and_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "|=", jo_token_bitwise_or_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "^=", jo_token_bitwise_xor_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "::", jo_token_bridge, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, ":=", jo_token_walrus, jo_token_kind_none)) return;
-
-
-	if (jo_lexer_try_match_make_token(lexer, "(", jo_token_open_parenthesis, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, ")", jo_token_close_parenthesis, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "{", jo_token_open_curly_bracket, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "}", jo_token_close_curly_bracket, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "[", jo_token_open_square_bracket, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "]", jo_token_close_square_bracket, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "<", jo_token_open_angle_bracket, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, ">", jo_token_close_angle_bracket, jo_token_kind_type_operator)) return;
-
-	if (jo_lexer_try_match_make_token(lexer, "+", jo_token_plus, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "-", jo_token_minus, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "*", jo_token_star, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "/", jo_token_slash, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "%", jo_token_modulo, jo_token_kind_type_operator)) return;
-
-	if (jo_lexer_try_match_make_token(lexer, "=", jo_token_equals, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "!", jo_token_exclamation_mark, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "^", jo_token_caret, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, "~", jo_token_tilde, jo_token_kind_type_operator)) return;
-	if (jo_lexer_try_match_make_token(lexer, ",", jo_token_comma, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, ".", jo_token_dot, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "&", jo_token_ampersand, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, ";", jo_token_semicolon, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, ":", jo_token_colon, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "#", jo_token_hash, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "@", jo_token_at, jo_token_kind_none)) return;
-	if (jo_lexer_try_match_make_token(lexer, "$", jo_token_dollar, jo_token_kind_none)) return;
+	for(jo_uz i = 0; i < sizeof(jo_token_map)/sizeof(jo_token_map[0]); ++i)
+	{
+		if(jo_lexer_try_match_make_token(lexer, jo_token_map[i].content, jo_token_map[i].len, jo_token_map[i].type, jo_token_map[i].kind)){return;}
+	}
 
 	if(lexer->current == lexer->data_size) { lexer->done = true; return; }
 
 	jo_lexer_advance_one(lexer);
 }
 
-jo_success jo_lexer_open_and_load(jo_lexer_t* lexer, const char* filename)
+jo_success jo_lexer_open_and_load(jo_lexer* lexer, const char* filename)
 {
 	lexer->filename = jo_astr_from(lexer->arena, filename);
 	FILE* file = fopen(filename, "rb");
@@ -362,12 +362,12 @@ jo_success jo_lexer_open_and_load(jo_lexer_t* lexer, const char* filename)
 	return true;
 }
 
-void jo_lexer_close(jo_lexer_t* lexer)
+void jo_lexer_close(jo_lexer* lexer)
 {
 	free(lexer->data);
 }
 
-void jo_lexer_lex(jo_lexer_t* lexer)
+void jo_lexer_lex(jo_lexer* lexer)
 {
 	jo_lexer_newline(lexer);
 
@@ -379,7 +379,7 @@ void jo_lexer_lex(jo_lexer_t* lexer)
 	jo_lexer_make_token(lexer, jo_token_eof, jo_token_kind_none);
 }
 
-jo_success jo_lex_file(jo_lexer_t* lexer, const char* filename)
+jo_success jo_lex_file(jo_lexer* lexer, const char* filename)
 {
 	if(!lexer->arena)
 	{

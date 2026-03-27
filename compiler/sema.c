@@ -9,18 +9,18 @@
 #define jo_sema_resolve_primitive_type_case(type)\
 case jo_ast_type_literal_##type:\
 	{\
-		jo_ast_node_t* type_node = jo_ast_node_make(sema->arena, jo_ast_type_type_primitive);\
+		jo_ast_node* type_node = jo_ast_node_make(sema->arena, jo_ast_type_type_primitive);\
 		type_node->data.type_primitive = jo_token_keyword_##type;\
 		node->resolved_type = type_node;\
 		break;\
 	}
 
-bool jo_type_is_pointer(jo_ast_node_t* type)
+bool jo_type_is_pointer(jo_ast_node* type)
 {
 	return type->type == jo_ast_type_type_ptr;
 }
 
-jo_u32 jo_get_primitive_type_size(jo_token_type_t type)
+jo_u32 jo_get_primitive_type_size(jo_token_type type)
 {
 	jo_u32 size = 0;
 	switch (type)
@@ -60,13 +60,13 @@ jo_u32 jo_get_primitive_type_size(jo_token_type_t type)
 	return size;
 }
 
-bool jo_primitive_type_is_fp(jo_token_type_t type)
+bool jo_primitive_type_is_fp(jo_token_type type)
 {
 	return type == jo_token_keyword_f32 || type == jo_token_keyword_f64;
 }
 
 
-bool jo_primitive_type_is_integer(jo_token_type_t type)
+bool jo_primitive_type_is_integer(jo_token_type type)
 {
 	switch (type)
 	{
@@ -92,7 +92,7 @@ bool jo_primitive_type_is_integer(jo_token_type_t type)
 }
 
 
-bool jo_is_integer_primitive_type_signed(jo_token_type_t type)
+bool jo_is_integer_primitive_type_signed(jo_token_type type)
 {
 	bool sign = false;
 	switch (type)
@@ -119,7 +119,7 @@ bool jo_is_integer_primitive_type_signed(jo_token_type_t type)
 	return sign;
 }
 
-bool jo_is_primitive_type_implicitly_castable_to(jo_token_type_t primitive_from, jo_token_type_t primitive_to)
+bool jo_is_primitive_type_implicitly_castable_to(jo_token_type primitive_from, jo_token_type primitive_to)
 {
 	if(primitive_from == jo_token_keyword_bool) { return true; }
 	if(primitive_to == jo_token_keyword_bool) { return true; }
@@ -136,13 +136,13 @@ bool jo_is_primitive_type_implicitly_castable_to(jo_token_type_t primitive_from,
 	return false;
 }
 
-bool jo_type_is_primitive(jo_ast_node_t* type)
+bool jo_type_is_primitive(jo_ast_node* type)
 {
 	return type->type == jo_ast_type_type_primitive;
 }
 
 
-jo_astr_t jo_sema_type_astr(jo_arena_t* arena, jo_ast_node_t* t1)
+jo_astr jo_sema_type_astr(jo_arena* arena, jo_ast_node* t1)
 {
 	if(!t1) assert(0);
 
@@ -154,11 +154,11 @@ jo_astr_t jo_sema_type_astr(jo_arena_t* arena, jo_ast_node_t* t1)
 
 	case jo_ast_type_type_fn:
 		jo_ast_type_fn* type_fn = &t1->data.type_fn;
-		jo_astr_t str = jo_astr_from(arena, "fn(");
+		jo_astr str = jo_astr_from(arena, "fn(");
 
 		for(jo_uz param_i = 0; param_i < t1->data.type_fn.parameters.occupied; param_i++)
 		{
-			jo_astr_t param_str = jo_sema_type_astr(arena, t1->data.type_fn.parameters.data[param_i]);
+			jo_astr param_str = jo_sema_type_astr(arena, t1->data.type_fn.parameters.data[param_i]);
 	
 			jo_astr_append_astr(arena, &str, &param_str);
 	
@@ -176,7 +176,7 @@ jo_astr_t jo_sema_type_astr(jo_arena_t* arena, jo_ast_node_t* t1)
 		{
 			jo_astr_append(arena, &str, " -> ");
 
-			jo_astr_t ret_str = jo_sema_type_astr(arena, t1->data.type_fn.return_type);
+			jo_astr ret_str = jo_sema_type_astr(arena, t1->data.type_fn.return_type);
 			jo_astr_append(arena, &str, ret_str.data);
 		}
 
@@ -190,7 +190,7 @@ jo_astr_t jo_sema_type_astr(jo_arena_t* arena, jo_ast_node_t* t1)
 	}
 }
 
-bool jo_sema_type_is_void(jo_ast_node_t* type_node)
+bool jo_sema_type_is_void(jo_ast_node* type_node)
 {
 	if(!type_node)
 	{
@@ -209,7 +209,7 @@ bool jo_sema_type_is_void(jo_ast_node_t* type_node)
 
 }
 
-bool jo_sema_types_are_equal(jo_ast_node_t* t1, jo_ast_node_t* t2)
+bool jo_sema_types_are_equal(jo_ast_node* t1, jo_ast_node* t2)
 {
 	if(!t1)
 	{
@@ -273,18 +273,18 @@ bool jo_sema_types_are_equal(jo_ast_node_t* t1, jo_ast_node_t* t2)
 	return false;
 }
 
-void jo_sema_diagnose_type_implic_castabability_to(jo_ast_node_t* t1, jo_ast_node_t* t2)
+void jo_sema_diagnose_type_implic_castabability_to(jo_ast_node* t1, jo_ast_node* t2)
 {
 	if(jo_sema_types_are_equal(t1, t2)) return;
 
 
 }
 
-void jo_sema_resolve_expr_op_call(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* expr)
+void jo_sema_resolve_expr_op_call(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* expr)
 {
 	if(expr->resolved_type) return;
 
-	jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope, expr->data.expr_op_call.target->data.identifier);
+	jo_symbol* sym = jo_scope_lookup_symbol(outer_scope, expr->data.expr_op_call.target->data.identifier);
 	
 	if(!sym)
 	{
@@ -309,8 +309,8 @@ void jo_sema_resolve_expr_op_call(jo_sema_t* sema, jo_scope_t* outer_scope, jo_a
 		{
 			jo_arena_scope(sema->arena)
 			{
-				jo_astr_t expr_str = jo_sema_type_astr(sema->arena, sym->ast_node->resolved_type->data.type_fn.parameters.data[arg_i]);
-				jo_astr_t resolved_str = jo_sema_type_astr(sema->arena, expr->data.expr_op_call.arguments.data[arg_i]->resolved_type);
+				jo_astr expr_str = jo_sema_type_astr(sema->arena, sym->ast_node->resolved_type->data.type_fn.parameters.data[arg_i]);
+				jo_astr resolved_str = jo_sema_type_astr(sema->arena, expr->data.expr_op_call.arguments.data[arg_i]->resolved_type);
 				printf("argument provided for %.*s call at index %llu has unexpected type, expected %.*s got %.*s",
 					jo_astr_fmt(&sym->identifier),
 					arg_i,
@@ -326,15 +326,15 @@ void jo_sema_resolve_expr_op_call(jo_sema_t* sema, jo_scope_t* outer_scope, jo_a
 	expr->resolved_type = sym->ast_node->resolved_type->data.type_fn.return_type;
 }
 
-void jo_sema_resolve_expr_op_binary_type(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* expr)
+void jo_sema_resolve_expr_op_binary_type(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* expr)
 {
 	if(expr->resolved_type) return;
 
 	jo_sema_resolve_expr(sema, outer_scope, expr->data.expr_op_binary.left_expression);
 	jo_sema_resolve_expr(sema, outer_scope, expr->data.expr_op_binary.right_expression);
 
-	jo_ast_node_t* left_expr_type = expr->data.expr_op_binary.left_expression->resolved_type;
-	jo_ast_node_t* right_expr_type = expr->data.expr_op_binary.right_expression->resolved_type;
+	jo_ast_node* left_expr_type = expr->data.expr_op_binary.left_expression->resolved_type;
+	jo_ast_node* right_expr_type = expr->data.expr_op_binary.right_expression->resolved_type;
 
 	if(jo_sema_types_are_equal(left_expr_type, right_expr_type))
 	{
@@ -354,13 +354,13 @@ void jo_sema_resolve_expr_op_binary_type(jo_sema_t* sema, jo_scope_t* outer_scop
 	}
 }
 
-void jo_sema_resolve_expr_op_unary_type(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* expr)
+void jo_sema_resolve_expr_op_unary_type(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* expr)
 {
 	if(expr->resolved_type) return;
 
 	jo_sema_resolve_expr(sema, outer_scope, expr->data.expr_op_unary.expression);
 
-	jo_ast_node_t* left_expr_type = expr->data.expr_op_unary.expression->resolved_type;
+	jo_ast_node* left_expr_type = expr->data.expr_op_unary.expression->resolved_type;
 
 	if(jo_type_is_primitive(left_expr_type))
 	{
@@ -372,11 +372,11 @@ void jo_sema_resolve_expr_op_unary_type(jo_sema_t* sema, jo_scope_t* outer_scope
 }
 
 
-void jo_sema_resolve_expr_assigment(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* node)
+void jo_sema_resolve_expr_assigment(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* node)
 {
 	jo_sema_resolve_expr(sema, outer_scope, node->data.expr_assignment.expression);
 
-	jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope, node->data.expr_assignment.target->data.identifier);
+	jo_symbol* sym = jo_scope_lookup_symbol(outer_scope, node->data.expr_assignment.target->data.identifier);
 
 	if(!sym)
 	{
@@ -389,8 +389,8 @@ void jo_sema_resolve_expr_assigment(jo_sema_t* sema, jo_scope_t* outer_scope, jo
 	{
 		jo_arena_scope(sema->arena)
 		{
-			jo_astr_t gtsrt = jo_sema_type_astr(sema->arena, sym->ast_node->resolved_type);
-			jo_astr_t rtstr = jo_sema_type_astr(sema->arena, node->data.expr_assignment.expression->resolved_type);
+			jo_astr gtsrt = jo_sema_type_astr(sema->arena, sym->ast_node->resolved_type);
+			jo_astr rtstr = jo_sema_type_astr(sema->arena, node->data.expr_assignment.expression->resolved_type);
 			printf("can not assign expression of a type %.*s to variable %.*s of type %.*s"
 					, jo_astr_fmt(&rtstr)
 					, jo_str_view_fmt(&node->data.expr_assignment.target->data.identifier)
@@ -403,13 +403,13 @@ void jo_sema_resolve_expr_assigment(jo_sema_t* sema, jo_scope_t* outer_scope, jo
 
 }
 
-void jo_sema_resolve_expr_as_cast(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* node)
+void jo_sema_resolve_expr_as_cast(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* node)
 {
 	jo_sema_resolve_expr(sema, outer_scope, node->data.expr_as_cast.expr);
 	node->resolved_type = node->data.expr_as_cast.to_type;	
 }
 
-void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* node)
+void jo_sema_resolve_expr(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* node)
 {
 	if(node->resolved_type) return;
 
@@ -421,7 +421,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 	case jo_ast_type_literal_string:
 	{
-		jo_ast_node_t* array_type_node = jo_ast_node_make(sema->arena, jo_ast_type_type_array);
+		jo_ast_node* array_type_node = jo_ast_node_make(sema->arena, jo_ast_type_type_array);
 		array_type_node->data.type_array.array_size_expression = jo_ast_node_make(sema->arena, jo_ast_type_literal_u64);
 		array_type_node->data.type_array.array_size_expression->data.literal_u64 = node->data.literal_string.len;
 		array_type_node->data.type_array.inner = jo_ast_node_make(sema->arena,jo_ast_type_type_primitive);
@@ -432,7 +432,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 	case jo_ast_type_literal_fn:
     {
-        jo_ast_node_t* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_fn);
+        jo_ast_node* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_fn);
         type_node->data.type_fn.return_type = node->data.literal_fn.return_type;
 
 		jo_ada_foreach(&node->data.literal_fn.parameters)
@@ -446,7 +446,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 	case jo_ast_type_literal_struct:
     {
-        jo_ast_node_t* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_struct);
+        jo_ast_node* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_struct);
 
 		jo_ada_foreach(&node->data.literal_struct.members)
 		{
@@ -460,7 +460,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 	case jo_ast_type_literal_bool:
 	{
-		jo_ast_node_t* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_primitive);
+		jo_ast_node* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_primitive);
 		type_node->data.type_primitive = jo_token_keyword_bool;
 		node->resolved_type = type_node;
 		break;
@@ -470,7 +470,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 	{
         jo_sema_resolve_decl(sema, outer_scope, node);
 
-		jo_symbol_t sym = {0};
+		jo_symbol sym = {0};
 		sym.ast_node = node;
 		sym.identifier = jo_astr_from(sema->arena, node->data.decl.identifier->data.identifier.data);		
 		jo_scope_add_symbol(sema->arena,outer_scope, sym);		
@@ -481,7 +481,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 	}
 	case jo_ast_type_identifier:
 	{
-		jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope, node->data.identifier);
+		jo_symbol* sym = jo_scope_lookup_symbol(outer_scope, node->data.identifier);
 		if(!sym)
 		{
 			printf("undeclared identifier %.*s", jo_str_view_fmt(&node->data.identifier));
@@ -511,7 +511,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 	}
 }
 
-void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* stmt, jo_ast_node_t* literal_parent_fn_node)
+void jo_sema_resolve_stmt(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* stmt, jo_ast_node* literal_parent_fn_node)
 {
 	jo_ast_literal_fn* literal_parent_fn = &literal_parent_fn_node->data.literal_fn;
 
@@ -550,8 +550,8 @@ void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 			{
 				jo_arena_scope(sema->arena)
 				{
-					jo_astr_t estr = jo_sema_type_astr(sema->arena, literal_parent_fn->return_type);
-					jo_astr_t gstr = jo_sema_type_astr(sema->arena, stmt->data.stmt_return.expression->resolved_type);
+					jo_astr estr = jo_sema_type_astr(sema->arena, literal_parent_fn->return_type);
+					jo_astr gstr = jo_sema_type_astr(sema->arena, stmt->data.stmt_return.expression->resolved_type);
 
 					printf("function return type %.*s does not match return expression type %.*s"
 						, jo_astr_fmt(&estr)
@@ -567,8 +567,8 @@ void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 			{
 				jo_arena_scope(sema->arena)
 				{
-					jo_astr_t estr = jo_sema_type_astr(sema->arena, literal_parent_fn->return_type);
-					jo_astr_t gstr = jo_sema_type_astr(sema->arena, stmt->data.stmt_return.expression->resolved_type);
+					jo_astr estr = jo_sema_type_astr(sema->arena, literal_parent_fn->return_type);
+					jo_astr gstr = jo_sema_type_astr(sema->arena, stmt->data.stmt_return.expression->resolved_type);
 
 					printf("function return type %.*s does not match return expression type %.*s"
 						, jo_astr_fmt(&estr)
@@ -592,19 +592,19 @@ void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 	}
 }
 
-void jo_sema_resolve_block(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* block, jo_ast_node_t* literal_parent_fn_node)
+void jo_sema_resolve_block(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* block, jo_ast_node* literal_parent_fn_node)
 {
-	jo_scope_t* fn_block_scope = jo_scope_push(sema->arena, outer_scope, jo_str_view_from_cstr("block"));
+	jo_scope* fn_block_scope = jo_scope_push(sema->arena, outer_scope, jo_str_view_from("block"));
 	
 	for(jo_uz i = 0; i < block->data.block.statements.occupied; i++)
 	{
-		jo_ast_node_t* stmt = block->data.block.statements.data[i];
+		jo_ast_node* stmt = block->data.block.statements.data[i];
 		
 		jo_sema_resolve_stmt(sema, fn_block_scope, stmt, literal_parent_fn_node);
 	}
 }
 
-void jo_sema_analyze_literal_fn(jo_sema_t* sema, jo_scope_t* fn_scope, jo_ast_node_t* literal_fn_node)
+void jo_sema_analyze_literal_fn(jo_sema* sema, jo_scope* fn_scope, jo_ast_node* literal_fn_node)
 {	
 	jo_ast_literal_fn* literal_fn = &literal_fn_node->data.literal_fn;
 	
@@ -612,10 +612,10 @@ void jo_sema_analyze_literal_fn(jo_sema_t* sema, jo_scope_t* fn_scope, jo_ast_no
 
     jo_ada_foreach(&literal_fn->parameters)
 	{			
-		jo_ast_node_t* param_node = *literal_fn->parameters.it;
+		jo_ast_node* param_node = *literal_fn->parameters.it;
 		jo_sema_resolve_decl(sema, fn_scope, param_node);
 
-		jo_symbol_t sym = {0};
+		jo_symbol sym = {0};
 		sym.identifier = jo_astr_from_view(sema->arena, param_node->data.decl.identifier->data.identifier);
 
 		sym.kind = jo_symbol_kind_variable;
@@ -626,7 +626,7 @@ void jo_sema_analyze_literal_fn(jo_sema_t* sema, jo_scope_t* fn_scope, jo_ast_no
 	jo_sema_resolve_block(sema, fn_scope, literal_fn->block, literal_fn_node);
 }
 
-void jo_analyze_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* decl_node)
+void jo_analyze_decl(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* decl_node)
 {
 	assert(decl_node->resolved_type);
 
@@ -634,7 +634,7 @@ void jo_analyze_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* de
 	{
 	case jo_ast_type_type_fn:
 	{
-		jo_scope_t* fn_scope = jo_scope_push(sema->arena, outer_scope, decl_node->data.decl.identifier->data.identifier);
+		jo_scope* fn_scope = jo_scope_push(sema->arena, outer_scope, decl_node->data.decl.identifier->data.identifier);
 		jo_sema_analyze_literal_fn(sema, fn_scope, decl_node->data.decl.initialize_expression);
 		break;
 	}
@@ -648,14 +648,14 @@ void jo_analyze_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* de
 	}
 }
 
-void jo_sema_analyze_module(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* module_node)
+void jo_sema_analyze_module(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* module_node)
 {
     jo_ast_module* module = &module_node->data.module;
 
     // module-space declaration are position independent
 	for(jo_uz i = 0; i < module->content.occupied; i++)
 	{
-	    jo_ast_node_t* current_content = module->content.data[i];
+	    jo_ast_node* current_content = module->content.data[i];
 
 		switch (module->content.data[i]->type)
 		{
@@ -663,7 +663,7 @@ void jo_sema_analyze_module(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_nod
 			{
                 jo_sema_resolve_decl(sema, outer_scope, current_content);
 
-				jo_symbol_t sym = {0};
+				jo_symbol sym = {0};
 				sym.kind = jo_symbol_kind_function;
 				sym.ast_node = current_content;
 				sym.identifier = jo_astr_from_view(sema->arena ,current_content->data.decl.identifier->data.identifier);				
@@ -678,7 +678,7 @@ void jo_sema_analyze_module(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_nod
   
 	for(jo_uz i = 0; i < module->content.occupied; i++)	
 	{
-	    jo_ast_node_t* current_content = module->content.data[i];
+	    jo_ast_node* current_content = module->content.data[i];
 
 		switch (current_content->type)
 		{
@@ -695,7 +695,7 @@ void jo_sema_analyze_module(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_nod
 
 
 
-void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* decl_node)
+void jo_sema_resolve_decl(jo_sema* sema, jo_scope* outer_scope, jo_ast_node* decl_node)
 {
     jo_ast_decl* decl = &decl_node->data.decl;
 
@@ -716,14 +716,17 @@ void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 		{
 			if(!jo_sema_types_are_equal(decl->specified_type, decl->initialize_expression->resolved_type))
 			{
-				jo_astr_t spec_type_str = jo_sema_type_astr(sema->arena, decl->specified_type);
-				jo_astr_t resolved_type_str = jo_sema_type_astr(sema->arena, decl->initialize_expression->resolved_type);
-			
-				printf("declaration of %.*s has specified type %.*s but has initilize expression type %.*s\n", 
-					jo_str_view_fmt(&decl->identifier->data.identifier), 
-					jo_astr_fmt(&spec_type_str),
-					jo_astr_fmt(&resolved_type_str)
-				);
+				jo_arena_scope(sema->arena)
+				{
+					jo_astr spec_type_str = jo_sema_type_astr(sema->arena, decl->specified_type);
+					jo_astr resolved_type_str = jo_sema_type_astr(sema->arena, decl->initialize_expression->resolved_type);
+				
+					printf("declaration of %.*s has specified type %.*s but has initilize expression type %.*s\n", 
+						jo_str_view_fmt(&decl->identifier->data.identifier), 
+						jo_astr_fmt(&spec_type_str),
+						jo_astr_fmt(&resolved_type_str)
+					);
+				}
 				assert(0);
 				
 				// if (decl->specified_type->type == jo_ast_type_type_primitive && 
@@ -744,7 +747,7 @@ void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 				// 	}
 				// 	else
 				// 	{
-				// 		jo_ast_node_t* implicit_cast_node = jo_ast_node_make(sema->arena,jo_ast_type_expr_as_cast);
+				// 		jo_ast_node* implicit_cast_node = jo_ast_node_make(sema->arena,jo_ast_type_expr_as_cast);
 				// 		implicit_cast_node->data.expr_as_cast.expr = decl->initialize_expression;
 				// 		implicit_cast_node->data.expr_as_cast.to_type = decl->specified_type;
 				// 		implicit_cast_node->data.expr_as_cast.implicit = true;						
@@ -761,7 +764,7 @@ void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 	}
 }
 
-bool jo_sema_analyze(jo_sema_t* sema, jo_ast_node_t* module)
+bool jo_sema_analyze(jo_sema* sema, jo_ast_node* module)
 {
 	jo_sema_analyze_module(sema, &sema->global_scope, module);
 

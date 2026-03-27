@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <stdio.h>
 
-jo_token_t* jo_parser_peek(jo_parser_t* parser, jo_u32 offset)
+jo_token* jo_parser_peek(jo_parser* parser, jo_u32 offset)
 {
 	if(parser->current_token + offset < parser->lexer->tokens.occupied)
 	{
@@ -13,31 +13,31 @@ jo_token_t* jo_parser_peek(jo_parser_t* parser, jo_u32 offset)
 	assert(0 && "unexpected end %s");
 }
 
-jo_token_t* jo_parser_peek_next(jo_parser_t* parser)
+jo_token* jo_parser_peek_next(jo_parser* parser)
 {
 	return jo_parser_peek(parser, 1);
 }
 
-void jo_parser_advance(jo_parser_t* parser)
+void jo_parser_advance(jo_parser* parser)
 {
 	parser->current_token++;
 }
 
-jo_token_t* jo_parser_current(jo_parser_t* parser)
+jo_token* jo_parser_current(jo_parser* parser)
 {
 	// dump_tokens_2(parser->lexer);
 	return parser->lexer->tokens.data + parser->current_token;
 }
 
-void jo_parser_unexpected(jo_parser_t* parser, const char* err)
+void jo_parser_unexpected(jo_parser* parser, const char* err)
 {	
 	printf("unexpected: %s at line %d column %d got %s", err, jo_parser_current(parser)->line, jo_parser_current(parser)->column, jo_token_type_to_string(jo_parser_current(parser)->type));
 	assert(0);
 }
 
-jo_token_t* jo_parser_consume(jo_parser_t* parser, jo_token_type_t expected)
+jo_token* jo_parser_consume(jo_parser* parser, jo_token_type expected)
 {
-    jo_token_t* current = jo_parser_current(parser);
+    jo_token* current = jo_parser_current(parser);
     if(current->type != expected)
     {
         printf("unexpected token %s, expected %s at line %d column %d",
@@ -53,9 +53,9 @@ jo_token_t* jo_parser_consume(jo_parser_t* parser, jo_token_type_t expected)
 	return current;
 }
 
-jo_ast_node_ptr_dyn_array_t jo_parse_type_function_parameters(jo_parser_t* parser)
+jo_ast_node_ptr_ada jo_parse_type_function_parameters(jo_parser* parser)
 {
-	jo_ast_node_ptr_dyn_array_t parameter_nodes = {0};
+	jo_ast_node_ptr_ada parameter_nodes = {0};
 
 	jo_parser_consume(parser, jo_token_open_parenthesis);
 
@@ -87,19 +87,19 @@ jo_ast_node_ptr_dyn_array_t jo_parse_type_function_parameters(jo_parser_t* parse
 	return parameter_nodes;
 }
 
-jo_ast_node_t* jo_parse_type_primitive(jo_parser_t* parser)
+jo_ast_node* jo_parse_type_primitive(jo_parser* parser)
 {
-	jo_ast_node_t* type_primitive_node = jo_ast_node_make(parser->arena, jo_ast_type_type_primitive);
+	jo_ast_node* type_primitive_node = jo_ast_node_make(parser->arena, jo_ast_type_type_primitive);
 	type_primitive_node->data.type_primitive = jo_parser_current(parser)->type;
 	jo_parser_advance(parser);
 	return type_primitive_node;
 }
 
-jo_ast_node_t* jo_parse_type(jo_parser_t* parser)
+jo_ast_node* jo_parse_type(jo_parser* parser)
 {
 	if(jo_parser_current(parser)->kind == jo_token_kind_type_primitive){ return jo_parse_type_primitive(parser); }
 
-	jo_ast_node_t* type_node = {0};
+	jo_ast_node* type_node = {0};
 	switch (jo_parser_current(parser)->type)
 	{
 	case jo_token_open_square_bracket:
@@ -146,9 +146,9 @@ jo_ast_node_t* jo_parse_type(jo_parser_t* parser)
 	return type_node;
 }
 
-jo_ast_node_ptr_dyn_array_t jo_parse_expression_list(jo_parser_t* parser)
+jo_ast_node_ptr_ada jo_parse_expression_list(jo_parser* parser)
 {
-	jo_ast_node_ptr_dyn_array_t expression_list = {0};
+	jo_ast_node_ptr_ada expression_list = {0};
 	while(true)
 	{
 		if(expression_list.occupied > 0)
@@ -167,9 +167,9 @@ jo_ast_node_ptr_dyn_array_t jo_parse_expression_list(jo_parser_t* parser)
 	}
 }
 
-jo_ast_node_ptr_dyn_array_t jo_parse_type_list(jo_parser_t* parser)
+jo_ast_node_ptr_ada jo_parse_type_list(jo_parser* parser)
 {
-	jo_ast_node_ptr_dyn_array_t type_list = {0};
+	jo_ast_node_ptr_ada type_list = {0};
 
 	while(true)
 	{
@@ -189,9 +189,9 @@ jo_ast_node_ptr_dyn_array_t jo_parse_type_list(jo_parser_t* parser)
 	}
 }
 
-jo_ast_node_ptr_dyn_array_t jo_parse_declaration_list(jo_parser_t* parser)
+jo_ast_node_ptr_ada jo_parse_declaration_list(jo_parser* parser)
 {
-	jo_ast_node_ptr_dyn_array_t declaration_list = {0};
+	jo_ast_node_ptr_ada declaration_list = {0};
 
 	while(true)
 	{
@@ -211,13 +211,13 @@ jo_ast_node_ptr_dyn_array_t jo_parse_declaration_list(jo_parser_t* parser)
 	}
 }
 
-jo_ast_node_t* jo_try_parse_expression_postfix_operator(jo_parser_t* parser, jo_ast_node_t* expression)
+jo_ast_node* jo_try_parse_expression_postfix_operator(jo_parser* parser, jo_ast_node* expression)
 {
 	switch (jo_parser_current(parser)->type)
 	{
 	case jo_token_open_parenthesis:
 		jo_parser_consume(parser, jo_token_open_parenthesis);
-		jo_ast_node_t* apply_paren_operation_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_op_call);
+		jo_ast_node* apply_paren_operation_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_op_call);
 		apply_paren_operation_node->data.expr_op_call.target = expression;
 		if(jo_parser_current(parser)->type != jo_token_close_parenthesis)
 		{
@@ -229,7 +229,7 @@ jo_ast_node_t* jo_try_parse_expression_postfix_operator(jo_parser_t* parser, jo_
 
 	case jo_token_open_square_bracket:
 		jo_parser_consume(parser, jo_token_open_square_bracket);
-		jo_ast_node_t* apply_squaer_brackets_operation_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_op_index);
+		jo_ast_node* apply_squaer_brackets_operation_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_op_index);
 		apply_squaer_brackets_operation_node->data.expr_op_index.target = expression;
 		if(jo_parser_current(parser)->type != jo_token_close_square_bracket)
 		{
@@ -241,7 +241,7 @@ jo_ast_node_t* jo_try_parse_expression_postfix_operator(jo_parser_t* parser, jo_
 
 	case jo_token_keyword_as:
 		jo_parser_consume(parser, jo_token_keyword_as);
-		jo_ast_node_t* as_cast_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_as_cast);
+		jo_ast_node* as_cast_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_as_cast);
 		as_cast_node->data.expr_as_cast.to_type = jo_parse_type(parser);
 		as_cast_node->data.expr_as_cast.expr = expression;
 		return as_cast_node;
@@ -253,20 +253,20 @@ jo_ast_node_t* jo_try_parse_expression_postfix_operator(jo_parser_t* parser, jo_
 	}
 }
 
-jo_ast_node_t* jo_parse_expression_precedented(jo_parser_t* parser, jo_u32 min_precedence)
+jo_ast_node* jo_parse_expression_precedented(jo_parser* parser, jo_u32 min_precedence)
 {
-	jo_ast_node_t* left_expression_node = jo_parse_primary_expression(parser);
+	jo_ast_node* left_expression_node = jo_parse_primary_expression(parser);
 
 	while(true)
 	{
-		jo_ast_node_t* postfix_expression = NULL;
+		jo_ast_node* postfix_expression = NULL;
 
 		do{
 			postfix_expression = jo_try_parse_expression_postfix_operator(parser, left_expression_node);
 			if(postfix_expression) { left_expression_node = postfix_expression; }
 		}while(postfix_expression);
 
-		jo_token_type_t operator_type = jo_parser_current(parser)->type;
+		jo_token_type operator_type = jo_parser_current(parser)->type;
 		jo_u32 precedence = jo_token_binary_operator_precedence(operator_type);
 
 		if(precedence == 0) break; // not an operator, statemt end
@@ -278,9 +278,9 @@ jo_ast_node_t* jo_parse_expression_precedented(jo_parser_t* parser, jo_u32 min_p
 
 		jo_parser_advance(parser);
 
-		jo_ast_node_t* right_expression_node = jo_parse_expression_precedented(parser, precedence + 1);
+		jo_ast_node* right_expression_node = jo_parse_expression_precedented(parser, precedence + 1);
 
-		jo_ast_node_t* new_left_expression_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_op_binary);
+		jo_ast_node* new_left_expression_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_op_binary);
 
 		new_left_expression_node->data.expr_op_binary.operator_type = operator_type;
 		new_left_expression_node->data.expr_op_binary.left_expression = left_expression_node;
@@ -294,21 +294,21 @@ jo_ast_node_t* jo_parse_expression_precedented(jo_parser_t* parser, jo_u32 min_p
 }
 
 
-jo_ast_node_t* jo_parse_expression(jo_parser_t* parser)
+jo_ast_node* jo_parse_expression(jo_parser* parser)
 {
 	return jo_parse_expression_precedented(parser, 0);
 }
 
-jo_ast_node_t* jo_parse_literal_expression(jo_parser_t* parser)
+jo_ast_node* jo_parse_literal_expression(jo_parser* parser)
 {
-	jo_ast_node_t* literal_node = NULL;
+	jo_ast_node* literal_node = NULL;
 	char* end;
 
 	switch (jo_parser_current(parser)->type)
 	{
 		case jo_token_literal_string:
 			literal_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_string);
-			literal_node->data.literal_string = jo_str_view_from(jo_parser_current(parser)->content, jo_parser_current(parser)->content_len);
+			literal_node->data.literal_string = jo_str_view_make(jo_parser_current(parser)->content, jo_parser_current(parser)->content_len);
 			break;
 
 		case jo_token_literal_integer:
@@ -355,10 +355,10 @@ jo_ast_node_t* jo_parse_literal_expression(jo_parser_t* parser)
 	return literal_node;
 }
 
-jo_ast_node_t* jo_parse_literal_fn(jo_parser_t* parser)
+jo_ast_node* jo_parse_literal_fn(jo_parser* parser)
 {
 	jo_parser_consume(parser, jo_token_keyword_fn);
-	jo_ast_node_t* literal_fn_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_fn);
+	jo_ast_node* literal_fn_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_fn);
 	jo_ast_literal_fn* literal_fn = &literal_fn_node->data.literal_fn;
 
 	if(jo_parser_current(parser)->type == jo_token_open_parenthesis)
@@ -395,26 +395,26 @@ jo_ast_node_t* jo_parse_literal_fn(jo_parser_t* parser)
 	return literal_fn_node;
 }
 
-jo_ast_node_t* jo_parse_expr_assignment(jo_parser_t* parser)
+jo_ast_node* jo_parse_expr_assignment(jo_parser* parser)
 {
-	jo_ast_node_t* assigment_expr = jo_ast_node_make(parser->arena, jo_ast_type_expr_assignment);
+	jo_ast_node* assigment_expr = jo_ast_node_make(parser->arena, jo_ast_type_expr_assignment);
 	assigment_expr->data.expr_assignment.target = jo_parse_expression(parser);
 	jo_parser_consume(parser, jo_token_equals);
 	assigment_expr->data.expr_assignment.expression = jo_parse_expression(parser);
 	return assigment_expr;
 }
 
-// jo_ast_node_t* jo_parse_as_cast(jo_parser_t* parser)
+// jo_ast_node* jo_parse_as_cast(jo_parser* parser)
 // {
-// 	jo_ast_node_t* as_cast_node = jo_ast_node_make(parser->arena, jo_ast_expr_as_cast);
+// 	jo_ast_node* as_cast_node = jo_ast_node_make(parser->arena, jo_ast_expr_as_cast);
 // 	as_cast_node->data.expr_as_cast.expr = jo_parse_expression(parser);
 // 	jo_parser_consume()
 // }
 
-jo_ast_node_t* jo_parse_literal_struct(jo_parser_t* parser)
+jo_ast_node* jo_parse_literal_struct(jo_parser* parser)
 {
 	jo_parser_consume(parser, jo_token_keyword_struct);
-	jo_ast_node_t* literal_struct_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_struct); 
+	jo_ast_node* literal_struct_node = jo_ast_node_make(parser->arena, jo_ast_type_literal_struct); 
 	
 	jo_parser_consume(parser, jo_token_open_curly_bracket);
 	literal_struct_node->data.literal_struct.members = jo_parse_declaration_list(parser); 
@@ -423,9 +423,9 @@ jo_ast_node_t* jo_parse_literal_struct(jo_parser_t* parser)
 	return literal_struct_node;
 }
 
-jo_ast_node_t* jo_parse_op_unary_expression(jo_parser_t* parser)
+jo_ast_node* jo_parse_op_unary_expression(jo_parser* parser)
 {
-	// jo_ast_node_t* node = jo_ast_node_make(parser->arena, jo_parser_current(parser)->type);
+	// jo_ast_node* node = jo_ast_node_make(parser->arena, jo_parser_current(parser)->type);
 	jo_parser_advance(parser);
 
 	// node->data.expr_op_unary.operator_type = jo_token_minus;
@@ -433,7 +433,7 @@ jo_ast_node_t* jo_parse_op_unary_expression(jo_parser_t* parser)
 	return NULL;
 }
 
-jo_ast_node_t* jo_parse_primary_expression(jo_parser_t* parser)
+jo_ast_node* jo_parse_primary_expression(jo_parser* parser)
 {
 	if(jo_parser_current(parser)->kind == jo_token_kind_literal
 	|| jo_parser_current(parser)->kind == jo_token_kind_type_primitive)
@@ -470,7 +470,7 @@ jo_ast_node_t* jo_parse_primary_expression(jo_parser_t* parser)
 		break;
 	case jo_token_open_parenthesis:
 		jo_parser_consume(parser, jo_token_open_parenthesis);
-		jo_ast_node_t* inner_expr = jo_parse_expression(parser);
+		jo_ast_node* inner_expr = jo_parse_expression(parser);
 		jo_parser_consume(parser, jo_token_close_parenthesis);
 		return inner_expr;
 		break;
@@ -484,20 +484,20 @@ jo_ast_node_t* jo_parse_primary_expression(jo_parser_t* parser)
 }
 
 
-jo_ast_node_t* jo_parse_expr_declaration(jo_parser_t* parser)
+jo_ast_node* jo_parse_expr_declaration(jo_parser* parser)
 {
-	jo_ast_node_t* statement_declaration_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_decl);
+	jo_ast_node* statement_declaration_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_decl);
 
 	statement_declaration_node->data.expr_decl.declaration = jo_parse_declaration(parser);
 
 	return statement_declaration_node;
 }
 
-// jo_ast_node_t*  jo_parse_expr_for(jo_parser_t* parser)
+// jo_ast_node*  jo_parse_expr_for(jo_parser* parser)
 // {
 // 	jo_parser_consume(parser, jo_token_keyword_for);
 
-// 	jo_ast_node_t* statement_for_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_for);
+// 	jo_ast_node* statement_for_node = jo_ast_node_make(parser->arena, jo_ast_type_expr_for);
 
 // 	statement_for_node->data.expr_for.iterator = jo_parse_expression(parser);
 
@@ -510,11 +510,11 @@ jo_ast_node_t* jo_parse_expr_declaration(jo_parser_t* parser)
 // 	return statement_for_node;
 // }
 
-jo_ast_node_t* jo_parse_type_fn(jo_parser_t* parser)
+jo_ast_node* jo_parse_type_fn(jo_parser* parser)
 {
 	jo_parser_consume(parser, jo_token_keyword_fn);
 
-	jo_ast_node_t* type_function_node = jo_ast_node_make(parser->arena, jo_ast_type_type_fn);
+	jo_ast_node* type_function_node = jo_ast_node_make(parser->arena, jo_ast_type_type_fn);
 	jo_ast_type_fn* type_fn = &type_function_node->data.type_fn;
 
 	if(jo_parser_current(parser)->type == jo_token_open_parenthesis)
@@ -541,21 +541,21 @@ jo_ast_node_t* jo_parse_type_fn(jo_parser_t* parser)
 	return type_function_node;
 }
 
-jo_ast_node_t* jo_parse_identifier(jo_parser_t* parser)
+jo_ast_node* jo_parse_identifier(jo_parser* parser)
 {
-	jo_ast_node_t* identifier_node = jo_ast_node_make(parser->arena, jo_ast_type_identifier);
+	jo_ast_node* identifier_node = jo_ast_node_make(parser->arena, jo_ast_type_identifier);
 
-	jo_token_t* t = jo_parser_consume(parser, jo_token_identifier);
+	jo_token* t = jo_parser_consume(parser, jo_token_identifier);
 
-	identifier_node->data.identifier = jo_str_view_from(t->content, t->content_len);
+	identifier_node->data.identifier = jo_str_view_make(t->content, t->content_len);
 
 	return identifier_node;
 }
 
-jo_ast_node_t* jo_parse_stmt_return(jo_parser_t* parser)
+jo_ast_node* jo_parse_stmt_return(jo_parser* parser)
 {
 	jo_parser_consume(parser, jo_token_keyword_return);
-	jo_ast_node_t* stmt_return = jo_ast_node_make(parser->arena, jo_ast_type_stmt_return);
+	jo_ast_node* stmt_return = jo_ast_node_make(parser->arena, jo_ast_type_stmt_return);
 	if(jo_parser_current(parser)->type != jo_token_close_curly_bracket && jo_parser_current(parser)->type != jo_token_semicolon)
 	{
 		stmt_return->data.stmt_return.expression = jo_parse_expression(parser);
@@ -563,11 +563,11 @@ jo_ast_node_t* jo_parse_stmt_return(jo_parser_t* parser)
 	return stmt_return;
 }
 
-jo_ast_node_t* jo_parse_stmt_if(jo_parser_t* parser)
+jo_ast_node* jo_parse_stmt_if(jo_parser* parser)
 {
 	jo_parser_consume(parser, jo_token_keyword_if);
 
-	jo_ast_node_t* if_else_node = jo_ast_node_make(parser->arena, jo_ast_type_stmt_ifelse);
+	jo_ast_node* if_else_node = jo_ast_node_make(parser->arena, jo_ast_type_stmt_ifelse);
 
 	if_else_node->data.stmt_ifelse.condition = jo_parse_expression(parser);
 	if_else_node->data.stmt_ifelse.true_block = jo_parse_block(parser);
@@ -589,15 +589,15 @@ jo_ast_node_t* jo_parse_stmt_if(jo_parser_t* parser)
 	return if_else_node;
 }
 
-jo_ast_node_t*  jo_parse_stmt_expr(jo_parser_t* parser)
+jo_ast_node*  jo_parse_stmt_expr(jo_parser* parser)
 {
-	jo_ast_node_t* expr_stmt = jo_ast_node_make(parser->arena, jo_ast_type_stmt_expr);
+	jo_ast_node* expr_stmt = jo_ast_node_make(parser->arena, jo_ast_type_stmt_expr);
 	expr_stmt->data.stmt_expr.expr = jo_parse_expression(parser);
 	return expr_stmt;
 }
 
 
-jo_ast_node_t* jo_parse_stmt(jo_parser_t* parser)
+jo_ast_node* jo_parse_stmt(jo_parser* parser)
 {
 	switch (jo_parser_current(parser)->type)
 	{
@@ -619,11 +619,11 @@ jo_ast_node_t* jo_parse_stmt(jo_parser_t* parser)
 	}
 }
 
-jo_ast_node_t* jo_parse_block(jo_parser_t* parser)
+jo_ast_node* jo_parse_block(jo_parser* parser)
 {
 	jo_parser_consume(parser, jo_token_open_curly_bracket);
 
-	jo_ast_node_t* block_node = jo_ast_node_make(parser->arena, jo_ast_type_block);
+	jo_ast_node* block_node = jo_ast_node_make(parser->arena, jo_ast_type_block);
 
 	while(jo_parser_current(parser)->type != jo_token_close_curly_bracket)
 	{
@@ -640,9 +640,9 @@ jo_ast_node_t* jo_parse_block(jo_parser_t* parser)
 	return block_node;
 }
 
-jo_ast_node_t* jo_parse_declaration(jo_parser_t* parser)
+jo_ast_node* jo_parse_declaration(jo_parser* parser)
 {
-	jo_ast_node_t* declaration_node = jo_ast_node_make(parser->arena, jo_ast_type_decl);
+	jo_ast_node* declaration_node = jo_ast_node_make(parser->arena, jo_ast_type_decl);
 
 	declaration_node->data.decl.identifier = jo_parse_identifier(parser);
 
@@ -682,9 +682,9 @@ jo_ast_node_t* jo_parse_declaration(jo_parser_t* parser)
 }
 
 
-jo_ast_node_ptr_dyn_array_t jo_parse_declarations(jo_parser_t* parser)
+jo_ast_node_ptr_ada jo_parse_declarations(jo_parser* parser)
 {
-	jo_ast_node_ptr_dyn_array_t declaration_nodes = {0};
+	jo_ast_node_ptr_ada declaration_nodes = {0};
 
 	while(jo_parser_current(parser)->type != jo_token_eof)
 	{
@@ -694,22 +694,22 @@ jo_ast_node_ptr_dyn_array_t jo_parse_declarations(jo_parser_t* parser)
 	return declaration_nodes;
 }
 
-jo_ast_node_t* jo_parse_directive(jo_parser_t* parser)
+jo_ast_node* jo_parse_directive(jo_parser* parser)
 {
 	jo_parser_consume(parser, jo_token_hash);
-	jo_ast_node_t* directive_node = {0};
+	jo_ast_node* directive_node = {0};
 	switch (jo_parser_current(parser)->type)
 	{
 	case jo_token_keyword_load:
 		jo_parser_consume(parser, jo_token_keyword_load);
 		directive_node = jo_ast_node_make(parser->arena, jo_ast_type_directive_load);
-		directive_node->data.directive_load.path = jo_str_view_from(jo_parser_current(parser)->content, jo_parser_current(parser)->content_len);
+		directive_node->data.directive_load.path = jo_str_view_make(jo_parser_current(parser)->content, jo_parser_current(parser)->content_len);
 		jo_parser_consume(parser, jo_token_literal_string);
 		break;
 	case jo_token_keyword_intrinsic:
 		jo_parser_consume(parser, jo_token_keyword_intrinsic);
 		directive_node = jo_ast_node_make(parser->arena, jo_ast_type_directive_intrinsic);
-		directive_node->data.directive_load.path = jo_str_view_from(jo_parser_current(parser)->content, jo_parser_current(parser)->content_len);
+		directive_node->data.directive_load.path = jo_str_view_make(jo_parser_current(parser)->content, jo_parser_current(parser)->content_len);
 		jo_parser_consume(parser, jo_token_literal_string);
 		break;
 	default:
@@ -719,7 +719,7 @@ jo_ast_node_t* jo_parse_directive(jo_parser_t* parser)
 	return directive_node;
 }
 
-jo_ast_node_t* jo_parse_module_content(jo_parser_t* parser)
+jo_ast_node* jo_parse_module_content(jo_parser* parser)
 {
 	switch (jo_parser_current(parser)->type)
 	{
@@ -733,9 +733,9 @@ jo_ast_node_t* jo_parse_module_content(jo_parser_t* parser)
 	}
 }
 
-jo_ast_node_t* jo_parse_module(jo_parser_t* parser)
+jo_ast_node* jo_parse_module(jo_parser* parser)
 {
-	jo_ast_node_t* module = jo_ast_node_make(parser->arena, jo_ast_type_module);
+	jo_ast_node* module = jo_ast_node_make(parser->arena, jo_ast_type_module);
 
 	while(jo_parser_current(parser)->type != jo_token_eof)
 	{
@@ -745,7 +745,7 @@ jo_ast_node_t* jo_parse_module(jo_parser_t* parser)
 	return module;
 }
 
-jo_ast_node_t* jo_parse(jo_parser_t* parser)
+jo_ast_node* jo_parse(jo_parser* parser)
 {	
 	return jo_parse_module(parser);
 }

@@ -202,7 +202,7 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 			}
             case jo_bytecode_instr_ret:
 			{
-				jo_u32 return_ip = call_frame->ret_ip;				
+				jo_u64 return_ip = call_frame->ret_ip;				
 				jo_register_id ret_reg = call_frame->base_register + op.as.ret.reg;
 				jo_register_id target_reg = call_frame->ret_reg;
 				
@@ -224,7 +224,7 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 			}
 
             default:
-                printf("unknown instruction at ip: %d\n", vm->ip);
+                printf("unknown instruction at ip: %llu\n", vm->ip);
                 return jo_null_register;
         }
 
@@ -235,18 +235,18 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 }
 
 
-void jo_run_bytecode(jo_bytecode_context* bcc)
+jo_i64* jo_run_bytecode(jo_vm* vm, jo_bytecode_context* bcc)
 {
-	jo_vm vm = {0};
-
-	jo_call_frame* frame = vm.frames + vm.fc++;
+	jo_call_frame* frame = vm->frames + vm->fc++;
 	frame->fn = bcc->fns.data + jo_bytecode_find_function_id(bcc, "main");
 	frame->base_register = 0;
 	frame->ret_reg = 0;
-	vm.ip = bcc->fns.data[jo_bytecode_find_function_id(bcc, "main")].entry_ip;
+	vm->ip = bcc->fns.data[jo_bytecode_find_function_id(bcc, "main")].entry_ip;
 
-	jo_register_id ret_reg = jo_vm_run(&vm, bcc);
+	jo_register_id ret_reg = jo_vm_run(vm, bcc);
 
 	if(ret_reg != jo_null_register)
-		printf("program returned: %lld\n", *(jo_i64*)&vm.registers[ret_reg]);
+		return (jo_i64*)&vm->registers[ret_reg];
+
+	return NULL;
 }

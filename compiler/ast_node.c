@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 
-const char* jo_ast_node_type_to_stirng(jo_ast_node_type_t type)
+const char* jo_ast_node_type_to_stirng(jo_ast_node_type type)
 {
 	switch (type)
 	{
@@ -65,7 +65,7 @@ static void print_indent(jo_u32 indent) {
     }
 }
 
-void jo_dump_ast_node(jo_ast_node_t* node, jo_u32 indent)
+void jo_dump_ast_node(jo_ast_node* node, jo_u32 indent)
 {
 	if (!node) 
 	{
@@ -248,9 +248,9 @@ void jo_dump_ast_node(jo_ast_node_t* node, jo_u32 indent)
 	}
 }
 
-jo_ast_node_t* jo_ast_node_make(jo_arena_t* arena, jo_ast_node_type_t type)
+jo_ast_node* jo_ast_node_make(jo_arena* arena, jo_ast_node_type type)
 {
-	jo_ast_node_t* node = jo_arena_palloc(arena, jo_ast_node_t);
+	jo_ast_node* node = jo_arena_palloc(arena, jo_ast_node);
 	node->type = type;
 	return node;
 }

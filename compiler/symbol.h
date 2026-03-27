@@ -8,34 +8,34 @@ typedef enum
     jo_symbol_kind_variable,
     jo_symbol_kind_function,
     // jo_symbol_kind_type
-} jo_symbol_kind_t;
+} jo_symbol_kind;
 
 struct jo_ast_node;
-typedef struct jo_ast_node jo_ast_node_t;
+typedef struct jo_ast_node_s jo_ast_node;
 
 typedef struct 
 {
-	jo_astr_t identifier;
-    jo_symbol_kind_t kind;    
+	jo_astr identifier;
+    jo_symbol_kind kind;    
 	jo_u32 location;
-	jo_ast_node_t* ast_node;
-} jo_symbol_t;
+	jo_ast_node* ast_node;
+} jo_symbol;
 
-jo_ada_declare(jo_symbol_t, jo_symbol_table_t);
+jo_ada_declare(jo_symbol, jo_symbol_table);
 
-typedef struct jo_scope jo_scope_t;
+typedef struct jo_scope jo_scope;
 
 struct jo_scope
 {
-	jo_astr_t identifier;
-	jo_symbol_table_t symbol_table;
-	jo_scope_t* parent;
+	jo_astr identifier;
+	jo_symbol_table symbol_table;
+	jo_scope* parent;
 };	
 
-jo_symbol_t jo_make_symbol(jo_arena_t* arena,  jo_str_view_t identifier, jo_symbol_kind_t kind);
-jo_symbol_t* jo_scope_lookup_symbol(jo_scope_t* scope, jo_str_view_t  identifier);
-jo_scope_t* jo_scope_push(jo_arena_t* arena, jo_scope_t* scope,  jo_str_view_t identifier);
-jo_scope_t* jo_scope_pop(jo_scope_t* scope);
-jo_symbol_t* jo_scope_add_symbol(jo_arena_t* arena, jo_scope_t* scope, jo_symbol_t symbol);
+jo_symbol jo_make_symbol(jo_arena* arena,  jo_str_view identifier, jo_symbol_kind kind);
+jo_symbol* jo_scope_lookup_symbol(jo_scope* scope, jo_str_view identifier);
+jo_scope* jo_scope_push(jo_arena* arena, jo_scope* scope,  jo_str_view identifier);
+jo_scope* jo_scope_pop(jo_scope* scope);
+jo_symbol* jo_scope_add_symbol(jo_arena* arena, jo_scope* scope, jo_symbol symbol);
 
 #endif

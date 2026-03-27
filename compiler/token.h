@@ -9,7 +9,7 @@
 	jo_token_keyword_##keyword
 
 #define jo_token_make_keyword_entry(keyword, kind)\
-	{#keyword, jo_token_keyword_##keyword, kind}
+	{#keyword, sizeof(#keyword) - 1, jo_token_keyword_##keyword, kind}
 
 typedef enum
 {
@@ -123,7 +123,7 @@ typedef enum
 	jo_token_greater = jo_token_close_angle_bracket,
 	jo_token_caret = jo_token_logical_xor,
 	jo_token_bitwise_and = jo_token_ampersand,
-} jo_token_type_t;
+} jo_token_type;
 
 typedef enum 
 {
@@ -136,23 +136,32 @@ typedef enum
 typedef struct
 {
 	const char* identifier;
-	jo_token_type_t type;
+	jo_u32 len;
+	jo_token_type type;
 	jo_token_kind kind;
 } jo_token_keyword_entry;
- 
-const char* jo_token_type_to_string(jo_token_type_t token);
-
-jo_u32 jo_token_binary_operator_precedence(jo_token_type_t token);
 
 typedef struct
 {
-	jo_token_type_t type;
+	const char* content;
+	jo_u32 len;
+	jo_token_type type;
+	jo_token_kind kind;
+} jo_token_basic_entry;
+ 
+const char* jo_token_type_to_string(jo_token_type token);
+
+jo_u32 jo_token_binary_operator_precedence(jo_token_type token);
+
+typedef struct
+{
+	jo_token_type type;
 	char* content;
 	jo_u32 content_len;	
 	jo_u32 line; 
 	jo_u32 column; 	
 	jo_token_kind kind;
-} jo_token_t;
+} jo_token;
 
 // jo_decl_dyn_array_named(jo_token_t, jo_token_dyn_array_t);
 

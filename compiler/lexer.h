@@ -9,20 +9,20 @@
 #include "ast_node.h"
 #include "token.h"
 
-jo_ada_declare(jo_token_t, jo_token_da_t);
+jo_ada_declare(jo_token , jo_token_ada);
 
 typedef struct 
 {
-	jo_arena_t* arena;
+	jo_arena * arena;
 
-	jo_token_da_t tokens;
+	jo_token_ada tokens;
 
 	char* data;
 	jo_u32 data_size;
 	
 	jo_u32 line_counter;
 
-	jo_astr_t filename;
+	jo_astr filename;
 
 	char* token_start;
 	jo_u32 token_len;
@@ -31,13 +31,13 @@ typedef struct
 	jo_u32 current;
 
 	bool done;
-} jo_lexer_t;
+} jo_lexer;
 
-void jo_lexer_proceed(jo_lexer_t *lexer, FILE *file);
-void jo_lexer_push_content(jo_lexer_t *lexer);
-bool jo_lexer_content_is(jo_lexer_t *lexer, const char *keyword);
-void jo_lexer_reset_content(jo_lexer_t *lexer);
-void jo_lexer_newline(jo_lexer_t *lexer);
-jo_success jo_lex_file(jo_lexer_t* lexer, const char *filename);
+void jo_lexer_proceed(jo_lexer* lexer, FILE *file);
+void jo_lexer_push_content(jo_lexer* lexer);
+bool jo_lexer_content_is(jo_lexer* lexer, const char *keyword);
+void jo_lexer_reset_content(jo_lexer*lexer);
+void jo_lexer_newline(jo_lexer*lexer);
+jo_success jo_lex_file(jo_lexer* lexer, const char *filename);
 
 #endif

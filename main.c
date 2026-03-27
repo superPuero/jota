@@ -9,9 +9,9 @@
 #include "compiler/bytecode.h"
 #include "compiler/vm.h"
 
-void dump_tokens(jo_lexer_t* lexer)
+void dump_tokens(jo_lexer* lexer)
 {
-	jo_token_da_t* tokens = &lexer->tokens;
+	jo_token_ada* tokens = &lexer->tokens;
 
 	jo_ada_foreach(tokens)
 	{
@@ -59,17 +59,25 @@ int main(int argc, char** argv)
 	jo_compile_options compile_opt = jo_compie_options_parse_from_args(argc, argv);	
 	if(!compile_opt.success) { return 1; }
 	
-	jo_arena_t arena = jo_arena_make(jo_Mb(256), "compiler");
+	jo_arena arena = jo_arena_make(jo_Mb(1024), "compiler");
 	
-	jo_lexer_t lexer = {.arena = &arena};
-	jo_ast_node_t* ast_module = NULL;
-	jo_parser_t parser = { .arena = &arena, .lexer = &lexer };	
-	jo_sema_t sema = {.arena = &arena};
+	jo_lexer lexer = {.arena = &arena};
+	jo_f64 lexer_time = 0.0;
+	jo_ast_node* ast_module = NULL;
+	jo_parser parser = { .arena = &arena, .lexer = &lexer };	
+	jo_f64 parser_time = 0.0;
+	jo_sema sema = {.arena = &arena};
+	jo_f64 sema_time = 0.0;
 	jo_bytecode_context bcc = {.arena = &arena};
-	
+	jo_f64 bytecode_time = 0.0;
+	jo_f64 vm_time = 0.0;
+
+	jo_i64* output = NULL;
+	jo_f64 total_time = 0.0;
+
 	if(compile_opt.tokens)
 	{
-		jo_profile("tokenization")
+		jo_profile("tokenization", lexer_time)
 		{
 			jo_lex_file(&lexer, argv[1]);	
 		}
@@ -79,7 +87,7 @@ int main(int argc, char** argv)
 	
 	if(compile_opt.ast)
 	{
-		jo_profile("ast_generation")
+		jo_profile("ast_generation", parser_time)
 		{
 			ast_module = jo_parse(&parser);
 		}
@@ -88,7 +96,7 @@ int main(int argc, char** argv)
 
 	if(compile_opt.sema)
 	{
-		jo_profile("sema")
+		jo_profile("sema", sema_time)
 		{
 			jo_sema_analyze(&sema, ast_module);
 		}
@@ -96,22 +104,29 @@ int main(int argc, char** argv)
 
 	if(compile_opt.bytecode)
 	{
-		jo_profile("bytecode_generation")
+		jo_profile("bytecode_generation", bytecode_time)
 		{
 			jo_make_bytecode(&bcc, &ast_module->data.module);
-		}
+		}	
 		if(compile_opt.bytecode_dump) { dump_bytecode(&bcc); }
 	}
 
+
 	if(compile_opt.interp)
 	{
-		jo_profile("program_runtime")
+		jo_profile("program_runtime", vm_time)
 		{
-			jo_run_bytecode(&bcc);
+			jo_vm* vm = jo_arena_palloc(&arena, jo_vm);
+			output = jo_run_bytecode(vm, &bcc);
 		}
 	}
 
-	printf("total memory usage %lluKb", arena.current / 1024);
+	total_time = lexer_time + parser_time + sema_time + bytecode_time + vm_time;
+	printf("%s:%*.3fs\n", "total", 30 - (jo_i32)strlen("total"), total_time); 
+
+	if(output) { printf("program output: %llu\n", *output); }
+
+	printf("total memory usage: %.2lfMb", arena.current / 1024.0 / 1024.0);
 
 	jo_arena_free(&arena);
 }

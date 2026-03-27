@@ -1,7 +1,7 @@
 #include "token.h"
 
 
-const char* jo_token_type_to_string(jo_token_type_t token)
+const char* jo_token_type_to_string(jo_token_type token)
 {
 	switch (token)
 	{
@@ -96,7 +96,7 @@ const char* jo_token_type_to_string(jo_token_type_t token)
 	}
 }
 
-jo_u32 jo_token_binary_operator_precedence(jo_token_type_t token)
+jo_u32 jo_token_binary_operator_precedence(jo_token_type token)
 {
 	switch (token)
 	{
