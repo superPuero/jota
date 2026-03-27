@@ -71,11 +71,11 @@ const char* jo_ast_node_type_to_stirng(jo_ast_node_type_t type);
 
 typedef struct jo_ast_node jo_ast_node_t;
 
-jo_decl_dyn_array_named(jo_ast_node_t, jo_ast_node_dyn_array_t);
-jo_decl_dyn_array_named(jo_ast_node_t*, jo_ast_node_ptr_dyn_array_t);
+// jo_decl_dyn_array_named(jo_ast_node_t, jo_ast_node_dyn_array_t);
+// jo_decl_dyn_array_named(jo_ast_node_t*, jo_ast_node_ptr_dyn_array_t);
 
-// jo_declare_ada(jo_ast_node_t, jo_ast_node_dyn_array_t);
-// jo_declare_ada(jo_ast_node_t*, jo_ast_node_ptr_dyn_array_t);
+jo_ada_declare(jo_ast_node_t, jo_ast_node_dyn_array_t);
+jo_ada_declare(jo_ast_node_t*, jo_ast_node_ptr_dyn_array_t);
 
 typedef struct 
 {
@@ -84,7 +84,7 @@ typedef struct
 
 typedef struct
 {
-	jo_string path;
+	jo_str_view_t path;
 } jo_ast_directive_load;
 
 typedef struct
@@ -99,7 +99,7 @@ typedef struct
 
 typedef struct
 {
-	jo_string path;
+	jo_str_view_t path;
 } jo_ast_literal_import;
 
 typedef struct
@@ -138,7 +138,7 @@ typedef struct
 typedef struct
 {
 	jo_ast_node_t* target;
-	jo_string member_identifier;
+	jo_str_view_t member_identifier;
 } jo_ast_expr_member_access;
 
 typedef struct
@@ -272,7 +272,7 @@ struct jo_ast_node
 
         bool literal_bool;
 
-        jo_string literal_string;
+        jo_str_view_t literal_string;
 		
 		jo_ast_expr_op_unary 				expr_op_unary;
         jo_ast_expr_op_binary               expr_op_binary;
@@ -290,7 +290,7 @@ struct jo_ast_node
 		jo_ast_literal_import 		literal_import;
 		jo_ast_literal_type 		literal_type;
 
-        jo_string 					identifier;
+        jo_str_view_t 				identifier;
 
 		jo_ast_decl_namespace 	decl_namesapce;
 		jo_ast_directive_load 	directive_load;

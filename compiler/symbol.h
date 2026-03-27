@@ -21,7 +21,7 @@ typedef struct
 	jo_ast_node_t* ast_node;
 } jo_symbol_t;
 
-jo_decl_dyn_array_named(jo_symbol_t, jo_symbol_table_t);
+jo_ada_declare(jo_symbol_t, jo_symbol_table_t);
 
 typedef struct jo_scope jo_scope_t;
 
@@ -33,9 +33,9 @@ struct jo_scope
 };	
 
 jo_symbol_t jo_make_symbol(const char* identifier, jo_symbol_kind_t kind);
-jo_symbol_t* jo_scope_lookup_symbol(jo_scope_t* scope, const char* identifier);
+jo_symbol_t* jo_scope_lookup_symbol(jo_scope_t* scope, jo_str_view_t  identifier);
 jo_scope_t* jo_scope_push(jo_scope_t* scope, const char* identifier);
 jo_scope_t* jo_scope_pop(jo_scope_t* scope);
-jo_symbol_t* jo_scope_add_symbol(jo_scope_t* scope, jo_symbol_t symbol);
+jo_symbol_t* jo_scope_add_symbol(jo_arena_t* arena, jo_scope_t* scope, jo_symbol_t symbol);
 
 #endif

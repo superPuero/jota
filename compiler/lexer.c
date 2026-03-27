@@ -283,6 +283,7 @@ void jo_lexer_parse_next(jo_lexer_t* lexer)
 	if (jo_lexer_try_match_make_token(lexer, "<<=", jo_token_shift_left_equals, jo_token_kind_type_operator)) return;
 	if (jo_lexer_try_match_make_token(lexer, ">>=", jo_token_shift_right_equals, jo_token_kind_none)) return;
 
+	if (jo_lexer_try_match_make_token(lexer, "..", jo_token_double_dot, jo_token_kind_type_operator)) return;
 	if (jo_lexer_try_match_make_token(lexer, "==", jo_token_double_equals, jo_token_kind_type_operator)) return;
 	if (jo_lexer_try_match_make_token(lexer, "!=", jo_token_not_equals, jo_token_kind_type_operator)) return;
 	if (jo_lexer_try_match_make_token(lexer, "<=", jo_token_less_equals, jo_token_kind_type_operator)) return;

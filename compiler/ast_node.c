@@ -113,15 +113,17 @@ void jo_dump_ast_node(jo_ast_node_t* node, jo_u32 indent)
 
 	case jo_ast_type_module:
 		printf("\n");
-		jo_dyn_array_iter(&node->data.module.content, i, {
-			jo_dump_ast_node(node->data.module.content.data[i], indent + 1);
-		});
+		jo_ada_foreach(&node->data.module.content)
+		{
+			jo_dump_ast_node(*node->data.module.content.it, indent + 1);
+		};
 		break;
 	case jo_ast_type_decl_namespace:
 		printf("\n");
-		jo_dyn_array_iter(&node->data.decl_namesapce.decls_and_directives, i, {
-			jo_dump_ast_node(node->data.decl_namesapce.decls_and_directives.data[i], indent + 1);
-		});
+		jo_ada_foreach(&node->data.decl_namesapce.decls_and_directives)
+		{
+			jo_dump_ast_node(*node->data.decl_namesapce.decls_and_directives.it, indent + 1);
+		};
 		break;
 
 	case jo_ast_type_type_ptr:
@@ -139,16 +141,18 @@ void jo_dump_ast_node(jo_ast_node_t* node, jo_u32 indent)
 		break;
 	case jo_ast_type_type_fn:
 		printf("\n");
-		jo_dyn_array_iter(&node->data.type_fn.parameters, i, {
-			jo_dump_ast_node(node->data.type_fn.parameters.data[i], indent + 1);
-		});
+		jo_ada_foreach(&node->data.type_fn.parameters)
+		{
+			jo_dump_ast_node(*node->data.type_fn.parameters.it, indent + 1);
+		};
 		jo_dump_ast_node(node->data.type_fn.return_type, indent + 1);
 		break;
 	case jo_ast_type_type_tuple:
 		printf("\n");
-		jo_dyn_array_iter(&node->data.type_tuple.entries, i, {
-			jo_dump_ast_node(node->data.type_tuple.entries.data[i], indent + 1);
-		});
+		jo_ada_foreach(&node->data.type_tuple.entries)
+		{
+			jo_dump_ast_node(*node->data.type_tuple.entries.it, indent + 1);
+		};
 		break;
 
 	case jo_ast_type_decl:
@@ -159,17 +163,19 @@ void jo_dump_ast_node(jo_ast_node_t* node, jo_u32 indent)
 		break;
 	case jo_ast_type_literal_fn:
 		printf("\n");
-		jo_dyn_array_iter(&node->data.literal_fn.parameters, i, {
-			jo_dump_ast_node(node->data.literal_fn.parameters.data[i], indent + 1);
-		});
+		jo_ada_foreach(&node->data.literal_fn.parameters)
+		{
+			jo_dump_ast_node(*node->data.literal_fn.parameters.it, indent + 1);
+		};
 		jo_dump_ast_node(node->data.literal_fn.return_type, indent + 1);
 		jo_dump_ast_node(node->data.literal_fn.block, indent + 1);
 		break;
 	case jo_ast_type_literal_struct:
 		printf("\n");
-		jo_dyn_array_iter(&node->data.literal_struct.members, i, {
-			jo_dump_ast_node(node->data.literal_struct.members.data[i], indent + 1);
-		});
+		jo_ada_foreach(&node->data.literal_struct.members)
+		{
+			jo_dump_ast_node(*node->data.literal_struct.members.it, indent + 1);
+		};
 			break;
 
 	// --- Expressions ---
@@ -185,16 +191,18 @@ void jo_dump_ast_node(jo_ast_node_t* node, jo_u32 indent)
 	case jo_ast_type_expr_op_call:
 		printf("\n");
 		jo_dump_ast_node(node->data.expr_op_call.target, indent + 1);
-		jo_dyn_array_iter(&node->data.expr_op_call.arguments, i, {
-			jo_dump_ast_node(node->data.expr_op_call.arguments.data[i], indent + 1);
-		});
+		jo_ada_foreach(&node->data.expr_op_call.arguments)
+		{
+			jo_dump_ast_node(*node->data.expr_op_call.arguments.it, indent + 1);
+		};
 		break;
 	case jo_ast_type_expr_op_index:
 		printf("\n");
 		jo_dump_ast_node(node->data.expr_op_index.target, indent + 1);
-		jo_dyn_array_iter(&node->data.expr_op_index.arguments, i, {
-			jo_dump_ast_node(node->data.expr_op_index.arguments.data[i], indent + 1);
-		});
+		jo_ada_foreach(&node->data.expr_op_index.arguments)
+		{
+			jo_dump_ast_node(*node->data.expr_op_index.arguments.it, indent + 1);
+		};
 		break;
 	case jo_ast_type_stmt_ifelse:
 		printf("\n");
@@ -225,9 +233,10 @@ void jo_dump_ast_node(jo_ast_node_t* node, jo_u32 indent)
 		break;
 	case jo_ast_type_block:
 		printf("\n");
-		jo_dyn_array_iter(&node->data.block.statements, i, {
-			jo_dump_ast_node(node->data.block.statements.data[i], indent + 1);
-		});
+		jo_ada_foreach(&node->data.block.statements)
+		{
+			jo_dump_ast_node(*node->data.block.statements.it, indent + 1);
+		};
 		break;
 	case jo_ast_type_directive_load:
 		printf(" %s\n", node->data.directive_load.path.data);

@@ -106,6 +106,7 @@ typedef enum
 
 	jo_token_ampersand,
 	jo_token_equals,
+	jo_token_double_dot,
 	jo_token_double_equals,
 	jo_token_not_equals,
 	jo_token_shift_left,

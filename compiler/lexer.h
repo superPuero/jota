@@ -9,7 +9,7 @@
 #include "ast_node.h"
 #include "token.h"
 
-jo_declare_ada(jo_token_t, jo_token_da_t);
+jo_ada_declare(jo_token_t, jo_token_da_t);
 
 typedef struct 
 {

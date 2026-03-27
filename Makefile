@@ -7,6 +7,7 @@ RELEASE_CC_OPT = -O3 -march=native
 
 CORE_SRC = 	core/string.c \
        		core/arena.c \
+       		core/utils.c \
 
 COMPILER_SRC = \
        compiler/compile_options.c \
@@ -20,7 +21,7 @@ COMPILER_SRC = \
        compiler/vm.c \
 
 
-
+	
 compile:
 	$(CC) $(COMMON_CC_OPT) $(DEBUG_CC_OPT) main.c $(CORE_SRC) $(COMPILER_SRC) -o jota.exe	
 

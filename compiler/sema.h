@@ -11,8 +11,8 @@ typedef struct
 	char err[jo_sema_max_err_len];
 }jo_sema_err_t;
 
-jo_decl_dyn_array_named(jo_sema_err_t, jo_sema_err_dyn_array_t)
-jo_decl_dyn_array_named(jo_ast_decl_namespace*, jo_namespace_stack_t)
+jo_ada_declare(jo_sema_err_t, jo_sema_err_dyn_array_t)
+jo_ada_declare(jo_ast_decl_namespace*, jo_namespace_stack_t)
 
 typedef struct
 {

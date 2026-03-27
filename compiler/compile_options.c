@@ -14,30 +14,54 @@ jo_compile_options jo_compie_options_parse_from_args(int argc, char** argv)
 
 	for(jo_i32 i = 2; i < argc; i++)
 	{
-		if(strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "-h") == 0)
-		{
-		}
-		if(strcmp(argv[i], "-ast") == 0)
-		{
-			opt.ast = true;
-		}
-		else if(strcmp(argv[i], "-tokens") == 0 || strcmp(argv[i], "-t") == 0)
+		if(strcmp(argv[i], "-t") == 0)
 		{
 			opt.tokens = true;
 		}
-		else if(strcmp(argv[i], "-sema") == 0)
+		else if(strcmp(argv[i], "-dt") == 0)
 		{
+			opt.tokens = true;
+			opt.tokens_dump = true;
+		}
+		else if(strcmp(argv[i], "-ast") == 0)
+		{
+			opt.tokens = true;
+			opt.ast = true;
+		}
+		else if(strcmp(argv[i], "-dast") == 0)
+		{
+			opt.tokens = true;
+			opt.ast = true;
+			opt.ast_dump = true;
+		}
+		else if(strcmp(argv[i], "-sema") == 0)
+		{		
+			opt.tokens = true;
+			opt.ast = true;
 			opt.sema = true;
 		}
-		else if(strcmp(argv[i], "-test") == 0)
+		else if(strcmp(argv[i], "-bc") == 0)
 		{
-		}
-		else if(strcmp(argv[i], "-bytecode") == 0 || strcmp(argv[i], "-bc") == 0)
-		{\
+			opt.tokens = true;
+			opt.ast = true;
+			opt.sema = true;
 			opt.bytecode = true;
 		}
-		else if(strcmp(argv[i], "-interp") == 0 || strcmp(argv[i], "-i") == 0)
+		else if(strcmp(argv[i], "-dbc") == 0)
 		{
+			opt.tokens = true;
+			opt.ast = true;
+			opt.sema = true;
+			opt.bytecode = true;
+			opt.bytecode_dump = true;
+		}
+
+		else if(strcmp(argv[i], "-i") == 0)
+		{
+			opt.tokens = true;
+			opt.ast = true;
+			opt.sema = true;
+			opt.bytecode = true;
 			opt.interp = true;
 		}
 		else

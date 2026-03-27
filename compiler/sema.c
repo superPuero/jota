@@ -65,6 +65,33 @@ bool jo_primitive_type_is_fp(jo_token_type_t type)
 	return type == jo_token_keyword_f32 || type == jo_token_keyword_f64;
 }
 
+
+bool jo_primitive_type_is_integer(jo_token_type_t type)
+{
+	switch (type)
+	{
+	case jo_token_keyword_i64:
+		// fall-through
+	case jo_token_keyword_i32:
+		// fall-through
+	case jo_token_keyword_i16:
+		// fall-through
+	case jo_token_keyword_i8:
+		// fall-through
+	case jo_token_keyword_u64:
+		// fall-through
+	case jo_token_keyword_u32:
+		// fall-through
+	case jo_token_keyword_u16:
+		// fall-through
+	case jo_token_keyword_u8:
+		return true;
+	default:
+		return false;
+	}
+}
+
+
 bool jo_is_integer_primitive_type_signed(jo_token_type_t type)
 {
 	bool sign = false;
@@ -260,7 +287,7 @@ void jo_sema_resolve_expr_op_call(jo_sema_t* sema, jo_scope_t* outer_scope, jo_a
 {
 	if(expr->resolved_type) return;
 
-	jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope, expr->data.expr_op_call.target->data.identifier.data);
+	jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope, expr->data.expr_op_call.target->data.identifier);
 	
 	if(!sym)
 	{
@@ -327,11 +354,29 @@ void jo_sema_resolve_expr_op_binary_type(jo_sema_t* sema, jo_scope_t* outer_scop
 	}
 }
 
+void jo_sema_resolve_expr_op_unary_type(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* expr)
+{
+	if(expr->resolved_type) return;
+
+	jo_sema_resolve_expr(sema, outer_scope, expr->data.expr_op_unary.expression);
+
+	jo_ast_node_t* left_expr_type = expr->data.expr_op_unary.expression->resolved_type;
+
+	if(jo_type_is_primitive(left_expr_type))
+	{
+		if(jo_primitive_type_is_integer(left_expr_type->data.type_primitive))
+		{
+			
+		}
+	}
+}
+
+
 void jo_sema_resolve_expr_assigment(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* node)
 {
 	jo_sema_resolve_expr(sema, outer_scope, node->data.expr_assignment.expression);
 
-	jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope,  node->data.expr_assignment.target->data.identifier.data);
+	jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope, node->data.expr_assignment.target->data.identifier);
 
 	if(!sym)
 	{
@@ -371,7 +416,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 	{
 		jo_ast_node_t* array_type_node = jo_ast_node_make(sema->arena, jo_ast_type_type_array);
 		array_type_node->data.type_array.array_size_expression = jo_ast_node_make(sema->arena, jo_ast_type_literal_u64);
-		array_type_node->data.type_array.array_size_expression->data.literal_u64 = node->data.literal_string.size;
+		array_type_node->data.type_array.array_size_expression->data.literal_u64 = node->data.literal_string.len;
 		array_type_node->data.type_array.inner = jo_ast_node_make(sema->arena,jo_ast_type_type_primitive);
 		array_type_node->data.type_array.inner->data.type_primitive = jo_token_keyword_u8;
 		node->resolved_type = array_type_node;
@@ -383,11 +428,10 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
         jo_ast_node_t* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_fn);
         type_node->data.type_fn.return_type = node->data.literal_fn.return_type;
 
-		jo_dyn_array_iter(&node->data.literal_fn.parameters, it,
-			{
-				jo_dyn_array_append(&type_node->data.type_fn.parameters, node->data.literal_fn.parameters.data[it]->data.decl.specified_type);
-			}
-		);
+		jo_ada_foreach(&node->data.literal_fn.parameters)
+		{
+			jo_ada_append(sema->arena, &type_node->data.type_fn.parameters, (*node->data.literal_fn.parameters.it)->data.decl.specified_type);
+		}
 
         node->resolved_type = type_node;
    	    break;
@@ -397,12 +441,11 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
     {
         jo_ast_node_t* type_node = jo_ast_node_make(sema->arena,jo_ast_type_type_struct);
 
-		jo_dyn_array_iter(&node->data.literal_struct.members, it,
-			{
-				jo_sema_resolve_expr(sema, outer_scope, node->data.literal_struct.members.data[it]);
-				jo_dyn_array_append(&type_node->data.type_struct.members, node->data.literal_struct.members.data[it]->resolved_type);
-			}
-		);
+		jo_ada_foreach(&node->data.literal_struct.members)
+		{
+			jo_sema_resolve_expr(sema, outer_scope, *node->data.literal_struct.members.it);
+			jo_ada_append(sema->arena, &type_node->data.type_struct.members, (*node->data.literal_struct.members.it)->resolved_type);
+		}
 
         node->resolved_type = type_node;
    	    break;
@@ -423,7 +466,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 		jo_symbol_t sym = {0};
 		sym.ast_node = node;
 		sym.identifier = jo_string_from(node->data.decl.identifier->data.identifier.data);		
-		jo_scope_add_symbol(outer_scope, sym);		
+		jo_scope_add_symbol(sema->arena,outer_scope, sym);		
 
 		//@TODO: maybe there is a better way 
 		jo_sema_resolve_expr(sema, outer_scope, node->data.decl.identifier);		
@@ -431,7 +474,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 	}
 	case jo_ast_type_identifier:
 	{
-		jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope, node->data.identifier.data);
+		jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope, node->data.identifier);
 		if(!sym)
 		{
 			printf("undeclared identifier %s", node->data.identifier.data);
@@ -448,6 +491,9 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 		break;
 	case jo_ast_type_expr_op_binary:
 		jo_sema_resolve_expr_op_binary_type(sema, outer_scope, node);
+		break;
+	case jo_ast_type_expr_op_unary:
+		jo_sema_resolve_expr_op_unary_type(sema, outer_scope, node);
 		break;
 	case jo_ast_type_expr_op_call:
 		jo_sema_resolve_expr_op_call(sema, outer_scope, node);
@@ -543,19 +589,18 @@ void jo_sema_analyze_literal_fn(jo_sema_t* sema, jo_scope_t* fn_scope, jo_ast_no
 	
 	if(literal_fn->intrinsic) return;
 
-    jo_dyn_array_iter(&literal_fn->parameters, it,
-        {			
-            jo_ast_node_t* param_node = literal_fn->parameters.data[it];
-			jo_sema_resolve_decl(sema, fn_scope, param_node);
+    jo_ada_foreach(&literal_fn->parameters)
+	{			
+		jo_ast_node_t* param_node = *literal_fn->parameters.it;
+		jo_sema_resolve_decl(sema, fn_scope, param_node);
 
-            jo_symbol_t sym = {0};
-            sym.identifier = jo_string_from(param_node->data.decl.identifier->data.identifier.data);
+		jo_symbol_t sym = {0};
+		sym.identifier = jo_string_from(param_node->data.decl.identifier->data.identifier.data);
 
-            sym.kind = jo_symbol_kind_variable;
-			sym.ast_node = param_node;
-			param_node->resolved_symbol = jo_scope_add_symbol(fn_scope, sym);
-        }
-    );
+		sym.kind = jo_symbol_kind_variable;
+		sym.ast_node = param_node;
+		param_node->resolved_symbol = jo_scope_add_symbol(sema->arena,fn_scope, sym);
+	}
 
 	jo_sema_resolve_block(sema, fn_scope, literal_fn->block, literal_fn_node);
 }
@@ -601,7 +646,7 @@ void jo_sema_analyze_module(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_nod
 				sym.kind = jo_symbol_kind_function;
 				sym.ast_node = current_content;
 				sym.identifier = jo_string_from(current_content->data.decl.identifier->data.identifier.data);				
-				current_content->resolved_symbol = jo_scope_add_symbol(outer_scope, sym);
+				current_content->resolved_symbol = jo_scope_add_symbol(sema->arena,outer_scope, sym);
 				break;
 			}
 
@@ -693,7 +738,6 @@ void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 		decl_node->resolved_type = decl->specified_type;
 	}
 }
-
 
 bool jo_sema_analyze(jo_sema_t* sema, jo_ast_node_t* module)
 {

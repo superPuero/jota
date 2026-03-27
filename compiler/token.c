@@ -65,6 +65,7 @@ const char* jo_token_type_to_string(jo_token_type_t token)
 	jo_stringify_case(jo_token_slash);
 
 	jo_stringify_case(jo_token_modulo);
+	jo_stringify_case(jo_token_double_dot);
 	jo_stringify_case(jo_token_plus_equals);
 	jo_stringify_case(jo_token_minus_equals);
 	jo_stringify_case(jo_token_star_equals);

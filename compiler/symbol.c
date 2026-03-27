@@ -10,17 +10,17 @@ jo_symbol_t jo_make_symbol(const char* identifier, jo_symbol_kind_t kind)
 	return symbol;
 }
 
-jo_symbol_t* jo_scope_lookup_symbol(jo_scope_t* scope, const char* identifier)
+jo_symbol_t* jo_scope_lookup_symbol(jo_scope_t* scope, jo_str_view_t identifier)
 {
 	if(!scope) return NULL;
 
-	jo_dyn_array_iter(&scope->symbol_table, it, {
-			if (strcmp(scope->symbol_table.data[it].identifier.data, identifier) == 0) 
+	jo_ada_foreach(&scope->symbol_table)
+	{
+			if (strncmp(scope->symbol_table.it->identifier.data, identifier.data, identifier.len) == 0) 
 			{
-				return &scope->symbol_table.data[it]; 
+				return scope->symbol_table.it; 
 			}
-    	}
-	);
+    }
 
 	return jo_scope_lookup_symbol(scope->parent, identifier);
 }
@@ -33,16 +33,9 @@ jo_scope_t* jo_scope_push(jo_scope_t* scope, const char* identifier)
 	return new_scope;
 }
 
-jo_scope_t* jo_scope_pop(jo_scope_t* scope)
+jo_symbol_t* jo_scope_add_symbol(jo_arena_t* arena, jo_scope_t* scope, jo_symbol_t symbol)
 {
-	jo_scope_t* old_scope = scope->parent;
-	jo_dyn_array_free(&scope->symbol_table);	
-	return old_scope;
-}
-
-jo_symbol_t* jo_scope_add_symbol(jo_scope_t* scope, jo_symbol_t symbol)
-{
-	jo_dyn_array_append(&scope->symbol_table, symbol);
+	jo_ada_append(arena, &scope->symbol_table, symbol);
 
 	return &scope->symbol_table.data[scope->symbol_table.occupied - 1];
 }

@@ -1,6 +1,18 @@
 main :: fn -> i64
 {
-	return factorial(5) + fibbonacci(10)
+	return power((factorial(5) + fibbonacci(10)) as f64, 2) as i64
+}
+
+power :: fn(base: f64, exp: i64) -> f64
+{
+    if exp == 0 
+    { 
+        return 1.0 
+    }
+    else 
+    {
+        return base * power(base, exp - 1)
+    }
 }
 
 fibbonacci :: fn(x: i64) -> i64

@@ -135,7 +135,7 @@ case jo_ast_type_literal_##type:\
 		op.instr = jo_bytecode_instr_mov_imm;\
 		op.as.mov_imm.to = out_reg;\
 		memcpy(&op.as.mov_imm.value, &expr->data.literal_##type, sizeof(jo_##type));   \
-		jo_dyn_array_append(&bcc->bc, op);\
+		jo_ada_append(bcc->arena,&bcc->bc, op);\
 		return out_reg;\
 		break;\
 	}
@@ -237,11 +237,11 @@ void jo_bytecode_dump_op(jo_bytecode_context* bcc, jo_bytecode_op* op)
 		case jo_bytecode_instr_call:
 			if(op->as.call.is_void_call)
 			{
-				printf("%s, args: %u", bcc->fns.data[op->as.call.function_index].label.data, op->as.call.arg_count);
+				printf("%.*s, args: %u", bcc->fns.data[op->as.call.function_index].label.len, bcc->fns.data[op->as.call.function_index].label.data, op->as.call.arg_count);
 			}
 			else
 			{
-				printf("%s, args: %u -> r%u", bcc->fns.data[op->as.call.function_index].label.data, op->as.call.arg_count, op->as.call.dest);
+				printf("%.*s, args: %u -> r%u", bcc->fns.data[op->as.call.function_index].label.len, bcc->fns.data[op->as.call.function_index].label.data, op->as.call.arg_count, op->as.call.dest);
 			}
 			break;
 
@@ -316,14 +316,16 @@ void jo_bytecode_dump_op(jo_bytecode_context* bcc, jo_bytecode_op* op)
 
 jo_u32 jo_bytecode_find_function_id(jo_bytecode_context* bcc, const char* identifier)
 {
-	jo_dyn_array_iter(&bcc->fns, it,
+	jo_u32 i = 0;
+	jo_ada_foreach(&bcc->fns)
+	{
+		if(strncmp(bcc->fns.it->label.data, identifier, bcc->fns.it->label.len) == 0)
 		{
-			if(strcmp(bcc->fns.data[it].label.data, identifier) == 0)
-			{
-				return it;
-			}
+			return i;
 		}
-	);
+
+		i++;
+	}
 
 	return -1;
 }
@@ -339,9 +341,9 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 		if(expr->resolved_type->type == jo_ast_type_type_fn)
 		{
 			jo_bytecode_fn bc_fn = {0};
-            bc_fn.label = jo_string_from(expr->data.decl.identifier->data.identifier.data);
+            bc_fn.label = expr->data.decl.identifier->data.identifier;
             bc_fn.entry_ip = -1; // patched in later
-            jo_dyn_array_append(&bcc->fns, bc_fn);
+            jo_ada_append(bcc->arena, &bcc->fns, bc_fn);
 
 			jo_bytecode_emit_function(bcc, &bcc->fns.data[bcc->fns.occupied - 1], expr);
 		}
@@ -356,7 +358,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 				
 				mov.as.mov.from = from_reg;
 				mov.as.mov.to = to_reg;
-				jo_dyn_array_append(&bcc->bc, mov);
+				jo_ada_append(bcc->arena, &bcc->bc, mov);
 
 				decl_identifier_node->resolved_symbol->location = mov.as.mov.to;
 			}
@@ -438,7 +440,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 			}
 
 			op.instr = instr;
-            jo_dyn_array_append(&bcc->bc, op);
+            jo_ada_append(bcc->arena, &bcc->bc, op);
 			return op.as.cast.dest;
 			break;
 		}
@@ -518,7 +520,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 						mov.instr = jo_bytecode_instr_mov;
 						mov.as.mov.to = left_reg;
 						mov.as.mov.from = right_reg;
-						jo_dyn_array_append(&bcc->bc, mov);
+						jo_ada_append(bcc->arena, &bcc->bc, mov);
 						return left_reg;
 						break;
 					}
@@ -532,7 +534,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
             op.as.binary_op.a = left_reg;
             op.as.binary_op.b = right_reg;
 
-            jo_dyn_array_append(&bcc->bc, op);
+            jo_ada_append(bcc->arena,&bcc->bc, op);
             return dest_reg;
 		}
 		break;
@@ -575,10 +577,10 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 			op.instr = jo_bytecode_instr_mov;
 			op.as.mov.to = fn->reg_counter++;
 			op.as.mov.from = args_ids[i];
-			jo_dyn_array_append(&bcc->bc, op);
+			jo_ada_append(bcc->arena,&bcc->bc, op);
 		}
 
-		jo_dyn_array_append(&bcc->bc, op);
+		jo_ada_append(bcc->arena,&bcc->bc, op);
 
 
 		return dest_reg;
@@ -613,7 +615,7 @@ void jo_bytecode_emit_stmt(jo_bytecode_context* bcc,  jo_bytecode_fn* fn, jo_ast
 				{
 					ret_op.as.ret.is_void = true;
 				}
-				jo_dyn_array_append(&bcc->bc, ret_op);
+				jo_ada_append(bcc->arena,&bcc->bc, ret_op);
 				break;
 			}
 		case jo_ast_type_stmt_ifelse:
@@ -622,7 +624,7 @@ void jo_bytecode_emit_stmt(jo_bytecode_context* bcc,  jo_bytecode_fn* fn, jo_ast
 				jmp_in_not_op.instr = jo_bytecode_instr_jmp_if_not;
 				jmp_in_not_op.as.jmp_if_not.cond_reg = jo_bytecode_emit_expr(bcc, fn, stmt_node->data.stmt_ifelse.condition);
 				jmp_in_not_op.as.jmp_if_not.offset = -1; // patched later after we generate the {success} block to know how much instrucitons to jump over
-				jo_dyn_array_append(&bcc->bc, jmp_in_not_op);
+				jo_ada_append(bcc->arena,&bcc->bc, jmp_in_not_op);
 				jo_u32 cond_jmp_instr_id = bcc->bc.occupied - 1;
 
 				jo_bytecode_emit_block(bcc, fn, &stmt_node->data.stmt_ifelse.true_block->data.block);
@@ -630,7 +632,7 @@ void jo_bytecode_emit_stmt(jo_bytecode_context* bcc,  jo_bytecode_fn* fn, jo_ast
 				jo_bytecode_op jmp_out_op = {0};
 				jmp_out_op.instr = jo_bytecode_instr_jmp;
 				jmp_out_op.as.jmp.offset = -1; // patched later after we generate the {else} block to know how much instrucitons to jump over
-				jo_dyn_array_append(&bcc->bc, jmp_out_op);
+				jo_ada_append(bcc->arena,&bcc->bc, jmp_out_op);
 				jo_u32 if_out_jmp_instr_id = bcc->bc.occupied - 1;
 
 				bcc->bc.data[cond_jmp_instr_id].as.jmp_if_not.offset = bcc->bc.occupied - cond_jmp_instr_id;
@@ -685,30 +687,30 @@ void jo_bytecode_emit_function(jo_bytecode_context* bcc, jo_bytecode_fn* bcfn, j
     jo_bytecode_emit_block(bcc, bcfn, &literal_fn->block->data.block);
 }
 
-jo_bytecode_context jo_make_bytecode(jo_ast_module* module)
+void jo_make_bytecode(jo_bytecode_context* bcc, jo_ast_module* module)
 {
-	jo_bytecode_context bcc = {0};
-
-	jo_dyn_array_iter(&module->content, it, {
-        jo_ast_node_t* node = module->content.data[it];
+	jo_ada_foreach(&module->content)
+	{
+        jo_ast_node_t* node = *module->content.it;
         if(node->data.decl.initialize_expression->resolved_type->type == jo_ast_type_type_fn) {
             jo_bytecode_fn bc_fn = {0};
-            bc_fn.label = jo_string_from(node->data.decl.identifier->data.identifier.data);
+            bc_fn.label = node->data.decl.identifier->data.identifier;
             bc_fn.entry_ip = -1; // patched in later
-            jo_dyn_array_append(&bcc.fns, bc_fn);
+            jo_ada_append(bcc->arena, &bcc->fns, bc_fn);
         }
-    });
+    }
 
-	jo_dyn_array_iter(&module->content, it, {
-        jo_ast_node_t* node = module->content.data[it];
-        if(node->data.decl.initialize_expression->resolved_type->type == jo_ast_type_type_fn) {
-            jo_u32 fn_index = jo_bytecode_find_function_id(&bcc, node->data.decl.identifier->data.identifier.data);
+	jo_ada_foreach(&module->content)
+	{
+        jo_ast_node_t* node = *module->content.it;
 
-            bcc.fns.data[fn_index].entry_ip = bcc.bc.occupied;
+        if(node->data.decl.initialize_expression->resolved_type->type == jo_ast_type_type_fn) 
+		{
+            jo_u32 fn_index = jo_bytecode_find_function_id(bcc, node->data.decl.identifier->data.identifier.data);
 
-            jo_bytecode_emit_function(&bcc, &bcc.fns.data[fn_index], node);
+            bcc->fns.data[fn_index].entry_ip = bcc->bc.occupied;
+
+            jo_bytecode_emit_function(bcc, &bcc->fns.data[fn_index], node);
         }
-    });
-
-	return bcc;
+    }
 }

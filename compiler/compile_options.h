@@ -7,9 +7,12 @@
 typedef struct
 {
 	jo_bool tokens;
+	jo_bool tokens_dump;
 	jo_bool ast;
+	jo_bool ast_dump;
 	jo_bool sema;
 	jo_bool bytecode;
+	jo_bool bytecode_dump;
 	jo_bool interp;
 	jo_bool success;
 }jo_compile_options;

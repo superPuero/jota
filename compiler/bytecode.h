@@ -202,19 +202,20 @@ typedef struct
     } as;
 }jo_bytecode_op;
 
-jo_decl_dyn_array_named(jo_bytecode_op, jo_bytecode);
+jo_ada_declare(jo_bytecode_op, jo_bytecode);
 
 typedef struct
 {
-	jo_string label;
+	jo_str_view_t label;
 	jo_u32 entry_ip;
 	jo_register_id reg_counter;
 }jo_bytecode_fn;
 
-jo_decl_dyn_array_named(jo_bytecode_fn, jo_bytecode_fn_dyn_array)
+jo_ada_declare(jo_bytecode_fn, jo_bytecode_fn_dyn_array)
 
 typedef struct
 {
+	jo_arena_t* arena;
 	jo_bytecode_fn_dyn_array fns;
 	jo_bytecode bc;
 }jo_bytecode_context;
@@ -224,6 +225,6 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 void jo_bytecode_emit_block(jo_bytecode_context* bcc, jo_bytecode_fn* fn, jo_ast_block* ast_block);
 void jo_bytecode_dump_op(jo_bytecode_context* bcc, jo_bytecode_op* op);
 jo_u32 jo_bytecode_find_function_id(jo_bytecode_context* bcc, const char* identifier);
-jo_bytecode_context jo_make_bytecode(jo_ast_module* module);
+void jo_make_bytecode(jo_bytecode_context* bcc, jo_ast_module* module);
 
 #endif
