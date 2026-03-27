@@ -21,7 +21,7 @@ make
 ```
 ./jota jota_src/example.jo -ast -t
 ```
-* **-tokens, -t** dump tokens into stdout
-* **-ast** dump abstract syntax tree into stdout
-* **-bc** dump bytecode into stdout
-* **-interp, -i** run/interperent bytecode
+* **-dt** dump tokens into stdout
+* **-dast** dump abstract syntax tree into stdout
+* **-dbc** dump bytecode into stdout
+* **-i** run/interperent bytecode
