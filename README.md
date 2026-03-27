@@ -24,4 +24,4 @@ make
 * **-dt** dump tokens into stdout
 * **-dast** dump abstract syntax tree into stdout
 * **-dbc** dump bytecode into stdout
-* **-i** run/interperent bytecode
+* **-i** run/interpret bytecode
