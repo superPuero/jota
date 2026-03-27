@@ -142,45 +142,42 @@ bool jo_type_is_primitive(jo_ast_node_t* type)
 }
 
 
-jo_string jo_sema_type_string(jo_ast_node_t* t1)
+jo_astr_t jo_sema_type_astr(jo_arena_t* arena, jo_ast_node_t* t1)
 {
 	if(!t1) assert(0);
 
 	switch (t1->type)
 	{
 	case jo_ast_type_type_primitive:
-		return jo_string_from(jo_token_type_to_string(t1->data.type_primitive) + 17);
+		return jo_astr_from(arena, jo_token_type_to_string(t1->data.type_primitive + 17)); //@TODO: make it more understandalbe, 17 affset is to remove jo_token_keyword_* prefix 
 		break;
 
 	case jo_ast_type_type_fn:
 		jo_ast_type_fn* type_fn = &t1->data.type_fn;
-		jo_string str = jo_string_from("fn(");
+		jo_astr_t str = jo_astr_from(arena, "fn(");
 
 		for(jo_uz param_i = 0; param_i < t1->data.type_fn.parameters.occupied; param_i++)
 		{
-			jo_string param_str = jo_sema_type_string(t1->data.type_fn.parameters.data[param_i]);
+			jo_astr_t param_str = jo_sema_type_astr(arena, t1->data.type_fn.parameters.data[param_i]);
 	
-			jo_string_append(&str, param_str.data);
+			jo_astr_append_astr(arena, &str, &param_str);
 	
-			jo_string_free(&param_str);		
-
 			if(param_i != t1->data.type_fn.parameters.occupied - 1)
 			{
-				jo_string_append(&str, ", ");			
+				jo_astr_append(arena, &str, ", ");			
 			}
 		}
 
 
-		jo_string_append(&str, ")");
+		jo_astr_append(arena, &str, ")");
 
 		
 		if(type_fn->return_type)
 		{
-			jo_string_append(&str, " -> ");
+			jo_astr_append(arena, &str, " -> ");
 
-			jo_string ret_str = jo_sema_type_string(t1->data.type_fn.return_type);
-			jo_string_append(&str, ret_str.data);
-			jo_string_free(&ret_str);	
+			jo_astr_t ret_str = jo_sema_type_astr(arena, t1->data.type_fn.return_type);
+			jo_astr_append(arena, &str, ret_str.data);
 		}
 
 		return str;
@@ -291,7 +288,7 @@ void jo_sema_resolve_expr_op_call(jo_sema_t* sema, jo_scope_t* outer_scope, jo_a
 	
 	if(!sym)
 	{
-	    printf("call of undeclared identifier %s\n", expr->data.expr_op_call.target->data.identifier.data);
+	    printf("call of undeclared identifier %.*s\n", expr->data.expr_op_call.target->data.identifier.len, expr->data.expr_op_call.target->data.identifier.data);
 		assert(0);
 	}
 
@@ -310,18 +307,21 @@ void jo_sema_resolve_expr_op_call(jo_sema_t* sema, jo_scope_t* outer_scope, jo_a
 			sym->ast_node->resolved_type->data.type_fn.parameters.data[arg_i], 
 			expr->data.expr_op_call.arguments.data[arg_i]->resolved_type))
 		{
-				printf("argument provided for %s call at index %llu has unexpected type, expected %s got %s",
-					sym->identifier.data,
+			jo_arena_scope(sema->arena)
+			{
+				jo_astr_t expr_str = jo_sema_type_astr(sema->arena, sym->ast_node->resolved_type->data.type_fn.parameters.data[arg_i]);
+				jo_astr_t resolved_str = jo_sema_type_astr(sema->arena, expr->data.expr_op_call.arguments.data[arg_i]->resolved_type);
+				printf("argument provided for %.*s call at index %llu has unexpected type, expected %.*s got %.*s",
+					jo_astr_fmt(&sym->identifier),
 					arg_i,
-					jo_sema_type_string(sym->ast_node->resolved_type->data.type_fn.parameters.data[arg_i]).data,
-					jo_sema_type_string(expr->data.expr_op_call.arguments.data[arg_i]->resolved_type).data
+					jo_astr_fmt(&expr_str),
+					jo_astr_fmt(&resolved_str)
 				);
-				assert(0);
+			}
+
+			assert(0);
 		}
 	}
-
-	jo_string str = jo_sema_type_string(sym->ast_node->resolved_type);
-	jo_string_free(&str);
 
 	expr->resolved_type = sym->ast_node->resolved_type->data.type_fn.return_type;
 }
@@ -380,17 +380,24 @@ void jo_sema_resolve_expr_assigment(jo_sema_t* sema, jo_scope_t* outer_scope, jo
 
 	if(!sym)
 	{
-		printf("undeclared identifier %s", node->data.expr_assignment.target->data.identifier.data);
+		printf("undeclared identifier %.*s", jo_str_view_fmt(&node->data.expr_assignment.target->data.identifier));
 		assert(0);
 	}
 
 
 	if(!jo_sema_types_are_equal(sym->ast_node->resolved_type, node->data.expr_assignment.expression->resolved_type))
 	{
-		printf("can not assign expression of a type %s to variable %s of type %s"
-				, jo_token_type_to_string(node->data.expr_assignment.expression->resolved_type->data.type_primitive)
-				, node->data.expr_assignment.target->data.identifier.data
-				, jo_token_type_to_string(sym->ast_node->resolved_type->data.type_primitive));
+		jo_arena_scope(sema->arena)
+		{
+			jo_astr_t gtsrt = jo_sema_type_astr(sema->arena, sym->ast_node->resolved_type);
+			jo_astr_t rtstr = jo_sema_type_astr(sema->arena, node->data.expr_assignment.expression->resolved_type);
+			printf("can not assign expression of a type %.*s to variable %.*s of type %.*s"
+					, jo_astr_fmt(&rtstr)
+					, jo_str_view_fmt(&node->data.expr_assignment.target->data.identifier)
+					, jo_astr_fmt(&gtsrt)
+				);
+		}
+
 		assert(0);
 	}
 
@@ -465,7 +472,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 		jo_symbol_t sym = {0};
 		sym.ast_node = node;
-		sym.identifier = jo_string_from(node->data.decl.identifier->data.identifier.data);		
+		sym.identifier = jo_astr_from(sema->arena, node->data.decl.identifier->data.identifier.data);		
 		jo_scope_add_symbol(sema->arena,outer_scope, sym);		
 
 		//@TODO: maybe there is a better way 
@@ -477,7 +484,7 @@ void jo_sema_resolve_expr(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 		jo_symbol_t* sym = jo_scope_lookup_symbol(outer_scope, node->data.identifier);
 		if(!sym)
 		{
-			printf("undeclared identifier %s", node->data.identifier.data);
+			printf("undeclared identifier %.*s", jo_str_view_fmt(&node->data.identifier));
 			assert(0);
 		}
 		
@@ -541,9 +548,16 @@ void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 			if(!jo_sema_types_are_equal(stmt->data.stmt_return.expression->resolved_type, literal_parent_fn->return_type))
 			{
-				printf("function return type %s does not match return expression type %s"
-					, jo_token_type_to_string(literal_parent_fn->return_type->data.type_primitive)
-					, jo_token_type_to_string(stmt->data.stmt_return.expression->resolved_type->data.type_primitive));
+				jo_arena_scope(sema->arena)
+				{
+					jo_astr_t estr = jo_sema_type_astr(sema->arena, literal_parent_fn->return_type);
+					jo_astr_t gstr = jo_sema_type_astr(sema->arena, stmt->data.stmt_return.expression->resolved_type);
+
+					printf("function return type %.*s does not match return expression type %.*s"
+						, jo_astr_fmt(&estr)
+						, jo_astr_fmt(&gstr)
+					);
+				}
 				assert(0);
 			}
 		}
@@ -551,9 +565,16 @@ void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 		{
 			if(!jo_sema_type_is_void(literal_parent_fn->return_type))
 			{
-				printf("function return type %s does not match return expression type %s"
-					, jo_token_type_to_string(literal_parent_fn->return_type->data.type_primitive)
-					, jo_token_type_to_string(stmt->data.stmt_return.expression->resolved_type->data.type_primitive));
+				jo_arena_scope(sema->arena)
+				{
+					jo_astr_t estr = jo_sema_type_astr(sema->arena, literal_parent_fn->return_type);
+					jo_astr_t gstr = jo_sema_type_astr(sema->arena, stmt->data.stmt_return.expression->resolved_type);
+
+					printf("function return type %.*s does not match return expression type %.*s"
+						, jo_astr_fmt(&estr)
+						, jo_astr_fmt(&gstr)
+					);
+				}
 				assert(0);
 			}
 		}
@@ -573,7 +594,7 @@ void jo_sema_resolve_stmt(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 
 void jo_sema_resolve_block(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* block, jo_ast_node_t* literal_parent_fn_node)
 {
-	jo_scope_t* fn_block_scope = jo_scope_push(outer_scope, "block");
+	jo_scope_t* fn_block_scope = jo_scope_push(sema->arena, outer_scope, jo_str_view_from_cstr("block"));
 	
 	for(jo_uz i = 0; i < block->data.block.statements.occupied; i++)
 	{
@@ -595,7 +616,7 @@ void jo_sema_analyze_literal_fn(jo_sema_t* sema, jo_scope_t* fn_scope, jo_ast_no
 		jo_sema_resolve_decl(sema, fn_scope, param_node);
 
 		jo_symbol_t sym = {0};
-		sym.identifier = jo_string_from(param_node->data.decl.identifier->data.identifier.data);
+		sym.identifier = jo_astr_from_view(sema->arena, param_node->data.decl.identifier->data.identifier);
 
 		sym.kind = jo_symbol_kind_variable;
 		sym.ast_node = param_node;
@@ -613,7 +634,7 @@ void jo_analyze_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_t* de
 	{
 	case jo_ast_type_type_fn:
 	{
-		jo_scope_t* fn_scope = jo_scope_push(outer_scope, decl_node->data.decl.identifier->data.identifier.data);
+		jo_scope_t* fn_scope = jo_scope_push(sema->arena, outer_scope, decl_node->data.decl.identifier->data.identifier);
 		jo_sema_analyze_literal_fn(sema, fn_scope, decl_node->data.decl.initialize_expression);
 		break;
 	}
@@ -645,7 +666,7 @@ void jo_sema_analyze_module(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_nod
 				jo_symbol_t sym = {0};
 				sym.kind = jo_symbol_kind_function;
 				sym.ast_node = current_content;
-				sym.identifier = jo_string_from(current_content->data.decl.identifier->data.identifier.data);				
+				sym.identifier = jo_astr_from_view(sema->arena ,current_content->data.decl.identifier->data.identifier);				
 				current_content->resolved_symbol = jo_scope_add_symbol(sema->arena,outer_scope, sym);
 				break;
 			}
@@ -695,13 +716,14 @@ void jo_sema_resolve_decl(jo_sema_t* sema, jo_scope_t* outer_scope, jo_ast_node_
 		{
 			if(!jo_sema_types_are_equal(decl->specified_type, decl->initialize_expression->resolved_type))
 			{
-				jo_string spec_type_str = jo_sema_type_string(decl->specified_type);
-				jo_string resolved_type_str = jo_sema_type_string(decl->initialize_expression->resolved_type);
+				jo_astr_t spec_type_str = jo_sema_type_astr(sema->arena, decl->specified_type);
+				jo_astr_t resolved_type_str = jo_sema_type_astr(sema->arena, decl->initialize_expression->resolved_type);
 			
-				printf("declaration of %s has specified type %s but has initilize expression type %s\n", 
-					decl->identifier->data.identifier.data, 
-					spec_type_str.data, 
-					resolved_type_str.data);
+				printf("declaration of %.*s has specified type %.*s but has initilize expression type %.*s\n", 
+					jo_str_view_fmt(&decl->identifier->data.identifier), 
+					jo_astr_fmt(&spec_type_str),
+					jo_astr_fmt(&resolved_type_str)
+				);
 				assert(0);
 				
 				// if (decl->specified_type->type == jo_ast_type_type_primitive && 

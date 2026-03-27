@@ -1,11 +1,11 @@
 #include "symbol.h"
 
-jo_symbol_t jo_make_symbol(const char* identifier, jo_symbol_kind_t kind)
+jo_symbol_t jo_make_symbol(jo_arena_t* arena, jo_str_view_t identifier, jo_symbol_kind_t kind)
 {
 	jo_symbol_t symbol ={0};
 
 	symbol.kind = kind;
-	symbol.identifier = jo_string_from(identifier);
+	symbol.identifier = jo_astr_from_view(arena, identifier);
 
 	return symbol;
 }
@@ -25,11 +25,11 @@ jo_symbol_t* jo_scope_lookup_symbol(jo_scope_t* scope, jo_str_view_t identifier)
 	return jo_scope_lookup_symbol(scope->parent, identifier);
 }
 
-jo_scope_t* jo_scope_push(jo_scope_t* scope, const char* identifier)
+jo_scope_t* jo_scope_push(jo_arena_t* arena, jo_scope_t* scope, jo_str_view_t identifier)
 {
-	jo_scope_t* new_scope = calloc(1, sizeof(jo_scope_t));
+	jo_scope_t* new_scope = jo_arena_palloc(arena, jo_scope_t);
 	new_scope->parent = scope;
-	new_scope->identifier = jo_string_from(identifier);
+	new_scope->identifier = jo_astr_from_view(arena, identifier);
 	return new_scope;
 }
 

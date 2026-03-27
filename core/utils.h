@@ -20,6 +20,10 @@ typedef struct
 } jo_str_view_t;
 
 jo_str_view_t jo_str_view_from(const char* data, jo_uz len);
+jo_str_view_t jo_str_view_from_cstr(const char* data);
+
+#define jo_str_view_fmt(view) (view)->len, (view)->data
+
 
 #define jo_profile(name)\
 clock_t begin = clock();\

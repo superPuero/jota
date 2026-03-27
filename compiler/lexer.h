@@ -22,7 +22,7 @@ typedef struct
 	
 	jo_u32 line_counter;
 
-	jo_string filename;
+	jo_astr_t filename;
 
 	char* token_start;
 	jo_u32 token_len;

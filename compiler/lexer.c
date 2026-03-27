@@ -341,7 +341,7 @@ void jo_lexer_parse_next(jo_lexer_t* lexer)
 
 jo_success jo_lexer_open_and_load(jo_lexer_t* lexer, const char* filename)
 {
-	lexer->filename = jo_string_from(filename);
+	lexer->filename = jo_astr_from(lexer->arena, filename);
 	FILE* file = fopen(filename, "rb");
 
 	if (!file)

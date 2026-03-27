@@ -57,13 +57,10 @@ void dump_bytecode(jo_bytecode_context* bcc)
 int main(int argc, char** argv)
 {		
 	jo_compile_options compile_opt = jo_compie_options_parse_from_args(argc, argv);	
+	if(!compile_opt.success) { return 1; }
 	
-	if(!compile_opt.success)
-	{
-		return 1;
-	}
+	jo_arena_t arena = jo_arena_make(jo_Mb(256), "compiler");
 	
-	jo_arena_t arena = jo_arena_make(jo_Mb(1), "compiler");
 	jo_lexer_t lexer = {.arena = &arena};
 	jo_ast_node_t* ast_module = NULL;
 	jo_parser_t parser = { .arena = &arena, .lexer = &lexer };	
@@ -74,13 +71,10 @@ int main(int argc, char** argv)
 	{
 		jo_profile("tokenization")
 		{
-			jo_lex_file(&lexer, argv[1]);
-			
+			jo_lex_file(&lexer, argv[1]);	
 		}
-		if(compile_opt.tokens_dump)
-		{
-			dump_tokens(&lexer);
-		}		
+
+		if(compile_opt.tokens_dump) { dump_tokens(&lexer); }		
 	}
 	
 	if(compile_opt.ast)
@@ -89,10 +83,7 @@ int main(int argc, char** argv)
 		{
 			ast_module = jo_parse(&parser);
 		}
-		if(compile_opt.ast_dump)
-		{
-			jo_dump_ast_node(ast_module, 0);
-		}
+		if(compile_opt.ast_dump) { jo_dump_ast_node(ast_module, 0); }
 	}
 
 	if(compile_opt.sema)
@@ -109,10 +100,7 @@ int main(int argc, char** argv)
 		{
 			jo_make_bytecode(&bcc, &ast_module->data.module);
 		}
-		if(compile_opt.bytecode_dump)
-		{
-			dump_bytecode(&bcc);
-		}
+		if(compile_opt.bytecode_dump) { dump_bytecode(&bcc); }
 	}
 
 	if(compile_opt.interp)

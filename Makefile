@@ -5,7 +5,7 @@ COMMON_CC_OPT = -Wall -Wextra -std=c99
 DEBUG_CC_OPT = -g -O0
 RELEASE_CC_OPT = -O3 -march=native
 
-CORE_SRC = 	core/string.c \
+CORE_SRC = 	core/astr.c \
        		core/arena.c \
        		core/utils.c \
 

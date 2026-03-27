@@ -5,6 +5,6 @@
 #include "arena.h"
 #include "ada.h"
 #include "utils.h"
-#include "string.h"
+#include "astr.h"
 
 #endif

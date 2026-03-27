@@ -4,7 +4,7 @@
 
 jo_arena_t jo_arena_make(jo_uz capacity, const char* name)
 {
-	jo_arena_t arena = {.mem = malloc(capacity), .markers = {0}, .current_marker = 0, .current = 0 , .capacity = capacity};
+	jo_arena_t arena = {.mem = malloc(capacity), .markers = {0}, .name = {0}, .current_marker = 0, .current = 0 , .capacity = capacity};
 	memcpy(arena.name, name, strlen(name));
 	return arena;
 }
