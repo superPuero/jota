@@ -56,13 +56,13 @@ int main(int argc, char** argv)
 		printf("memory usage: %.2lfMb (%.2lfMb including vm)\n", memory_usage_mb - vm_memory_usage_mb, memory_usage_mb);
 	}
 
-	printf("\n");		
-
+	
 	if(compile_opt.i)
-	{			
-		program_output = jo_run_bytecode(vm, &bcc);
+	{	
+		printf("\n");		
 
-		// @explain: during runtime program might output some text, so we go to new line to ensure redability
+		program_output = jo_run_bytecode(vm, &bcc);
+		
 		printf("\n");		
 
 		if(program_output) { printf("program output: %lli\n", *program_output); }
@@ -81,4 +81,6 @@ int main(int argc, char** argv)
 	if(compile_opt.bc) { jo_dump_bytecode(&bcc); }
 
 	jo_workspace_free(&workspace);	
+
+	return 0;
 }
