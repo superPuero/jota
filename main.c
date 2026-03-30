@@ -10,10 +10,10 @@
 #include "compiler/bytecode.h"
 #include "compiler/vm.h"
 
-// #define jo_workspace_memory jo_Mb(10)
+#define jo_workspace_memory jo_Mb(10)
 
 // for 1mil lines of code benchmark
-#define jo_workspace_memory jo_Mb(1024)
+// #define jo_workspace_memory jo_Mb(1024)
 
 int main(int argc, char** argv)
 {		
