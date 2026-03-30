@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 	
 	jo_workspace workspace = jo_workspace_make(jo_str_view_from("main"), jo_workspace_memory);	
 
-	// @todo: bytecoed should be per_workspace aka per compilation unit
+	// @todo: bytecode should be per_workspace aka per compilation unit
 	jo_bytecode_context bcc = { .ws = &workspace };
 
 	// @explain: jo_vm is huge that why its not stack based
@@ -85,5 +85,5 @@ int main(int argc, char** argv)
 	jo_f64 vm_memory_usage_mb = sizeof(jo_vm) / 1024.0 / 1024.0;
 	printf("total memory usage: %.2lfMb (%.2lfMb including vm)", memory_usage_mb - vm_memory_usage_mb, memory_usage_mb);
 
-	jo_workspace_free(&workspace);
+	jo_workspace_free(&workspace);	
 }
