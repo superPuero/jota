@@ -1,3 +1,4 @@
+// non-null terminated arena based string
 #ifndef jota_astr
 #define jota_astr
 

@@ -2,137 +2,95 @@
 #include "ast_node.h"
 #include <assert.h>
 #include <stdio.h>
+#include "workspace.h"
 
-#define jo_bytecode_stringify_inst_cast_suite(to)\
-	jo_stringify_case(jo_bytecode_instr_cast_u8_##to);\
-	jo_stringify_case(jo_bytecode_instr_cast_u16_##to);\
-	jo_stringify_case(jo_bytecode_instr_cast_u32_##to);\
-	jo_stringify_case(jo_bytecode_instr_cast_u64_##to);\
-	jo_stringify_case(jo_bytecode_instr_cast_i8_##to);\
-	jo_stringify_case(jo_bytecode_instr_cast_i16_##to);\
-	jo_stringify_case(jo_bytecode_instr_cast_i32_##to);\
-	jo_stringify_case(jo_bytecode_instr_cast_i64_##to);\
-	jo_stringify_case(jo_bytecode_instr_cast_f32_##to);\
-	jo_stringify_case(jo_bytecode_instr_cast_f64_##to);\
-	jo_stringify_case(jo_bytecode_instr_cast_bool_##to)
-
-
-#define jo_bytecode_stringify_instr_def_suite(op)\
-	jo_stringify_case(jo_bytecode_instr_##op##_u8);\
-	jo_stringify_case(jo_bytecode_instr_##op##_u16);\
-	jo_stringify_case(jo_bytecode_instr_##op##_u32);\
-	jo_stringify_case(jo_bytecode_instr_##op##_u64);\
-	jo_stringify_case(jo_bytecode_instr_##op##_i8);\
-	jo_stringify_case(jo_bytecode_instr_##op##_i16);\
-	jo_stringify_case(jo_bytecode_instr_##op##_i32);\
-	jo_stringify_case(jo_bytecode_instr_##op##_i64);\
-	jo_stringify_case(jo_bytecode_instr_##op##_f32);\
-	jo_stringify_case(jo_bytecode_instr_##op##_f64);\
-	jo_stringify_case(jo_bytecode_instr_##op##_bool);\
-
-
-#define jo_bytecode_instrt_binary_case_suite(op)\
-	case jo_bytecode_instr_##op##_u8:\
-	case jo_bytecode_instr_##op##_u16:\
-	case jo_bytecode_instr_##op##_u32:\
-	case jo_bytecode_instr_##op##_u64:\
-	case jo_bytecode_instr_##op##_i8:\
-	case jo_bytecode_instr_##op##_i16:\
-	case jo_bytecode_instr_##op##_i32:\
-	case jo_bytecode_instr_##op##_i64:\
-	case jo_bytecode_instr_##op##_f32:\
-	case jo_bytecode_instr_##op##_f64:\
-	case jo_bytecode_instr_##op##_bool:
-
-
-#define jo_bytecode_instr_cast_case_suite(to_type)\
+#define jo_bc_cast_case_suite(to_type)\
 switch (expr->data.expr_as_cast.expr->resolved_type->data.type_primitive)\
 {\
 	case jo_tok_i64:\
-		instr = jo_bytecode_instr_cast_i64_##to_type;\
+		instr = jo_bc_cast_i64_##to_type;\
 		break;\
 	case jo_tok_u64:\
-		instr = jo_bytecode_instr_cast_u64_##to_type;\
+		instr = jo_bc_cast_u64_##to_type;\
 		break;\
 	case jo_tok_i32:\
-		instr = jo_bytecode_instr_cast_i32_##to_type;\
+		instr = jo_bc_cast_i32_##to_type;\
 		break;\
 	case jo_tok_u32:\
-		instr = jo_bytecode_instr_cast_u32_##to_type;\
+		instr = jo_bc_cast_u32_##to_type;\
 		break;\
 	case jo_tok_i16:\
-		instr = jo_bytecode_instr_cast_i16_##to_type;\
+		instr = jo_bc_cast_i16_##to_type;\
 		break;\
 	case jo_tok_u16:\
-		instr = jo_bytecode_instr_cast_u16_##to_type;\
+		instr = jo_bc_cast_u16_##to_type;\
 		break;\
 	case jo_tok_i8:\
-		instr = jo_bytecode_instr_cast_i8_##to_type;\
+		instr = jo_bc_cast_i8_##to_type;\
 		break;\
 	case jo_tok_u8:\
-		instr = jo_bytecode_instr_cast_u8_##to_type;\
+		instr = jo_bc_cast_u8_##to_type;\
 		break;\
 	case jo_tok_f64:\
-		instr = jo_bytecode_instr_cast_f64_##to_type;\
+		instr = jo_bc_cast_f64_##to_type;\
 		break;\
 	case jo_tok_f32:\
-		instr = jo_bytecode_instr_cast_f32_##to_type;\
+		instr = jo_bc_cast_f32_##to_type;\
 		break;\
 	case jo_tok_bool:\
-		instr = jo_bytecode_instr_cast_bool_##to_type;\
+		instr = jo_bc_cast_bool_##to_type;\
 		break;\
 	default:\
 		assert(0);\
 		break;\
 }
 
-#define jo_bytecode_instr_binary_suite(op)\
+#define jo_bc_binary_suite(op)\
 switch (expr->resolved_type->data.type_primitive)\
 {\
 case jo_tok_i64:\
-	instr = jo_bytecode_instr_##op##_i64;\
+	instr = jo_bc_##op##_i64;\
 	break;\
 case jo_tok_u64:\
-	instr = jo_bytecode_instr_##op##_u64;\
+	instr = jo_bc_##op##_u64;\
 	break;\
 case jo_tok_i32:\
-	instr = jo_bytecode_instr_##op##_i32;\
+	instr = jo_bc_##op##_i32;\
 	break;\
 case jo_tok_u32:\
-	instr = jo_bytecode_instr_##op##_u32;\
+	instr = jo_bc_##op##_u32;\
 	break;\
 case jo_tok_i16:\
-	instr = jo_bytecode_instr_##op##_i16;\
+	instr = jo_bc_##op##_i16;\
 	break;\
 case jo_tok_u16:\
-	instr = jo_bytecode_instr_##op##_u16;\
+	instr = jo_bc_##op##_u16;\
 	break;\
 case jo_tok_i8:\
-	instr = jo_bytecode_instr_##op##_i8;\
+	instr = jo_bc_##op##_i8;\
 	break;\
 case jo_tok_u8:\
-	instr = jo_bytecode_instr_##op##_u8;\
+	instr = jo_bc_##op##_u8;\
 	break;\
 case jo_tok_f64:\
-	instr = jo_bytecode_instr_##op##_f64;\
+	instr = jo_bc_##op##_f64;\
 	break;\
 case jo_tok_f32:\
-	instr = jo_bytecode_instr_##op##_f32;\
+	instr = jo_bc_##op##_f32;\
 	break;\
 case jo_tok_bool:\
-	instr = jo_bytecode_instr_##op##_bool;\
+	instr = jo_bc_##op##_bool;\
 	break;\
 default:\
 	break;\
 }
 
-
-#define jo_bytecode_mov_imm_case(type)\
+#define jo_bc_literal_mov_imm_case(type)\
 case jo_ast_type_literal_##type:\
 	{\
 		jo_register_id out_reg = fn->reg_counter++;\
 		jo_bytecode_op op = {0};\
-		op.instr = jo_bytecode_instr_mov_imm;\
+		op.instr = jo_bc_mov_imm;\
 		op.as.mov_imm.to = out_reg;\
 		op.as.mov_imm.size = 8;\
 		memcpy(&op.as.mov_imm.value, &expr->data.literal_##type, sizeof(jo_##type));   \
@@ -147,9 +105,6 @@ const char* intrinsic_map[] = {
 
 void jo_dump_bytecode(jo_bytecode_context* bcc)	
 {
-    printf("-----------bytecode---------\n");
-    printf("\n");
-
 	jo_uz inst = 0;
 	jo_ada_foreach(&bcc->bc)
 	{
@@ -188,46 +143,25 @@ bool jo_bytecode_type_is_void(jo_ast_node* type_node)
 
 }
 
-const char* jo_bytecode_instr_to_str(jo_bytecode_instr instr)
+const char* jo_bc_to_str(jo_bc_instr instr)
 {
 	switch (instr)
 	{
-		jo_stringify_case(jo_bytecode_instr_push);
-		jo_stringify_case(jo_bytecode_instr_pop);
+	#define X(opcode) jo_stringify_case(jo_bc_##opcode);
+		jo_bc_basic_instr_list
+	#undef X
 
-		jo_stringify_case(jo_bytecode_instr_jmp);
-		jo_stringify_case(jo_bytecode_instr_jmp_if);
-		jo_stringify_case(jo_bytecode_instr_jmp_if_not);
-		jo_stringify_case(jo_bytecode_instr_memcpy);
-		jo_stringify_case(jo_bytecode_instr_mov);
-		jo_stringify_case(jo_bytecode_instr_mov_imm);
+	#define XYX(opcode, t, op)  jo_stringify_case(jo_bc_##opcode##_##t);
+	#define X(t) jo_bc_binary_primitive_instr_list(t)
+		jo_tok_numerical_type_primitive_list
+	#undef X
+	#undef XYX
 
-		jo_bytecode_stringify_instr_def_suite(add);
-		jo_bytecode_stringify_instr_def_suite(sub);
-		jo_bytecode_stringify_instr_def_suite(mul);
-		jo_bytecode_stringify_instr_def_suite(div);
-		jo_bytecode_stringify_instr_def_suite(cmp_lt);
-		jo_bytecode_stringify_instr_def_suite(cmp_lte);
-		jo_bytecode_stringify_instr_def_suite(cmp_gt);
-		jo_bytecode_stringify_instr_def_suite(cmp_gte);
-		jo_bytecode_stringify_instr_def_suite(cmp_eq);
-		jo_bytecode_stringify_instr_def_suite(cmp_neq);
-
-		jo_bytecode_stringify_inst_cast_suite(i8);
-		jo_bytecode_stringify_inst_cast_suite(u8);
-		jo_bytecode_stringify_inst_cast_suite(i16);
-		jo_bytecode_stringify_inst_cast_suite(u16);
-		jo_bytecode_stringify_inst_cast_suite(i32);
-		jo_bytecode_stringify_inst_cast_suite(u32);
-		jo_bytecode_stringify_inst_cast_suite(i64);
-		jo_bytecode_stringify_inst_cast_suite(u64);
-		jo_bytecode_stringify_inst_cast_suite(f32);
-		jo_bytecode_stringify_inst_cast_suite(f64);
-		jo_bytecode_stringify_inst_cast_suite(bool);
-
-		jo_stringify_case(jo_bytecode_instr_ret);
-		jo_stringify_case(jo_bytecode_instr_call);
-
+	#define XY(t1, t2)  jo_stringify_case(jo_bc_cast_##t1##_##t2);
+	#define X(t) jo_bc_inst_cast_list(t)
+		jo_tok_numerical_type_primitive_list
+	#undef X
+	#undef XY	
 	default:
 		return "invalid bytecode instruction";
 		break;
@@ -236,31 +170,31 @@ const char* jo_bytecode_instr_to_str(jo_bytecode_instr instr)
 
 void jo_bytecode_dump_op(jo_bytecode_context* bcc, jo_bytecode_op* op)
 {
-    printf("%-30s ",  jo_bytecode_instr_to_str(op->instr));
+    printf("%-30s ",  jo_bc_to_str(op->instr));
 
 	switch (op->instr)
 	{
-		case jo_bytecode_instr_mov_imm:
+		case jo_bc_mov_imm:
 			printf("r%u, %llx", op->as.mov_imm.to, op->as.mov_imm.value);
 			break;
 
-		case jo_bytecode_instr_jmp:
+		case jo_bc_jmp:
 			printf("%u", op->as.jmp.offset);
 			break;
 
-		case jo_bytecode_instr_jmp_if:
+		case jo_bc_jmp_if:
 			printf("r%u, %u", op->as.jmp_if.cond_reg, op->as.jmp_if.offset);
 			break;
 
-		case jo_bytecode_instr_jmp_if_not:
+		case jo_bc_jmp_if_not:
 			printf("r%u, %u", op->as.jmp_if_not.cond_reg, op->as.jmp_if_not.offset);
 			break;
 
-		case jo_bytecode_instr_mov:
+		case jo_bc_mov:
 			printf("r%u, r%u", op->as.mov.to, op->as.mov.from);
 			break;
 
-		case jo_bytecode_instr_call:
+		case jo_bc_call:
 			if(op->as.call.is_void_call)
 			{
 				printf("%.*s, args: %u", bcc->fns.data[op->as.call.function_index].label.len, bcc->fns.data[op->as.call.function_index].label.data, op->as.call.arg_count);
@@ -271,65 +205,13 @@ void jo_bytecode_dump_op(jo_bytecode_context* bcc, jo_bytecode_op* op)
 			}
 			break;
 
-		case jo_bytecode_instr_ret:
+		case jo_bc_ret:
 			if (op->as.ret.is_void) 
 			{
 				printf("<void>");
 			} else {
 				printf("r%u", op->as.ret.reg);
 			}
-			break;
-
-		// case jo_bytecode_instr_store:
-			// printf("[r%u], r%u (size: %u)", op->as.store.to_addr, op->as.store.from, op->as.store.size);
-			// break;
-
-		// case jo_bytecode_instr_memcpy:
-			// printf("[r%u], [r%u] (size: %u)", op->as.memcpy.to_addr, op->as.memcpy., op->as.memcpy.size);
-			// break;
-
-		// jo_bytecode_instrt_binary_case_suite(load)
-			// printf("r%u, [r%u]", op->as.load.to, op->as.load.from_addr);
-			// break;
-
-		jo_bytecode_instrt_binary_case_suite(add)
-			printf("r%u = r%u + r%u", op->as.binary_op.dest, op->as.binary_op.a, op->as.binary_op.b);
-			break;
-
-		jo_bytecode_instrt_binary_case_suite(sub)
-			printf("r%u = r%u - r%u", op->as.binary_op.dest, op->as.binary_op.a, op->as.binary_op.b);
-			break;
-
-		jo_bytecode_instrt_binary_case_suite(mul)
-			printf("r%u = r%u * r%u", op->as.binary_op.dest, op->as.binary_op.a, op->as.binary_op.b);
-			break;
-
-		jo_bytecode_instrt_binary_case_suite(div)
-			printf("r%u = r%u / r%u", op->as.binary_op.dest, op->as.binary_op.a, op->as.binary_op.b);
-			break;
-
-		jo_bytecode_instrt_binary_case_suite(cmp_lt)
-			printf("r%u = r%u < r%u", op->as.binary_op.dest, op->as.binary_op.a, op->as.binary_op.b);
-			break;
-
-		jo_bytecode_instrt_binary_case_suite(cmp_lte)
-			printf("r%u = r%u <= r%u", op->as.binary_op.dest, op->as.binary_op.a, op->as.binary_op.b);
-			break;
-
-		jo_bytecode_instrt_binary_case_suite(cmp_gt)
-			printf("r%u = r%u > r%u", op->as.binary_op.dest, op->as.binary_op.a, op->as.binary_op.b);
-			break;
-
-		jo_bytecode_instrt_binary_case_suite(cmp_gte)
-			printf("r%u = r%u >= r%u", op->as.binary_op.dest, op->as.binary_op.a, op->as.binary_op.b);
-			break;
-
-		jo_bytecode_instrt_binary_case_suite(cmp_eq)
-			printf("r%u = r%u == r%u", op->as.binary_op.dest, op->as.binary_op.a, op->as.binary_op.b);
-			break;
-
-		jo_bytecode_instrt_binary_case_suite(cmp_neq)
-			printf("r%u = r%u !	= r%u", op->as.binary_op.dest, op->as.binary_op.a, op->as.binary_op.b);
 			break;
 
 		default:
@@ -377,7 +259,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 			if(expr->data.decl.initialize_expression)
 			{
 				jo_bytecode_op mov = {0};
-				mov.instr = jo_bytecode_instr_mov;
+				mov.instr = jo_bc_mov;
 				jo_register_id from_reg = jo_bytecode_emit_expr(bcc, fn, expr->data.decl.initialize_expression);
 				jo_register_id to_reg = fn->reg_counter++;
 				
@@ -417,7 +299,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 			
 			op.as.cast.target = target_reg;
 			op.as.cast.dest = dest_reg;
-			jo_bytecode_instr instr = {0};
+			jo_bc_instr instr = {0};
 
 			jo_tok dest_type = expr->data.expr_as_cast.to_type->data.type_primitive;
 
@@ -425,44 +307,12 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 			{
 				switch (dest_type)
 				{
-					case jo_tok_i8:
-						jo_bytecode_instr_cast_case_suite(i8);
+					#define X(t) case jo_tok_##t :\
+						jo_bc_cast_case_suite(t);\
 						break;
-					case jo_tok_u8:
-						jo_bytecode_instr_cast_case_suite(u8);
-						break;
-	
-					case jo_tok_i16:
-						jo_bytecode_instr_cast_case_suite(i16);
-						break;
-					case jo_tok_u16:
-						jo_bytecode_instr_cast_case_suite(u16);
-						break;
-	
-					case jo_tok_i32:
-						jo_bytecode_instr_cast_case_suite(i32);
-						break;
-					case jo_tok_u32:
-						jo_bytecode_instr_cast_case_suite(u32);
-						break;
-	
-					case jo_tok_i64:
-						jo_bytecode_instr_cast_case_suite(i64);
-						break;
-					case jo_tok_u64:
-						jo_bytecode_instr_cast_case_suite(u64);
-						break;
-	
-					case jo_tok_f32:
-						jo_bytecode_instr_cast_case_suite(f32);
-						break;
-					case jo_tok_f64:
-						jo_bytecode_instr_cast_case_suite(f64);
-						break;
-	
-					case jo_tok_bool:
-						jo_bytecode_instr_cast_case_suite(bool);
-						break;
+
+						jo_tok_numerical_type_primitive_list
+					#undef X
 	
 					default:
 						assert(0);
@@ -483,7 +333,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
             jo_register_id right_reg = jo_bytecode_emit_expr(bcc, fn, expr->data.expr_op_binary.right_expression);
 
             jo_bytecode_op op = {0};
-			jo_bytecode_instr instr = 0;
+			jo_bc_instr instr = 0;
 
 			jo_register_id dest_reg = fn->reg_counter++;
 
@@ -493,63 +343,21 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 			{
 				switch (expr->data.expr_op_binary.operator_type)
 				{
-					case jo_tok_plus_equals:
-						fn->reg_counter--;
-						dest_reg = left_reg;
-						// fall through
-					case jo_tok_plus:
-						jo_bytecode_instr_binary_suite(add);
-						break;
+					// 	fn->reg_counter--;
+					// 	dest_reg = left_reg;
 
-					case jo_tok_star_equals:
-						fn->reg_counter--;
-						dest_reg = left_reg;
-						// fall through
-					case jo_tok_star:
-						jo_bytecode_instr_binary_suite(mul);
+					#define XYX(opcode, t, op) case jo_tok_##opcode :\
+						jo_bc_binary_suite(opcode);\
 						break;
-
-					case jo_tok_slash_equals:
-						fn->reg_counter--;
-						dest_reg = left_reg;
-						// fall through
-					case jo_tok_slash:
-						jo_bytecode_instr_binary_suite(div);
-						break;
-
-					case jo_tok_minus_equals:
-						fn->reg_counter--;
-						dest_reg = left_reg;
-						// fall through
-					case jo_tok_minus:
-						jo_bytecode_instr_binary_suite(sub);
-						break;
-
-					case jo_tok_greater:
-						jo_bytecode_instr_binary_suite(cmp_gt);
-						break;
-					case jo_tok_greater_equals:
-						jo_bytecode_instr_binary_suite(cmp_gte);
-						break;
-					case jo_tok_less:
-						jo_bytecode_instr_binary_suite(cmp_lt);
-						break;
-					case jo_tok_less_equals:
-						jo_bytecode_instr_binary_suite(cmp_lte);
-						break;
-					case jo_tok_double_equals:
-						jo_bytecode_instr_binary_suite(cmp_eq);
-						break;
-					case jo_tok_not_equals:
-						jo_bytecode_instr_binary_suite(cmp_neq);
-						break;
+						jo_bc_binary_primitive_instr_list(t)
+					#undef XYX
 
 					case jo_tok_equals:
 					{
 						fn->reg_counter--;
 						dest_reg = left_reg;
 						jo_bytecode_op mov = {0};
-						mov.instr = jo_bytecode_instr_mov;
+						mov.instr = jo_bc_mov;
 						mov.as.mov.to = left_reg;
 						mov.as.mov.from = right_reg;
 						jo_ada_append(&bcc->ws->arena, &bcc->bc, mov);
@@ -571,10 +379,10 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 		}
 		break;
 
-	jo_bytecode_mov_imm_case(i64);
-	jo_bytecode_mov_imm_case(u64);
-	jo_bytecode_mov_imm_case(f64);
-	jo_bytecode_mov_imm_case(bool);
+	jo_bc_literal_mov_imm_case(i64);
+	jo_bc_literal_mov_imm_case(u64);
+	jo_bc_literal_mov_imm_case(f64);
+	jo_bc_literal_mov_imm_case(bool);
 
 	case jo_ast_type_literal_string:
 	{
@@ -582,13 +390,13 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 		jo_uz len = expr->data.literal_string.len;
 
 		jo_bytecode_op get_sp_op = {0};
-		get_sp_op.instr = jo_bytecode_instr_get_sp;
+		get_sp_op.instr = jo_bc_get_sp;
 		get_sp_op.as.get_sp.to = base_addr_reg;
 
 		jo_ada_append(&bcc->ws->arena, &bcc->bc, get_sp_op);
 
 		jo_bytecode_op alloc_op = {0};
-		alloc_op.instr = jo_bytecode_instr_push; 
+		alloc_op.instr = jo_bc_push; 
 		alloc_op.as.push.offset = len + 1; 
 		jo_ada_append(&bcc->ws->arena, &bcc->bc, alloc_op);
 
@@ -598,14 +406,14 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 			jo_register_id chunk_reg = fn->reg_counter++;	
 
 			jo_bytecode_op mov_imm = {0};
-			mov_imm.instr = jo_bytecode_instr_mov_imm;
+			mov_imm.instr = jo_bc_mov_imm;
 			mov_imm.as.mov_imm.to = chunk_reg;
 			mov_imm.as.mov_imm.value = i==len ? '\0' : expr->data.literal_string.data[i];
 			mov_imm.as.mov_imm.size = 1;	
 			jo_ada_append(&bcc->ws->arena, &bcc->bc, mov_imm);
 			
 			jo_bytecode_op store_op = {0};
-			store_op.instr = jo_bytecode_instr_store; 
+			store_op.instr = jo_bc_store; 
 			store_op.as.store.from = chunk_reg;
 			store_op.as.store.to_addr = base_addr_reg;
 			store_op.as.store.size = 1;
@@ -647,7 +455,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 		}
 
 		jo_bytecode_op op = {0};
-		op.instr = jo_bytecode_instr_call;
+		op.instr = jo_bc_call;
 		op.as.call.arg_count = arg_count;
 		op.as.call.is_void_call = void_call;
 		op.as.call.dest = dest_reg;
@@ -663,7 +471,7 @@ jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* f
 		for(jo_u32 i = 0; i < args_ids_counter; i++)
 		{
 			jo_bytecode_op op = {0};
-			op.instr = jo_bytecode_instr_mov;
+			op.instr = jo_bc_mov;
 			op.as.mov.to = fn->reg_counter++;
 			op.as.mov.from = args_ids[i];
 			jo_ada_append(&bcc->ws->arena,&bcc->bc, op);
@@ -695,7 +503,7 @@ void jo_bytecode_emit_stmt(jo_bytecode_context* bcc,  jo_bytecode_fn* fn, jo_ast
 		case jo_ast_type_stmt_return:
 			{
 				jo_bytecode_op ret_op = {0};
-				ret_op.instr = jo_bytecode_instr_ret;				
+				ret_op.instr = jo_bc_ret;				
 				if(stmt_node->data.stmt_return.expression)
 				{
 					ret_op.as.ret.reg = jo_bytecode_emit_expr(bcc, fn,  stmt_node->data.stmt_return.expression);
@@ -710,7 +518,7 @@ void jo_bytecode_emit_stmt(jo_bytecode_context* bcc,  jo_bytecode_fn* fn, jo_ast
 		case jo_ast_type_stmt_ifelse:
 			{
 				jo_bytecode_op jmp_in_not_op = {0};
-				jmp_in_not_op.instr = jo_bytecode_instr_jmp_if_not;
+				jmp_in_not_op.instr = jo_bc_jmp_if_not;
 				jmp_in_not_op.as.jmp_if_not.cond_reg = jo_bytecode_emit_expr(bcc, fn, stmt_node->data.stmt_ifelse.condition);
 				jmp_in_not_op.as.jmp_if_not.offset = -1; // patched later after we generate the {success} block to know how much instrucitons to jump over
 				jo_ada_append(&bcc->ws->arena,&bcc->bc, jmp_in_not_op);
@@ -719,7 +527,7 @@ void jo_bytecode_emit_stmt(jo_bytecode_context* bcc,  jo_bytecode_fn* fn, jo_ast
 				jo_bytecode_emit_block(bcc, fn, &stmt_node->data.stmt_ifelse.true_block->data.block);
 
 				jo_bytecode_op jmp_out_op = {0};
-				jmp_out_op.instr = jo_bytecode_instr_jmp;
+				jmp_out_op.instr = jo_bc_jmp;
 				jmp_out_op.as.jmp.offset = -1; // patched later after we generate the {else} block to know how much instrucitons to jump over
 				jo_ada_append(&bcc->ws->arena,&bcc->bc, jmp_out_op);
 				jo_u32 if_out_jmp_instr_id = bcc->bc.occupied - 1;

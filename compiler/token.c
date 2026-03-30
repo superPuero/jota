@@ -8,7 +8,7 @@ const char* jo_tok_to_string(jo_tok token)
 	switch (token)
 	{
 		#define X(tok) jo_stringify_case(jo_tok_##tok);
-		jo_tok_entries
+		jo_tok_entry_list
 		#undef X
 		default:
 			return "invalid_token";
@@ -20,7 +20,7 @@ jo_bool jo_tok_is_unsigned_integer_type_primitive(jo_tok tok)
 	switch(tok)
 	{
 		#define X(t) case jo_tok_##t: return true;
-		jo_tok_unsigned_integer_type_primitives
+		jo_tok_unsigned_integer_type_primitive_list
 		#undef X
 
 		default:
@@ -32,7 +32,7 @@ jo_bool jo_tok_is_signed_integer_type_primitive(jo_tok tok)
 	switch(tok)
 	{
 		#define X(t) case jo_tok_##t: return true;
-		jo_tok_signed_integer_type_primitives
+		jo_tok_signed_integer_type_primitive_list
 		#undef X
 
 		default:
@@ -49,7 +49,7 @@ jo_bool jo_tok_is_fp_type_primitive(jo_tok tok)
 	switch(tok)
 	{
 		#define X(t) case jo_tok_##t: return true;
-		jo_tok_floating_point_type_primitive
+		jo_tok_floating_point_type_primitive_list
 		#undef X
 
 		default:
@@ -63,7 +63,7 @@ jo_uz jo_tok_get_type_primitive_size(jo_tok tok)
 	switch(tok)
 	{
 		#define X(t) case jo_tok_##t: return sizeof(jo_##t);
-			jo_tok_numerical_type_primitives
+			jo_tok_numerical_type_primitive_list
 		#undef X
 			case jo_tok_void: return 0;
 		default:
@@ -118,7 +118,7 @@ jo_bool jo_tok_is_numerical(jo_tok tok)
 	switch(tok)
 	{
 		#define X(t) case jo_tok_##t: return true;
-		jo_tok_numerical_type_primitives
+		jo_tok_numerical_type_primitive_list
 		#undef X
 
 		default:
@@ -131,7 +131,7 @@ jo_bool jo_tok_is_literal(jo_tok tok)
 	switch(tok)
 	{
 		#define X(t) case jo_tok_##t: return true;
-		jo_tok_literals
+		jo_tok_literal_list
 		#undef X
 
 		default:
@@ -144,7 +144,7 @@ jo_bool jo_tok_is_type_primitive(jo_tok tok)
 	switch(tok)
 	{
 		#define X(t) case jo_tok_##t: return true;
-		jo_tok_type_primitives
+		jo_tok_type_primitive_list
 		#undef X
 
 		default:
@@ -157,7 +157,7 @@ jo_bool jo_tok_is_operator(jo_tok tok)
 	switch(tok)
 	{
 		#define X(t) case jo_tok_##t: return true;
-		jo_tok_operators
+		jo_tok_operator_list
 		#undef X
 		
 		default:
@@ -186,10 +186,10 @@ jo_u32 jo_tok_binary_operator_precedence(jo_tok token)
     case jo_tok_not_equals:     // !=
         return 15;
 
-    case jo_tok_less:              // <
-    case jo_tok_greater:           // >
-    case jo_tok_less_equals:        // <=
-    case jo_tok_greater_equals:     // >=
+    case jo_tok_cmp_lt:              // <
+    case jo_tok_cmp_gt:           // >
+    case jo_tok_cmp_lte:        // <=
+    case jo_tok_cmp_gte:     // >=
 		return 20;
 
     case jo_tok_modulo:

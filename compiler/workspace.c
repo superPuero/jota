@@ -12,8 +12,7 @@
 jo_workspace jo_workspace_make(jo_str_view name, jo_uz memory)
 {
 	jo_workspace out = {0};
-	out.arena = jo_arena_make(memory, "");
-	memcpy(out.arena.name, name.data, name.len);
+	out.arena = jo_arena_make(memory, name);
 	out.name = jo_astr_from_view(&out.arena, name);
 	return out;
 }
@@ -103,7 +102,7 @@ void jo_workspace_begin(jo_workspace* workspace, jo_str_view entry_file)
 
 void jo_workspace_load(jo_workspace* workspace, const jo_astr* file_path)
 {	
-	printf("loading %.*s into workspace(\"%.*s\")\n", jo_astr_fmt(file_path),  jo_astr_fmt(&workspace->name));
+	// printf("loading %.*s into workspace(\"%.*s\")\n", jo_astr_fmt(file_path),  jo_astr_fmt(&workspace->name));
 	workspace->current_directory = jo_get_file_directory(workspace, file_path);
 
 	jo_ada_append(

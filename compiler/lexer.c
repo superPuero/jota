@@ -5,7 +5,7 @@
 
 const jo_tok_keyword_entry jo_keyword_map[] = {
 	#define X(tok) {#tok, sizeof(#tok) - 1, jo_tok_##tok},
-	jo_tok_keywords
+	jo_tok_keyword_list
 	#undef x
 };
 

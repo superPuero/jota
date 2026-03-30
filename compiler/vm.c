@@ -11,72 +11,72 @@
 
 
 #define jo_binary_op_suite(opnampe, op)\
-case jo_bytecode_instr_##opnampe##_u64:\
+case jo_bc_##opnampe##_u64:\
 	jo_binary_op_case(op, jo_u64);\
 	break;\
-case jo_bytecode_instr_##opnampe##_i64:\
+case jo_bc_##opnampe##_i64:\
 	jo_binary_op_case(op, jo_i64);\
 	break;\
-case jo_bytecode_instr_##opnampe##_u32:\
+case jo_bc_##opnampe##_u32:\
 	jo_binary_op_case(op, jo_u32);\
 	break;\
-case jo_bytecode_instr_##opnampe##_i32:\
+case jo_bc_##opnampe##_i32:\
 	jo_binary_op_case(op, jo_i32);\
 	break;\
-case jo_bytecode_instr_##opnampe##_u16:\
+case jo_bc_##opnampe##_u16:\
 	jo_binary_op_case(op, jo_u16);\
 	break;\
-case jo_bytecode_instr_##opnampe##_i16:\
+case jo_bc_##opnampe##_i16:\
 	jo_binary_op_case(op, jo_i16);\
 	break;\
-case jo_bytecode_instr_##opnampe##_u8:\
+case jo_bc_##opnampe##_u8:\
 	jo_binary_op_case(op, jo_u8);\
 	break;\
-case jo_bytecode_instr_##opnampe##_i8:\
+case jo_bc_##opnampe##_i8:\
 	jo_binary_op_case(op, jo_i8);\
 	break;\
-case jo_bytecode_instr_##opnampe##_f64:\
+case jo_bc_##opnampe##_f64:\
 	jo_binary_op_case(op, jo_f64);\
 	break;\
-case jo_bytecode_instr_##opnampe##_f32:\
+case jo_bc_##opnampe##_f32:\
 	jo_binary_op_case(op, jo_f32);\
 	break;\
-case jo_bytecode_instr_##opnampe##_bool:\
+case jo_bc_##opnampe##_bool:\
 	jo_binary_op_case(op, bool);\
 	break;\
 
 #define jo_cast_op_suite(to_type)\
-case jo_bytecode_instr_cast_u64_##to_type:\
+case jo_bc_cast_u64_##to_type:\
 	jo_cast_case(to_type, jo_u64);\
 	break;\
-case jo_bytecode_instr_cast_i64_##to_type:\
+case jo_bc_cast_i64_##to_type:\
 	jo_cast_case(to_type, jo_i64);\
 	break;\
-case jo_bytecode_instr_cast_u32_##to_type:\
+case jo_bc_cast_u32_##to_type:\
 	jo_cast_case(to_type, jo_u32);\
 	break;\
-case jo_bytecode_instr_cast_i32_##to_type:\
+case jo_bc_cast_i32_##to_type:\
 	jo_cast_case(to_type, jo_i32);\
 	break;\
-case jo_bytecode_instr_cast_u16_##to_type:\
+case jo_bc_cast_u16_##to_type:\
 	jo_cast_case(to_type, jo_u16);\
 	break;\
-case jo_bytecode_instr_cast_i16_##to_type:\
+case jo_bc_cast_i16_##to_type:\
 	jo_cast_case(to_type, jo_i16);\
 	break;\
-case jo_bytecode_instr_cast_u8_##to_type:\
+case jo_bc_cast_u8_##to_type:\
 	jo_cast_case(to_type, jo_u8);\
 	break;\
-case jo_bytecode_instr_cast_i8_##to_type:\
+case jo_bc_cast_i8_##to_type:\
 	jo_cast_case(to_type, jo_i8);\
 	break;\
-case jo_bytecode_instr_cast_f64_##to_type:\
+case jo_bc_cast_f64_##to_type:\
 	jo_cast_case(to_type, jo_f64);\
 	break;\
-case jo_bytecode_instr_cast_f32_##to_type:\
+case jo_bc_cast_f32_##to_type:\
 	jo_cast_case(to_type, jo_f32);\
 	break;\
-case jo_bytecode_instr_cast_bool_##to_type:\
+case jo_bc_cast_bool_##to_type:\
 	jo_cast_case(to_type, bool);\
 	break;
 
@@ -88,43 +88,43 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 	while(true)
 	{
 		jo_bytecode_op op = bcc->bc.data[vm->ip];
-
         switch (op.instr)
         {
-			case jo_bytecode_instr_get_sp:
+			case jo_bc_get_sp:
 				vm->registers[call_frame->base_register + op.as.get_sp.to] = vm->stack_pointer;
 				break;
 
-			case jo_bytecode_instr_push:
+			case jo_bc_push:
 				vm->stack_pointer += op.as.push.offset;
 				break;
 					
-			case jo_bytecode_instr_store:
+			case jo_bc_store:
 				memcpy(&vm->stack[vm->registers[call_frame->base_register + op.as.store.to_addr] + op.as.store.offset], &vm->registers[call_frame->base_register + op.as.store.from], op.as.store.size);
 				break;
 
-			case jo_bytecode_instr_jmp:
+			case jo_bc_jmp:
 				vm->ip += op.as.jmp.offset;
 				continue; // skip ip increment
 				break;
-			case jo_bytecode_instr_jmp_if:
+			case jo_bc_jmp_if:
 				if (vm->registers[call_frame->base_register + op.as.jmp_if.cond_reg])
 				{
 					vm->ip += op.as.jmp_if.offset;
 					continue; // skip ip increment
 				}
 				break;
-			case jo_bytecode_instr_jmp_if_not:		
+			case jo_bc_jmp_if_not:		
 				if (!vm->registers[call_frame->base_register + op.as.jmp_if_not.cond_reg])
 				{
 					vm->ip += op.as.jmp_if_not.offset;
 					continue; // skip ip increment
 				}
 				break;
-            case jo_bytecode_instr_mov_imm:
+            case jo_bc_mov_imm:
+				
 				memcpy(vm->registers + call_frame->base_register + op.as.mov_imm.to, &op.as.mov_imm.value, op.as.mov_imm.size);
                 break;
-			case jo_bytecode_instr_mov:
+			case jo_bc_mov:
 				memcpy(vm->registers + call_frame->base_register + op.as.mov.to, vm->registers + call_frame->base_register + op.as.mov.from, sizeof(jo_value64));
                 break;
 
@@ -138,7 +138,6 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
             jo_binary_op_suite(cmp_gte, >=);
             jo_binary_op_suite(cmp_eq, ==);
             jo_binary_op_suite(cmp_neq, !=);
-
 
 			jo_cast_op_suite(i8);
 			jo_cast_op_suite(u8);
@@ -155,38 +154,38 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 			jo_cast_op_suite(f32);
 			jo_cast_op_suite(f64);
 
-			case jo_bytecode_instr_cast_u64_bool:
+			case jo_bc_cast_u64_bool:
 				jo_cast_case(bool, jo_u64);
 				break;
-			case jo_bytecode_instr_cast_i64_bool:
+			case jo_bc_cast_i64_bool:
 				jo_cast_case(bool, jo_i64);
 				break;
-			case jo_bytecode_instr_cast_u32_bool:
+			case jo_bc_cast_u32_bool:
 				jo_cast_case(bool, jo_u32);
 				break;
-			case jo_bytecode_instr_cast_i32_bool:
+			case jo_bc_cast_i32_bool:
 				jo_cast_case(bool, jo_i32);
 				break;
-			case jo_bytecode_instr_cast_u16_bool:
+			case jo_bc_cast_u16_bool:
 				jo_cast_case(bool, jo_u16);
 				break;
-			case jo_bytecode_instr_cast_i16_bool:
+			case jo_bc_cast_i16_bool:
 				jo_cast_case(bool, jo_i16);
 				break;
-			case jo_bytecode_instr_cast_u8_bool:
+			case jo_bc_cast_u8_bool:
 				jo_cast_case(bool, jo_u8);
 				break;
-			case jo_bytecode_instr_cast_i8_bool:
+			case jo_bc_cast_i8_bool:
 				jo_cast_case(bool, jo_i8);
 				break;
-			case jo_bytecode_instr_cast_f64_bool:
+			case jo_bc_cast_f64_bool:
 				jo_cast_case(bool, jo_f64);
 				break;
-			case jo_bytecode_instr_cast_f32_bool:
+			case jo_bc_cast_f32_bool:
 				jo_cast_case(bool, jo_f32);
 				break;
 
-			case jo_bytecode_instr_call:
+			case jo_bc_call:
 			{
 				if(op.as.call.intrinsic)
 				{
@@ -217,7 +216,7 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 
                 continue;	
 			}
-            case jo_bytecode_instr_ret:
+            case jo_bc_ret:
 			{
 				jo_u64 return_ip = call_frame->ret_ip;				
 				jo_register_id ret_reg = call_frame->base_register + op.as.ret.reg;

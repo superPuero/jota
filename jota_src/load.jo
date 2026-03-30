@@ -2,7 +2,7 @@
 #load "print.jo"
 
 main :: fn -> i64
-{
+{	
 	value := power((factorial(5) + fibbonacci(10)) as f64, 3) as i64
 	print("hello world %llu", value)
 	return 0

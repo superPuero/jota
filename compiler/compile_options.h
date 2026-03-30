@@ -1,19 +1,16 @@
 #ifndef jota_compile_options
 #define jota_compile_options
 
-#include <stdbool.h>
 #include "../core/core.h"
 
 #define jo_compile_options_list\
 	X(t)\
-	X(dt)\
 	X(ast)\
-	X(dast)\
 	X(sema)\
 	X(bc)\
-	X(dbc)\
 	X(i)\
-	X(time)
+	X(time)\
+	X(mem)
 
 #define jo_compile_ast_propagate_list\
 	X(t)\

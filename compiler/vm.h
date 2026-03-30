@@ -14,13 +14,10 @@ typedef struct
 
 typedef struct
 {
-	jo_u8  stack[1024 * 1024]; // ~1 MB of stack memory	
+	jo_u8  stack[jo_Mb(1)];
 	jo_u64 stack_pointer;
-
 	jo_value64 registers[65565];
-
 	jo_u64 ip;
-
 	jo_call_frame frames[64];
 	jo_u64 fc;	
 } jo_vm;

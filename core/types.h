@@ -2,12 +2,8 @@
 #define jota_types
 
 #include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-
-typedef bool jo_bool;
-typedef jo_bool jo_success;
 
 typedef uint8_t jo_u8;
 typedef int8_t jo_i8;
@@ -27,6 +23,14 @@ typedef double jo_f64;
 typedef size_t jo_uz;
 typedef ptrdiff_t jo_iz;
 typedef uintptr_t jo_ptr;
+
+typedef uint8_t bool;
+typedef bool jo_bool;
+typedef jo_bool jo_success;
+
+#define true 1
+#define false 0
+
 
 
 

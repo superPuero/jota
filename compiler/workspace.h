@@ -4,7 +4,7 @@
 #include "ast_node.h"
 #include "lexer.h"
 #include "parser.h"
-
+#include "bytecode.h"
 
 typedef struct
 {	
@@ -15,7 +15,6 @@ typedef struct
 
 jo_ada_declare(jo_module, jo_modules_ada);
 jo_ada_declare(jo_astr, jo_load_queue);
-
 
 struct jo_workspace_s
 {

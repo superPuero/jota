@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "types.h"
+#include "utils.h"
 
 #define jo_Kb(expr) (expr) * 1024ULL
 #define jo_Mb(expr) jo_Kb(expr) * 1024ULL
@@ -26,8 +27,7 @@ typedef struct
 #define jo_arena_scope(arena)\
 for(jo_i32 _i = (jo_arena_marker(arena), 0); _i < 1; jo_arena_pop_to_marker(arena), ++_i)
 
-jo_arena jo_arena_make(jo_uz capacity, const char* name);
-void jo_arena_free(jo_arena* arena);
+jo_arena jo_arena_make(jo_uz capacity, jo_str_view name);
 
 void jo_arena_free(jo_arena* arena);
 void jo_arena_marker(jo_arena* arena);

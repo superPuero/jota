@@ -9,6 +9,7 @@ CORE_SRC = 	core/astr.c \
        		core/arena.c \
        		core/utils.c \
        		core/file.c \
+       		core/hash.c \
 
 
 COMPILER_SRC = \

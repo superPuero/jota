@@ -3,12 +3,12 @@
 
 #include "../core/core.h"
 
-#define jo_tok_literals\
+#define jo_tok_literal_list\
 	X(literal_integer)\
 	X(literal_fp)\
 	X(literal_string)
 
-#define jo_tok_operators\
+#define jo_tok_operator_list\
 	X(plus)\
 	X(minus)\
 	X(star)\
@@ -38,36 +38,36 @@
 
 
 
-#define jo_tok_unsigned_integer_type_primitives\
+#define jo_tok_unsigned_integer_type_primitive_list\
 	X(u8)\
 	X(u16)\
 	X(u32)\
 	X(u64)
 
-#define jo_tok_signed_integer_type_primitives\
+#define jo_tok_signed_integer_type_primitive_list\
 	X(i8)\
 	X(i16)\
 	X(i32)\
 	X(i64)
 
-#define jo_tok_floating_point_type_primitive\
+#define jo_tok_floating_point_type_primitive_list\
 	X(f32)\
 	X(f64)
 
 
-#define jo_tok_numerical_type_primitives\
+#define jo_tok_numerical_type_primitive_list\
 	X(bool)\
-	jo_tok_unsigned_integer_type_primitives\
-	jo_tok_signed_integer_type_primitives\
-	jo_tok_floating_point_type_primitive
+	jo_tok_unsigned_integer_type_primitive_list\
+	jo_tok_signed_integer_type_primitive_list\
+	jo_tok_floating_point_type_primitive_list
 
 	
-#define jo_tok_type_primitives\
+#define jo_tok_type_primitive_list\
 	X(type)\
 	X(void)\
-	jo_tok_numerical_type_primitives
+	jo_tok_numerical_type_primitive_list
 
-#define jo_tok_keywords\
+#define jo_tok_keyword_list\
 	X(true)\
 	X(false)\
 	X(as)\
@@ -89,9 +89,9 @@
 	X(break)\
 	X(continue)\
 	X(namespace)\
-	jo_tok_type_primitives
+	jo_tok_type_primitive_list
 
-#define jo_tok_entries\
+#define jo_tok_entry_list\
 	X(undefined)\
 	X(identifier)\
 	X(intrinsic)\
@@ -121,24 +121,32 @@
 	X(colon)\
 	X(semicolon)\
 	X(eof)\
-	jo_tok_operators\
-	jo_tok_keywords\
-	jo_tok_literals
+	jo_tok_operator_list\
+	jo_tok_keyword_list\
+	jo_tok_literal_list
 
 typedef enum
 {
 	#define X(tok) jo_tok_##tok,
-	jo_tok_entries
+	jo_tok_entry_list
 	#undef X
+	jo_tok_add = jo_tok_plus,
+	jo_tok_sub = jo_tok_minus,
+	jo_tok_mul = jo_tok_star,
+	jo_tok_div = jo_tok_slash,
 
-	jo_tok_less = jo_tok_open_angle_bracket,
-	jo_tok_greater = jo_tok_close_angle_bracket,
+	jo_tok_cmp_lt = jo_tok_open_angle_bracket,
+	jo_tok_cmp_lte = jo_tok_less_equals,
+	jo_tok_cmp_gt = jo_tok_close_angle_bracket,
+	jo_tok_cmp_gte = jo_tok_greater_equals,
+	jo_tok_cmp_eq = jo_tok_double_equals,
+	jo_tok_cmp_neq = jo_tok_not_equals,
 	jo_tok_caret = jo_tok_logical_xor,
 	jo_tok_bitwise_and = jo_tok_ampersand,	
 } jo_tok;
 
 typedef struct
-{
+{	
 	const char* identifier;
 	jo_u32 len;
 	jo_tok type;

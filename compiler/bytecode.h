@@ -4,79 +4,68 @@
 #include "../core/core.h"
 #include "ast_node.h"
 #include "symbol.h"
-#include "workspace.h"
 
-#define jo_bytecode_instr_cast_prefix\
+#define jo_bc_inst_cast_list(to)\
+	XY(u8, to)\
+	XY(u16, to)\
+	XY(u32, to)\
+	XY(u64, to)\
+	XY(i8, to)\
+	XY(i16, to)\
+	XY(i32, to)\
+	XY(i64, to)\
+	XY(f32, to)\
+	XY(f64, to)\
+	XY(bool, to)
 
+#define jo_bc_basic_instr_list\
+	X(push)\
+	X(pop)\
+	X(jmp)\
+	X(jmp_if)\
+	X(jmp_if_not)\
+	X(store)\
+	X(load)\
+	X(get_sp)\
+	X(memcpy)\
+	X(mov)\
+	X(mov_imm)\
+	X(ret)\
+	X(call)
 
-#define jo_bytecode_inst_cast_suite(to)\
-	jo_bytecode_instr_cast_u8_##to,\
-	jo_bytecode_instr_cast_u16_##to,\
-	jo_bytecode_instr_cast_u32_##to,\
-	jo_bytecode_instr_cast_u64_##to,\
-	jo_bytecode_instr_cast_i8_##to,\
-	jo_bytecode_instr_cast_i16_##to,\
-	jo_bytecode_instr_cast_i32_##to,\
-	jo_bytecode_instr_cast_i64_##to,\
-	jo_bytecode_instr_cast_f32_##to,\
-	jo_bytecode_instr_cast_f64_##to,\
-	jo_bytecode_instr_cast_bool_##to\
-
-#define jo_bytecode_instr_def_suite(op)\
-	jo_bytecode_instr_##op##_u8,\
-	jo_bytecode_instr_##op##_u16,\
-	jo_bytecode_instr_##op##_u32,\
-	jo_bytecode_instr_##op##_u64,\
-	jo_bytecode_instr_##op##_i8,\
-	jo_bytecode_instr_##op##_i16,\
-	jo_bytecode_instr_##op##_i32,\
-	jo_bytecode_instr_##op##_i64,\
-	jo_bytecode_instr_##op##_f32,\
-	jo_bytecode_instr_##op##_f64,\
-	jo_bytecode_instr_##op##_bool\
+#define jo_bc_binary_primitive_instr_list(t)\
+	XYX(add, t, +)\
+	XYX(sub, t, -)\
+	XYX(div, t, /)\
+	XYX(mul, t, *)\
+	XYX(cmp_lt, t, <)\
+	XYX(cmp_lte, t, <=)\
+	XYX(cmp_gt, t, >)\
+	XYX(cmp_gte, t, >=)\
+	XYX(cmp_eq, t, ==)\
+	XYX(cmp_neq, t, !=)
 
 typedef enum
 {
-	jo_bytecode_instr_push,
-	jo_bytecode_instr_pop,
-	jo_bytecode_instr_jmp,
-	jo_bytecode_instr_jmp_if,
-	jo_bytecode_instr_jmp_if_not,
-	jo_bytecode_instr_store,
-	jo_bytecode_instr_load,
-	jo_bytecode_instr_get_sp,
-	jo_bytecode_instr_memcpy,
-	jo_bytecode_instr_mov,
-	jo_bytecode_instr_mov_imm,
+	#define X(opcode) jo_bc_##opcode,
+		jo_bc_basic_instr_list
+	#undef X
 
-	jo_bytecode_instr_def_suite(add),
-	jo_bytecode_instr_def_suite(sub),
-	jo_bytecode_instr_def_suite(mul),
-	jo_bytecode_instr_def_suite(div),
-	jo_bytecode_instr_def_suite(cmp_lt),
-	jo_bytecode_instr_def_suite(cmp_lte),
-	jo_bytecode_instr_def_suite(cmp_gt),
-	jo_bytecode_instr_def_suite(cmp_gte),
-	jo_bytecode_instr_def_suite(cmp_eq),
-	jo_bytecode_instr_def_suite(cmp_neq),
+	#define XYX(opcode, t, op) jo_bc_##opcode##_##t,
+	#define X(t) jo_bc_binary_primitive_instr_list(t)
+		jo_tok_numerical_type_primitive_list
+	#undef X
+	#undef XYX
 
-	jo_bytecode_inst_cast_suite(i8),
-	jo_bytecode_inst_cast_suite(u8),
-	jo_bytecode_inst_cast_suite(i16),
-	jo_bytecode_inst_cast_suite(u16),
-	jo_bytecode_inst_cast_suite(i32),
-	jo_bytecode_inst_cast_suite(u32),
-	jo_bytecode_inst_cast_suite(i64),
-	jo_bytecode_inst_cast_suite(u64),
-	jo_bytecode_inst_cast_suite(f32),
-	jo_bytecode_inst_cast_suite(f64),
-	jo_bytecode_inst_cast_suite(bool),
+	#define XY(t1, t2) jo_bc_cast_##t1##_##t2,
+	#define X(t) jo_bc_inst_cast_list(t)
+		jo_tok_numerical_type_primitive_list
+	#undef X
+	#undef XY
+	
+} jo_bc_instr;
 
-	jo_bytecode_instr_ret,
-	jo_bytecode_instr_call
-}jo_bytecode_instr;
-
-const char* jo_bytecode_instr_to_str(jo_bytecode_instr instr);
+const char* jo_bytecode_instr_to_str(jo_bc_instr instr);
 
 typedef jo_u32 jo_register_id;
 
@@ -104,7 +93,7 @@ typedef jo_u64 jo_value64;
 
 typedef struct
 {
-	jo_bytecode_instr instr;
+	jo_bc_instr instr;
 
 	union
 	{
@@ -226,13 +215,14 @@ typedef struct
 
 jo_ada_declare(jo_bytecode_fn, jo_bytecode_fn_dyn_array)
 
+typedef struct jo_workspace_s jo_workspace;
+
 typedef struct
 {
 	jo_workspace* ws;
 	jo_bytecode_fn_dyn_array fns;
 	jo_bytecode bc;
 }jo_bytecode_context;
-
 
 void jo_dump_bytecode(jo_bytecode_context* bcc);
 void jo_bytecode_emit_function(jo_bytecode_context* bcc,  jo_bytecode_fn* bcfn,  jo_ast_node* node);

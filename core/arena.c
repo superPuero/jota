@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include "arena.h"
 
-jo_arena jo_arena_make(jo_uz capacity, const char* name)
+jo_arena jo_arena_make(jo_uz capacity, jo_str_view name)
 {
 	jo_arena arena = {.mem = malloc(capacity), .markers = {0}, .name = {0}, .current_marker = 0, .current = 0 , .capacity = capacity};
-	memcpy(arena.name, name, strlen(name));
+	memcpy(arena.name, name.data, name.len);
 	return arena;
 }
 
