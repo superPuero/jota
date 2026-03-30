@@ -36,27 +36,21 @@ int main(int argc, char** argv)
 	{
 		jo_profile(&workspace.arena, &profiler, lex_and_parse_time) { jo_workspace_begin(&workspace, compile_opt.filepath); }
 
-		if(compile_opt.dt)
+		if(compile_opt.t)
 		{
 			jo_ada_foreach(&workspace.loaded_modules) { jo_dump_tokens(&workspace.loaded_modules.it->tokens); }
 		} 
 
-		if(compile_opt.dast) 
+		if(compile_opt.ast) 
 		{
 			jo_ada_foreach(&workspace.loaded_modules) { jo_dump_ast_node(workspace.loaded_modules.it->file_node, 0); }
 		}
 
-		if(compile_opt.sema)
-		{
-			jo_sema sema = { .ws = &workspace };
-			jo_profile(&workspace.arena, &profiler, sema_time) { jo_sema_analyze(&sema); }
-		}
+		jo_sema sema = { .ws = &workspace };
+		jo_profile(&workspace.arena, &profiler, sema_time) { jo_sema_analyze(&sema); }
 
-		if(compile_opt.bc)
-		{
-			jo_profile(&workspace.arena, &profiler, bytecode_time) { jo_make_bytecode(&bcc); }	
-			if(compile_opt.dbc) { jo_dump_bytecode(&bcc); }
-		}
+		jo_profile(&workspace.arena, &profiler, bytecode_time) { jo_make_bytecode(&bcc); }	
+		if(compile_opt.bc) { jo_dump_bytecode(&bcc); }
 
 
 		if(compile_opt.i)
