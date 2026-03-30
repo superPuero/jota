@@ -24,11 +24,10 @@ int main(int argc, char** argv)
 	// also preferrably should be allocated on demand
 	jo_vm* vm = jo_arena_palloc(&workspace.arena, jo_vm);
 
-	// @todo: bytecode_context and sema should be per_workspace aka per build unit
+	// @todo: bytecode_context and sema should be per workspace aka per build unit
 	jo_bytecode_context bcc = { .ws = &workspace };
 	jo_sema sema = { .ws = &workspace };
 
-	jo_i64* program_output = NULL;
 
 	jo_profiler profiler = {0};
 	
@@ -59,10 +58,12 @@ int main(int argc, char** argv)
 	
 	if(compile_opt.i)
 	{	
+		jo_i64* program_output = NULL;
+
 		printf("\n");		
 
 		program_output = jo_run_bytecode(vm, &bcc);
-		
+
 		printf("\n");		
 
 		if(program_output) { printf("program output: %lli\n", *program_output); }
