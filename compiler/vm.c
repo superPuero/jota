@@ -91,6 +91,18 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 
         switch (op.instr)
         {
+			case jo_bytecode_instr_get_sp:
+				vm->registers[call_frame->base_register + op.as.get_sp.to] = vm->stack_pointer;
+				break;
+
+			case jo_bytecode_instr_push:
+				vm->stack_pointer += op.as.push.offset;
+				break;
+					
+			case jo_bytecode_instr_store:
+				memcpy(&vm->stack[vm->registers[call_frame->base_register + op.as.store.to_addr] + op.as.store.offset], &vm->registers[call_frame->base_register + op.as.store.from], op.as.store.size);
+				break;
+
 			case jo_bytecode_instr_jmp:
 				vm->ip += op.as.jmp.offset;
 				continue; // skip ip increment
@@ -110,9 +122,8 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 				}
 				break;
             case jo_bytecode_instr_mov_imm:
-				memcpy(vm->registers + call_frame->base_register + op.as.mov_imm.to, &op.as.mov_imm.value, sizeof(jo_value64));
+				memcpy(vm->registers + call_frame->base_register + op.as.mov_imm.to, &op.as.mov_imm.value, op.as.mov_imm.size);
                 break;
-
 			case jo_bytecode_instr_mov:
 				memcpy(vm->registers + call_frame->base_register + op.as.mov.to, vm->registers + call_frame->base_register + op.as.mov.from, sizeof(jo_value64));
                 break;
@@ -127,6 +138,7 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
             jo_binary_op_suite(cmp_gte, >=);
             jo_binary_op_suite(cmp_eq, ==);
             jo_binary_op_suite(cmp_neq, !=);
+
 
 			jo_cast_op_suite(i8);
 			jo_cast_op_suite(u8);
@@ -176,11 +188,16 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 
 			case jo_bytecode_instr_call:
 			{
+				if(op.as.call.intrinsic)
+				{
+					printf((char*)(vm->stack + *(jo_u64*)&vm->registers[call_frame->base_register + op.as.call.first_arg]), *(jo_u64*)&vm->registers[call_frame->base_register + op.as.call.first_arg + 1]);
+					vm->ip++;
+					continue;
+				}
+
 			 	jo_bytecode_fn* target_fn = bcc->fns.data + op.as.call.function_index;
 
                 // call_frame->ip++;
-
-
 
                 jo_call_frame new_frame = {0};
                 new_frame.fn = target_fn;
@@ -198,7 +215,7 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
                 call_frame = &vm->frames[vm->fc - 1];
 				vm->ip = target_fn->entry_ip;
 
-                continue;
+                continue;	
 			}
             case jo_bytecode_instr_ret:
 			{
@@ -228,7 +245,6 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
                 return jo_null_register;
         }
 
-		// call_frame->ip++;
 		vm->ip++;
 
 	}
@@ -241,7 +257,7 @@ jo_i64* jo_run_bytecode(jo_vm* vm, jo_bytecode_context* bcc)
 	frame->fn = bcc->fns.data + jo_bytecode_find_function_id(bcc, "main");
 	frame->base_register = 0;
 	frame->ret_reg = 0;
-	vm->ip = bcc->fns.data[jo_bytecode_find_function_id(bcc, "main")].entry_ip;
+	vm->ip = frame->fn->entry_ip;
 
 	jo_register_id ret_reg = jo_vm_run(vm, bcc);
 

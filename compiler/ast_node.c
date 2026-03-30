@@ -8,9 +8,8 @@ const char* jo_ast_node_type_to_stirng(jo_ast_node_type type)
 {
 	switch (type)
 	{
-		jo_stringify_case(jo_ast_type_module);
+		jo_stringify_case(jo_ast_type_file);
 
-		jo_stringify_case(jo_ast_type_directive_load);
 		jo_stringify_case(jo_ast_type_type_ptr);
 		jo_stringify_case(jo_ast_type_type_ref);
 		jo_stringify_case(jo_ast_type_type_array);
@@ -97,13 +96,13 @@ void jo_dump_ast_node(jo_ast_node* node, jo_u32 indent)
 		jo_dump_ast_node(node->data.literal_type.type, indent + 1);
 		break;
 	case jo_ast_type_literal_string:
-		printf(" \"%s\"\n", node->data.literal_string.data);
+		printf(" \"%.*s\"\n", jo_str_view_fmt(&node->data.literal_string));
 		break;
 	case jo_ast_type_identifier:
-		printf(" %s\n", node->data.identifier.data);
+		printf(" %.*s\n", jo_str_view_fmt(&node->data.identifier));
 		break;
 	case jo_ast_type_type_primitive:
-		printf(" (%s)\n", jo_token_type_to_string(node->data.type_primitive));
+		printf(" (%s)\n", jo_tok_to_string(node->data.type_primitive));
 		break;
 
 	case jo_ast_type_stmt_expr:
@@ -111,11 +110,11 @@ void jo_dump_ast_node(jo_ast_node* node, jo_u32 indent)
 		jo_dump_ast_node(node->data.stmt_expr.expr, indent + 1);
 		break;
 
-	case jo_ast_type_module:
+	case jo_ast_type_file:
 		printf("\n");
-		jo_ada_foreach(&node->data.module.content)
+		jo_ada_foreach(&node->data.file.content)
 		{
-			jo_dump_ast_node(*node->data.module.content.it, indent + 1);
+			jo_dump_ast_node(*node->data.file.content.it, indent + 1);
 		};
 		break;
 	case jo_ast_type_decl_namespace:
@@ -180,11 +179,11 @@ void jo_dump_ast_node(jo_ast_node* node, jo_u32 indent)
 
 	// --- Expressions ---
 	case jo_ast_type_expr_op_unary:
-		printf(" (Op: %s)\n", jo_token_type_to_string(node->data.expr_op_unary.operator_type));
+		printf(" (Op: %s)\n", jo_tok_to_string(node->data.expr_op_unary.operator_type));
 		jo_dump_ast_node(node->data.expr_op_unary.expression, indent + 1);
 		break;
 	case jo_ast_type_expr_op_binary:
-		printf(" (Op: %s)\n", jo_token_type_to_string(node->data.expr_op_binary.operator_type));
+		printf(" (Op: %s)\n", jo_tok_to_string(node->data.expr_op_binary.operator_type));
 		jo_dump_ast_node(node->data.expr_op_binary.left_expression, indent + 1);
 		jo_dump_ast_node(node->data.expr_op_binary.right_expression, indent + 1);
 		break;
@@ -238,10 +237,6 @@ void jo_dump_ast_node(jo_ast_node* node, jo_u32 indent)
 			jo_dump_ast_node(*node->data.block.statements.it, indent + 1);
 		};
 		break;
-	case jo_ast_type_directive_load:
-		printf(" %s\n", node->data.directive_load.path.data);
-		break;
-
 	default:
 		printf(" <unmapped data>\n");
 		break;

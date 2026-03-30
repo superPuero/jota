@@ -1,6 +1,6 @@
 #include "compile_options.h"	
 
-jo_compile_options jo_compie_options_parse_from_args(int argc, char** argv)
+jo_compile_options jo_compile_options_parse_from_args(int argc, char** argv)
 {
 	jo_compile_options opt = {0};
 	opt.success = true;
@@ -11,6 +11,8 @@ jo_compile_options jo_compie_options_parse_from_args(int argc, char** argv)
 		opt.success = false;
 		return opt;
 	}
+
+	opt.filepath = jo_str_view_from(argv[1]);
 
 	for(jo_i32 i = 2; i < argc; i++)
 	{
@@ -55,7 +57,6 @@ jo_compile_options jo_compie_options_parse_from_args(int argc, char** argv)
 			opt.bytecode = true;
 			opt.bytecode_dump = true;
 		}
-
 		else if(strcmp(argv[i], "-i") == 0)
 		{
 			opt.tokens = true;
@@ -63,6 +64,10 @@ jo_compile_options jo_compie_options_parse_from_args(int argc, char** argv)
 			opt.sema = true;
 			opt.bytecode = true;
 			opt.interp = true;
+		}
+		else if(strcmp(argv[i], "-time") == 0)
+		{
+			opt.time = true;
 		}
 		else
 		{

@@ -31,7 +31,13 @@ if((arr)->occupied == (arr)->capacity)\
 }\
 (arr)->data[(arr)->occupied++] = __VA_ARGS__;
 
+#define jo_ada_last(arr) ((arr)->data + (arr)->occupied - 1)
+
 #define jo_ada_foreach(ada)\
 for(jo_u32 _i = ((ada)->it = NULL, 0); _i < (ada)->occupied && ((ada)->it = (ada)->data + _i, 1); ++_i)
+
+#define jo_ada_foreach_named(ada, _it)\
+for(jo_u32 _it = ((ada)->it = NULL, 0); _it < (ada)->occupied && ((ada)->it = (ada)->data + _it, 1); ++_it)
+
 
 #endif

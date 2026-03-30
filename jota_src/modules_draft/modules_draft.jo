@@ -1,0 +1,6 @@
+io :: import("core.jo").io(some_interface)
+
+main :: fn -> i64 
+{
+	return io.test(42)	
+}

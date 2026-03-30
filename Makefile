@@ -8,9 +8,12 @@ RELEASE_CC_OPT = -O3 -march=native
 CORE_SRC = 	core/astr.c \
        		core/arena.c \
        		core/utils.c \
+       		core/file.c \
+
 
 COMPILER_SRC = \
        compiler/compile_options.c \
+       compiler/workspace.c \
        compiler/lexer.c \
        compiler/token.c \
        compiler/parser.c \

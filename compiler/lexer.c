@@ -3,101 +3,87 @@
 #include <stdio.h>
 
 
-const jo_token_keyword_entry jo_keyword_map[] = {
-	jo_token_make_keyword_entry(type, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(i8, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(u8, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(i16, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(u16, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(i32, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(u32, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(i64, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(u64, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(f32, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(f64, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(bool, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(void, jo_token_kind_type_primitive),
-	jo_token_make_keyword_entry(true, jo_token_kind_literal),
-	jo_token_make_keyword_entry(false, jo_token_kind_literal),
-	jo_token_make_keyword_entry(as, jo_token_kind_none),
-	jo_token_make_keyword_entry(return, jo_token_kind_none),
-	jo_token_make_keyword_entry(struct, jo_token_kind_none),
-	jo_token_make_keyword_entry(fn, jo_token_kind_none),
-	jo_token_make_keyword_entry(let, jo_token_kind_none),
-	jo_token_make_keyword_entry(if, jo_token_kind_none),
-	jo_token_make_keyword_entry(else, jo_token_kind_none),
-	jo_token_make_keyword_entry(match, jo_token_kind_none),
-	jo_token_make_keyword_entry(nil, jo_token_kind_literal),
-	jo_token_make_keyword_entry(enum, jo_token_kind_none),
-	jo_token_make_keyword_entry(static, jo_token_kind_none),
-	jo_token_make_keyword_entry(import, jo_token_kind_none),
-	jo_token_make_keyword_entry(module, jo_token_kind_none),
-	jo_token_make_keyword_entry(defer, jo_token_kind_none),
-	jo_token_make_keyword_entry(for, jo_token_kind_none),
-	jo_token_make_keyword_entry(in, jo_token_kind_none),
-	jo_token_make_keyword_entry(break, jo_token_kind_none),
-	jo_token_make_keyword_entry(continue, jo_token_kind_none),
-	jo_token_make_keyword_entry(namespace, jo_token_kind_none),
-	jo_token_make_keyword_entry(load, jo_token_kind_none),
-	jo_token_make_keyword_entry(intrinsic, jo_token_kind_none),
+const jo_tok_keyword_entry jo_keyword_map[] = {
+	#define X(tok) {#tok, sizeof(#tok) - 1, jo_tok_##tok},
+	jo_tok_keywords
+	#undef x
 };
 
 jo_token_basic_entry jo_token_map[] =
 {
 	// multi-char tokens first
-	{"<<=", 3, jo_token_shift_left_equals, jo_token_kind_type_operator},
-	{">>=", 3, jo_token_shift_right_equals, jo_token_kind_none},
-	{"..", 2, jo_token_double_dot, jo_token_kind_type_operator},
-	{"==", 2, jo_token_double_equals, jo_token_kind_type_operator},
-	{"!=", 2, jo_token_not_equals, jo_token_kind_type_operator},
-	{"<=", 2, jo_token_less_equals, jo_token_kind_type_operator},
-	{">=", 2, jo_token_greater_equals, jo_token_kind_type_operator},
-	{"&&", 2, jo_token_logical_and, jo_token_kind_type_operator},
-	{"||", 2, jo_token_logical_or, jo_token_kind_type_operator},
-	{"<<", 2, jo_token_shift_left, jo_token_kind_type_operator},
-	{">>", 2, jo_token_shift_right, jo_token_kind_type_operator},
-	{"->", 2, jo_token_arrow, jo_token_kind_none},
-	{"=>", 2, jo_token_fat_arrow, jo_token_kind_none},
-	{"+=", 2, jo_token_plus_equals, jo_token_kind_type_operator},
-	{"-=", 2, jo_token_minus_equals, jo_token_kind_type_operator},
-	{"*=", 2, jo_token_star_equals, jo_token_kind_type_operator},
-	{"/=", 2, jo_token_slash_equals, jo_token_kind_type_operator},
-	{"%=", 2, jo_token_modulo_equals, jo_token_kind_type_operator},
-	{"&=", 2, jo_token_bitwise_and_equals, jo_token_kind_type_operator},
-	{"|=", 2, jo_token_bitwise_or_equals, jo_token_kind_type_operator},
-	{"^=", 2, jo_token_bitwise_xor_equals, jo_token_kind_type_operator},
-	{"::", 2, jo_token_bridge, jo_token_kind_none},
-	{":=", 2, jo_token_walrus, jo_token_kind_none},
-	{"(", 1, jo_token_open_parenthesis, jo_token_kind_none},
-	{")", 1, jo_token_close_parenthesis, jo_token_kind_none},
-	{"{", 1, jo_token_open_curly_bracket, jo_token_kind_none},
-	{"}", 1, jo_token_close_curly_bracket, jo_token_kind_none},
-	{"[", 1, jo_token_open_square_bracket, jo_token_kind_none},
-	{"]", 1, jo_token_close_square_bracket, jo_token_kind_none},
-	{"<", 1, jo_token_open_angle_bracket, jo_token_kind_type_operator},
-	{">", 1, jo_token_close_angle_bracket, jo_token_kind_type_operator},
-	{"+", 1, jo_token_plus, jo_token_kind_type_operator},
-	{"-", 1, jo_token_minus, jo_token_kind_type_operator},
-	{"*", 1, jo_token_star, jo_token_kind_type_operator},
-	{"/", 1, jo_token_slash, jo_token_kind_type_operator},
-	{"%", 1, jo_token_modulo, jo_token_kind_type_operator},
-	{"=", 1, jo_token_equals, jo_token_kind_type_operator},
-	{"!", 1, jo_token_exclamation_mark, jo_token_kind_type_operator},
-	{"^", 1, jo_token_caret, jo_token_kind_type_operator},
-	{"~", 1, jo_token_tilde, jo_token_kind_type_operator},
-	{",", 1, jo_token_comma, jo_token_kind_none},
-	{".", 1, jo_token_dot, jo_token_kind_none},
-	{"&", 1, jo_token_ampersand, jo_token_kind_none},
-	{";", 1, jo_token_semicolon, jo_token_kind_none},
-	{":", 1, jo_token_colon, jo_token_kind_none},
-	{"#", 1, jo_token_hash, jo_token_kind_none},
-	{"@", 1, jo_token_at, jo_token_kind_none},
-	{"$", 1, jo_token_dollar, jo_token_kind_none},
+	{"<<=", 3, jo_tok_shift_left_equals},
+	{">>=", 3, jo_tok_shift_right_equals},
+	{"..", 2, jo_tok_double_dot},
+	{"==", 2, jo_tok_double_equals},
+	{"!=", 2, jo_tok_not_equals},
+	{"<=", 2, jo_tok_less_equals},
+	{">=", 2, jo_tok_greater_equals},
+	{"&&", 2, jo_tok_logical_and},
+	{"||", 2, jo_tok_logical_or},
+	{"<<", 2, jo_tok_shift_left},
+	{">>", 2, jo_tok_shift_right},
+	{"->", 2, jo_tok_arrow},
+	{"=>", 2, jo_tok_fat_arrow},
+	{"+=", 2, jo_tok_plus_equals},
+	{"-=", 2, jo_tok_minus_equals},
+	{"*=", 2, jo_tok_star_equals},
+	{"/=", 2, jo_tok_slash_equals},
+	{"%=", 2, jo_tok_modulo_equals},
+	{"&=", 2, jo_tok_bitwise_and_equals},
+	{"|=", 2, jo_tok_bitwise_or_equals},
+	{"^=", 2, jo_tok_bitwise_xor_equals},
+	{"::", 2, jo_tok_bridge},
+	{":=", 2, jo_tok_walrus},
+	{"(", 1, jo_tok_open_parenthesis},
+	{")", 1, jo_tok_close_parenthesis},
+	{"{", 1, jo_tok_open_curly_bracket},
+	{"}", 1, jo_tok_close_curly_bracket},
+	{"[", 1, jo_tok_open_square_bracket},
+	{"]", 1, jo_tok_close_square_bracket},
+	{"<", 1, jo_tok_open_angle_bracket},
+	{">", 1, jo_tok_close_angle_bracket},
+	{"+", 1, jo_tok_plus},
+	{"-", 1, jo_tok_minus},
+	{"*", 1, jo_tok_star},
+	{"/", 1, jo_tok_slash},
+	{"%", 1, jo_tok_modulo},
+	{"=", 1, jo_tok_equals},
+	{"!", 1, jo_tok_exclamation_mark},
+	{"^", 1, jo_tok_caret},
+	{"~", 1, jo_tok_tilde},
+	{",", 1, jo_tok_comma},
+	{".", 1, jo_tok_dot},
+	{"&", 1, jo_tok_ampersand},
+	{";", 1, jo_tok_semicolon},
+	{":", 1, jo_tok_colon},
+	{"#", 1, jo_tok_hash},
+	{"@", 1, jo_tok_at},
+	{"$", 1, jo_tok_dollar},
 };
+
+void jo_dump_tokens(jo_token_ada* tokens)
+{
+	jo_ada_foreach(tokens)
+	{
+		switch (tokens->it->type)
+		{
+		case jo_tok_identifier:
+		case jo_tok_literal_integer:
+		case jo_tok_literal_fp:
+			printf("line: %u colum: %u type: %u %s (%.*s)\n", tokens->it->line, tokens->it->column, tokens->it->type, jo_tok_to_string(tokens->it->type), tokens->it->content_len, tokens->it->content);
+			break;
+
+		default:
+			printf("line: %u colum: %u type: %u %s\n", tokens->it->line,  tokens->it->column, tokens->it->type, jo_tok_to_string(tokens->it->type));
+			break;
+		}
+	}
+}
 
 char jo_lexer_peek(jo_lexer* lexer, jo_u32 offset)
 {
-	return lexer->data[lexer->current + offset];
+	return lexer->file->data[lexer->current + offset];
 }
 
 char jo_lexer_peek_next(jo_lexer* lexer)
@@ -107,7 +93,7 @@ char jo_lexer_peek_next(jo_lexer* lexer)
 
 char jo_lexer_current(jo_lexer* lexer)
 {
-	return lexer->data[lexer->current];
+	return lexer->file->data[lexer->current];
 }
 
 void jo_lexer_advance(jo_lexer* lexer, jo_u32 by)
@@ -127,11 +113,10 @@ void jo_lexer_reset_token(jo_lexer* lexer)
 	lexer->token_len = 0;
 }
 
-void jo_lexer_make_token(jo_lexer* lexer, jo_token_type type, jo_token_kind kind)
+void jo_lexer_make_token(jo_lexer* lexer, jo_tok type)
 {
-	jo_token tok = {0};
+	jo_token tok = {0};		
 	tok.type = type;
-	tok.kind = kind;
 	tok.column = lexer->column_counter;
 	tok.line = lexer->line_counter;
 	tok.content = lexer->token_start;
@@ -139,7 +124,7 @@ void jo_lexer_make_token(jo_lexer* lexer, jo_token_type type, jo_token_kind kind
 
 	jo_lexer_reset_token(lexer);
 
-	jo_ada_append(lexer->arena, &lexer->tokens, tok);
+	jo_ada_append(lexer->arena, lexer->out, tok);
 }
 
 void jo_lexer_newline(jo_lexer* lexer)
@@ -152,8 +137,8 @@ void jo_lexer_skip_whitespace_and_comments(jo_lexer* lexer)
 {
     while (true)
     {
-        char c = lexer->data[lexer->current];
-        char next_c = lexer->data[lexer->current + 1];
+        char c = lexer->file->data[lexer->current];
+        char next_c = lexer->file->data[lexer->current + 1];
 
         if (c == ' ' || c == '\t' || c == '\r')
         {
@@ -170,7 +155,7 @@ void jo_lexer_skip_whitespace_and_comments(jo_lexer* lexer)
         {
             lexer->current += 2;
 
-            while (lexer->data[lexer->current] != '\n' && lexer->data[lexer->current] != '\0')
+            while (lexer->file->data[lexer->current] != '\n' && lexer->file->data[lexer->current] != '\0')
             {
                 lexer->current++;
             }
@@ -181,19 +166,19 @@ void jo_lexer_skip_whitespace_and_comments(jo_lexer* lexer)
             lexer->column_counter += 2;
             int comment_depth = 1;
 
-            while (comment_depth > 0 && lexer->data[lexer->current] != '\0')
+            while (comment_depth > 0 && lexer->file->data[lexer->current] != '\0')
             {
-                if (lexer->data[lexer->current] == '\n')
+                if (lexer->file->data[lexer->current] == '\n')
                 {
                     lexer->line_counter++;
                     lexer->column_counter = 0;
                 }
-                else if (lexer->data[lexer->current] == '/' && lexer->data[lexer->current + 1] == '*')
+                else if (lexer->file->data[lexer->current] == '/' && lexer->file->data[lexer->current + 1] == '*')
                 {
                     comment_depth++;
                     lexer->current++;
                 }
-                else if (lexer->data[lexer->current] == '*' && lexer->data[lexer->current + 1] == '/')
+                else if (lexer->file->data[lexer->current] == '*' && lexer->file->data[lexer->current + 1] == '/')
                 {
                     comment_depth--;
                     lexer->current++;
@@ -223,8 +208,6 @@ bool jo_lexer_match_consume(jo_lexer* lexer, const char* str, jo_u32 len)
 
 bool jo_lexer_match_content_not_consume(jo_lexer* lexer, const char* str, jo_u32 len)
 {
-	if(len < lexer->token_len) return false;
-
 	if(strncmp(lexer->token_start, str, len) == 0)
 	{
 		return true;
@@ -234,15 +217,15 @@ bool jo_lexer_match_content_not_consume(jo_lexer* lexer, const char* str, jo_u32
 }
 
 
-bool jo_lexer_try_match_make_token(jo_lexer* lexer, const char* str, jo_u32 len, jo_token_type type, jo_token_kind kind)
+bool jo_lexer_try_match_make_token(jo_lexer* lexer, const char* str, jo_u32 len, jo_tok type)
 {
-	if(jo_lexer_match_consume(lexer, str, len))  { jo_lexer_make_token(lexer, type, kind); return true; }
+	if(jo_lexer_match_consume(lexer, str, len))  { jo_lexer_make_token(lexer, type); return true; }
 	else { return false; }
 }
 
-bool jo_lexer_try_match_content_make_token(jo_lexer* lexer, const char* str, jo_u32 len, jo_token_type type, jo_token_kind kind)
+bool jo_lexer_try_match_content_make_token(jo_lexer* lexer, const char* str, jo_u32 len, jo_tok type)
 {
-	if(jo_lexer_match_content_not_consume(lexer, str, len))  { jo_lexer_make_token(lexer, type, kind); return true; }
+	if(jo_lexer_match_content_not_consume(lexer, str, len))  { jo_lexer_make_token(lexer, type); return true; }
 	else { return false; }
 }
 
@@ -256,10 +239,10 @@ void jo_lexer_parse_identifier(jo_lexer* lexer)
 
 	for(jo_uz i = 0; i < sizeof(jo_keyword_map)/sizeof(jo_keyword_map[0]); i++)
 	{
-		if(jo_lexer_try_match_content_make_token(lexer, jo_keyword_map[i].identifier,  jo_keyword_map[i].len, jo_keyword_map[i].type, jo_keyword_map[i].kind)) return;
+		if(lexer->token_len == jo_keyword_map[i].len && jo_lexer_try_match_content_make_token(lexer, jo_keyword_map[i].identifier,  jo_keyword_map[i].len, jo_keyword_map[i].type)) return;
 	}
 
-	jo_lexer_make_token(lexer, jo_token_identifier, jo_token_kind_none);
+	jo_lexer_make_token(lexer, jo_tok_identifier);
 }
 
 void jo_lexer_parse_number(jo_lexer* lexer)
@@ -285,11 +268,11 @@ void jo_lexer_parse_number(jo_lexer* lexer)
 
 	if(has_dot)
 	{
-		jo_lexer_make_token(lexer, jo_token_literal_fp, jo_token_kind_literal);
+		jo_lexer_make_token(lexer, jo_tok_literal_fp);
 	}
 	else
 	{
-		jo_lexer_make_token(lexer, jo_token_literal_integer, jo_token_kind_literal);
+		jo_lexer_make_token(lexer, jo_tok_literal_integer);
 	}
 }
 
@@ -302,7 +285,8 @@ void jo_lexer_parse_string(jo_lexer* lexer)
 	lexer->token_start++;
 
 	while(true)
-	{
+	{				
+		//@todo: this is very brittle and straight up wrong
 		curr = jo_lexer_current(lexer);	
 		if(curr == '"') 
 		{
@@ -311,64 +295,54 @@ void jo_lexer_parse_string(jo_lexer* lexer)
 		}		
 		jo_lexer_advance_one(lexer);
 	}
-
+	
 	lexer->token_len--;
 	lexer->token_len--;
 
-	jo_lexer_make_token(lexer, jo_token_literal_string, jo_token_kind_literal);
+	jo_lexer_make_token(lexer, jo_tok_literal_string);
 }
 
 void jo_lexer_parse_next(jo_lexer* lexer)
 {
 	jo_lexer_skip_whitespace_and_comments(lexer);
 
-	lexer->token_start = lexer->data + lexer->current;
+	if(lexer->current == lexer->file->len || lexer->current == lexer->file->len + 1) { lexer->done = true; return; }
+
+	lexer->token_start = lexer->file->data + lexer->current;
 
 	char c = jo_lexer_current(lexer);
+
 	if(isalpha(c) || c == '_') { jo_lexer_parse_identifier(lexer); return;}
 	if(isdigit(c)) { jo_lexer_parse_number(lexer); return; }
 	if(c == '"') { jo_lexer_parse_string(lexer); return; }
 	
 	for(jo_uz i = 0; i < sizeof(jo_token_map)/sizeof(jo_token_map[0]); ++i)
 	{
-		if(jo_lexer_try_match_make_token(lexer, jo_token_map[i].content, jo_token_map[i].len, jo_token_map[i].type, jo_token_map[i].kind)){return;}
+		if(jo_lexer_try_match_make_token(lexer, jo_token_map[i].content, jo_token_map[i].len, jo_token_map[i].type)){return;}
 	}
-
-	if(lexer->current == lexer->data_size) { lexer->done = true; return; }
 
 	jo_lexer_advance_one(lexer);
 }
 
-jo_success jo_lexer_open_and_load(jo_lexer* lexer, const char* filename)
-{
-	lexer->filename = jo_astr_from(lexer->arena, filename);
-	FILE* file = fopen(filename, "rb");
-
-	if (!file)
-    {
-        printf("error: could not open file '%s'\n", filename);
-		return false; 
-    }
-
-	fseek(file, 0, SEEK_END);
-	lexer->data_size =  ftell(file);
-	rewind(file);
-	lexer->data = jo_arena_alloc(lexer->arena, lexer->data_size + 1);
-
-	fread(lexer->data, 1, lexer->data_size, file);
-	lexer->data[lexer->data_size] = '\0';
-	fclose(file);
-
-	return true;
-}
-
-void jo_lexer_close(jo_lexer* lexer)
-{
-	free(lexer->data);
-}
-
 void jo_lexer_lex(jo_lexer* lexer)
 {
+	if(!lexer->arena)
+	{
+		printf("lexer must be provide with memory arena\n");
+		assert(0);
+	}
+	if(!lexer->file)
+	{
+		printf("lexer must be provide with file\n");
+		assert(0);
+	}
+	if(!lexer->out)
+	{
+		printf("lexer must be provide with out token ada\n");
+		assert(0);
+	}
+
+
 	jo_lexer_newline(lexer);
 
 	while(!lexer->done)
@@ -376,27 +350,6 @@ void jo_lexer_lex(jo_lexer* lexer)
 		jo_lexer_parse_next(lexer);
 	}
 
-	jo_lexer_make_token(lexer, jo_token_eof, jo_token_kind_none);
+	jo_lexer_make_token(lexer, jo_tok_eof);
 }
 
-jo_success jo_lex_file(jo_lexer* lexer, const char* filename)
-{
-	if(!lexer->arena)
-	{
-		printf("lexer must be provide with memory arena\n");
-		return false;
-	}
-
-	jo_success succ = true;  
-
-	succ = jo_lexer_open_and_load(lexer, filename);
-	if(!succ)
-	{
-		printf("file loading error\n");
-		return false;
-	}
-
-	jo_lexer_lex(lexer);
-
-	return true;
-}

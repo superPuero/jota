@@ -28,6 +28,8 @@ for(jo_i32 _i = (jo_arena_marker(arena), 0); _i < 1; jo_arena_pop_to_marker(aren
 
 jo_arena jo_arena_make(jo_uz capacity, const char* name);
 void jo_arena_free(jo_arena* arena);
+
+void jo_arena_free(jo_arena* arena);
 void jo_arena_marker(jo_arena* arena);
 void jo_arena_pop_to_marker(jo_arena* arena);
 

@@ -16,10 +16,10 @@ jo_symbol* jo_scope_lookup_symbol(jo_scope* scope, jo_str_view identifier)
 
 	jo_ada_foreach(&scope->symbol_table)
 	{
-			if (strncmp(scope->symbol_table.it->identifier.data, identifier.data, identifier.len) == 0) 
-			{
-				return scope->symbol_table.it; 
-			}
+		if (strncmp(scope->symbol_table.it->identifier.data, identifier.data, scope->symbol_table.it->identifier.occupied) == 0) 
+		{
+			return scope->symbol_table.it; 
+		}
     }
 
 	return jo_scope_lookup_symbol(scope->parent, identifier);

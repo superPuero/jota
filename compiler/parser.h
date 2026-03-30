@@ -8,9 +8,11 @@
 typedef struct
 {
 	jo_arena* arena;
-	jo_lexer* lexer;
+	jo_token_ada* tokens;
 	jo_u32 current_token;
 } jo_parser;
+
+typedef struct jo_workspace_s jo_workspace;
 
 jo_ast_node* jo_parse_stmt_block(jo_parser* parser);
 jo_token* jo_parser_peek(jo_parser* parser, jo_u32 offset);
@@ -18,7 +20,7 @@ jo_token* jo_parser_peek_next(jo_parser* parser);
 void jo_parser_advance(jo_parser* parser);
 jo_token* jo_parser_current(jo_parser* parser);
 void jo_parser_unexpected(jo_parser* parser, const char* err);
-jo_token* jo_parser_consume(jo_parser* parser, jo_token_type expected);
+jo_token* jo_parser_consume(jo_parser* parser, jo_tok expected);
 jo_ast_node_ptr_ada jo_parse_construct_fn_parameters(jo_parser* parser);
 jo_ast_node* jo_parse_type_primitive(jo_parser* parser);
 jo_ast_node_ptr_ada jo_parse_type_extent(jo_parser* parser);
@@ -44,6 +46,6 @@ jo_ast_node* jo_parse_identifier(jo_parser* parser);
 jo_ast_node* jo_parse_declaration(jo_parser* parser);
 jo_ast_node_ptr_ada jo_parse_declarations(jo_parser* parser);
 jo_ast_node_ptr_ada jo_parse_namespace_content(jo_parser* parser);
-jo_ast_node* jo_parse(jo_parser* parser);
+jo_ast_node* jo_parse(jo_workspace* workspace, jo_parser* parser);
 
 #endif

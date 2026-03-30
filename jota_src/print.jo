@@ -1,0 +1,1 @@
+print :: fn(fmt: *u8, value: i64) @intrinsic

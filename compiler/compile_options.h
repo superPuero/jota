@@ -15,9 +15,11 @@ typedef struct
 	jo_bool bytecode_dump;
 	jo_bool interp;
 	jo_bool success;
+	jo_bool time;
+	jo_str_view filepath;
 }jo_compile_options;
 
-jo_compile_options jo_compie_options_parse_from_args(int argc, char** argv);
+jo_compile_options jo_compile_options_parse_from_args(int argc, char** argv);
 
 
 #endif

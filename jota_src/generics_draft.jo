@@ -12,9 +12,11 @@ addable :: $fn(T: type) -> bool
 // angle brackets enclosed identifier (ex: <T>) represents the generic infer unit, this means that it will act as an anchor for the semantic analyzer
 // for type inferring
 // every generic type of the procedure mush appear exactly once in any of the generic infer units
+
+
+
 add :: fn(left: <T>, right: T) -> type_of(right + left) 
 	$require(addable(T), "T must be addable")
 {
-
 	return right + left
 }

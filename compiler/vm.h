@@ -15,7 +15,7 @@ typedef struct
 typedef struct
 {
 	jo_u8  stack[1024 * 1024]; // ~1 MB of stack memory	
-	jo_u8* stack_pointer;
+	jo_u64 stack_pointer;
 
 	jo_value64 registers[65565];
 

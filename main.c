@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "compiler/compile_options.h"
+#include "compiler/workspace.h"
 #include "compiler/lexer.h"
 #include "compiler/parser.h"
 #include "compiler/symbol.h"
@@ -9,124 +10,80 @@
 #include "compiler/bytecode.h"
 #include "compiler/vm.h"
 
-void dump_tokens(jo_lexer* lexer)
-{
-	jo_token_ada* tokens = &lexer->tokens;
+// #define jo_workspace_memory jo_Mb(10)
 
-	jo_ada_foreach(tokens)
-	{
-		switch (tokens->it->type)
-		{
-		case jo_token_identifier:
-		case jo_token_literal_integer:
-		case jo_token_literal_fp:
-			printf("line: %u colum: %u type: %u %s (%.*s)\n", tokens->it->line, tokens->it->column, tokens->it->type, jo_token_type_to_string(tokens->it->type), tokens->it->content_len, tokens->it->content);
-			break;
-
-		default:
-			printf("line: %u colum: %u type: %u %s\n", tokens->it->line,  tokens->it->column, tokens->it->type, jo_token_type_to_string(tokens->it->type));
-			break;
-		}
-	}
-}
-
-void dump_bytecode(jo_bytecode_context* bcc)	
-{
-    printf("-----------bytecode---------\n");
-    printf("\n");
-
-	jo_uz inst = 0;
-	jo_ada_foreach(&bcc->bc)
-	{
-		jo_bytecode_op* op = bcc->bc.it;
-
-		jo_ada_foreach(&bcc->fns)
-		{
-			if(inst == bcc->fns.it->entry_ip)
-			{
-				printf("%.*s (registers: %u)\n", bcc->fns.it->label.len, bcc->fns.it->label.data, bcc->fns.it->reg_counter);	
-			}
-		}
-
-		printf("%4zu: ", inst);
-		jo_bytecode_dump_op(bcc, op);				
-		inst++;
-	}
-}
+// for 1mil lines of code benchmark
+#define jo_workspace_memory jo_Mb(1024)
 
 int main(int argc, char** argv)
 {		
-	jo_compile_options compile_opt = jo_compie_options_parse_from_args(argc, argv);	
+	jo_compile_options compile_opt = jo_compile_options_parse_from_args(argc, argv);	
 	if(!compile_opt.success) { return 1; }
 	
-	jo_arena arena = jo_arena_make(jo_Mb(1024), "compiler");
+	jo_workspace workspace = jo_workspace_make(jo_str_view_from("main"), jo_workspace_memory);	
+
+	// @todo: bytecoed should be per_workspace aka per compilation unit
+	jo_bytecode_context bcc = { .ws = &workspace };
+
+	// @explain: jo_vm is huge that why its not stack based
+	jo_vm* vm = jo_arena_palloc(&workspace.arena, jo_vm);
+
+	jo_i64* program_output = NULL;
+
+	jo_profiler profiler = {0};
 	
-	jo_lexer lexer = {.arena = &arena};
-	jo_f64 lexer_time = 0.0;
-	jo_ast_node* ast_module = NULL;
-	jo_parser parser = { .arena = &arena, .lexer = &lexer };	
-	jo_f64 parser_time = 0.0;
-	jo_sema sema = {.arena = &arena};
-	jo_f64 sema_time = 0.0;
-	jo_bytecode_context bcc = {.arena = &arena};
-	jo_f64 bytecode_time = 0.0;
-	jo_f64 vm_time = 0.0;
-
-	jo_i64* output = NULL;
-	jo_f64 total_time = 0.0;
-
-	if(compile_opt.tokens)
+	jo_profile(&workspace.arena, &profiler, total_time)
 	{
-		jo_profile("tokenization", lexer_time)
+		jo_profile(&workspace.arena, &profiler, lex_and_parse_time) { jo_workspace_begin(&workspace, compile_opt.filepath); }
+
+		if(compile_opt.tokens_dump)
 		{
-			jo_lex_file(&lexer, argv[1]);	
+			jo_ada_foreach(&workspace.loaded_modules) { jo_dump_tokens(&workspace.loaded_modules.it->tokens); }
+		} 
+
+		if(compile_opt.ast_dump) 
+		{
+			jo_ada_foreach(&workspace.loaded_modules) { jo_dump_ast_node(workspace.loaded_modules.it->file_node, 0); }
 		}
 
-		if(compile_opt.tokens_dump) { dump_tokens(&lexer); }		
-	}
-	
-	if(compile_opt.ast)
-	{
-		jo_profile("ast_generation", parser_time)
+		if(compile_opt.sema)
 		{
-			ast_module = jo_parse(&parser);
+			jo_sema sema = { .ws = &workspace };
+			jo_profile(&workspace.arena, &profiler, sema_time) { jo_sema_analyze(&sema); }
 		}
-		if(compile_opt.ast_dump) { jo_dump_ast_node(ast_module, 0); }
-	}
 
-	if(compile_opt.sema)
-	{
-		jo_profile("sema", sema_time)
+		if(compile_opt.bytecode)
 		{
-			jo_sema_analyze(&sema, ast_module);
+			jo_profile(&workspace.arena, &profiler, bytecode_time) { jo_make_bytecode(&bcc); }	
+			if(compile_opt.bytecode_dump) { jo_dump_bytecode(&bcc); }
+		}
+
+
+		if(compile_opt.interp)
+		{			
+			jo_profile(&workspace.arena, &profiler, vm_time) { program_output = jo_run_bytecode(vm, &bcc); }
 		}
 	}
 
-	if(compile_opt.bytecode)
-	{
-		jo_profile("bytecode_generation", bytecode_time)
-		{
-			jo_make_bytecode(&bcc, &ast_module->data.module);
-		}	
-		if(compile_opt.bytecode_dump) { dump_bytecode(&bcc); }
-	}
+	// @explain: during runtime program might output some text, so we go to new line to ensure redability
+	printf("\n");
 
+	if(program_output) { printf("program output: %lli\n", *program_output); }
 
-	if(compile_opt.interp)
+	if(compile_opt.time)
 	{
-		jo_profile("program_runtime", vm_time)
+		jo_f64 total_time = 0.0;
+		jo_ada_foreach(&profiler) { total_time += profiler.it->time; };
+		jo_ada_foreach(&profiler)
 		{
-			jo_vm* vm = jo_arena_palloc(&arena, jo_vm);
-			output = jo_run_bytecode(vm, &bcc);
+			printf("%s:%*.3fs\n", profiler.it->name, 30 - (jo_i32)strlen(profiler.it->name), profiler.it->time); 
 		}
+
 	}
 
-	total_time = lexer_time + parser_time + sema_time + bytecode_time + vm_time;
-	printf("%s:%*.3fs\n", "total", 30 - (jo_i32)strlen("total"), total_time); 
+	jo_f64 memory_usage_mb = workspace.arena.current / 1024.0 / 1024.0;
+	jo_f64 vm_memory_usage_mb = sizeof(jo_vm) / 1024.0 / 1024.0;
+	printf("total memory usage: %.2lfMb (%.2lfMb including vm)", memory_usage_mb - vm_memory_usage_mb, memory_usage_mb);
 
-	if(output) { printf("program output: %llu\n", *output); }
-
-	printf("total memory usage: %.2lfMb", arena.current / 1024.0 / 1024.0);
-
-	jo_arena_free(&arena);
+	jo_workspace_free(&workspace);
 }

@@ -1,0 +1,17 @@
+power :: fn(base: f64, exp: i64) -> f64
+{
+    if exp == 0 { return 1.0 } 
+	else { return base * power(base, exp - 1) }
+}
+
+fibbonacci :: fn(x: i64) -> i64
+{ 	
+	if x <= 1 { return x }
+	else  { return fibbonacci(x - 1) + fibbonacci(x - 2) }
+}
+
+factorial :: fn(x: i64) -> i64
+{
+	if x == 0 { return 1 }
+	else { return x * factorial(x - 1) }
+}

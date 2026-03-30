@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "platform_detect.h"
 
 jo_str_view jo_str_view_make(const char* data, jo_uz len)
 {

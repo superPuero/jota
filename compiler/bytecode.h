@@ -4,6 +4,10 @@
 #include "../core/core.h"
 #include "ast_node.h"
 #include "symbol.h"
+#include "workspace.h"
+
+#define jo_bytecode_instr_cast_prefix\
+
 
 #define jo_bytecode_inst_cast_suite(to)\
 	jo_bytecode_instr_cast_u8_##to,\
@@ -31,24 +35,20 @@
 	jo_bytecode_instr_##op##_f64,\
 	jo_bytecode_instr_##op##_bool\
 
-
 typedef enum
 {
 	jo_bytecode_instr_push,
 	jo_bytecode_instr_pop,
-
 	jo_bytecode_instr_jmp,
 	jo_bytecode_instr_jmp_if,
 	jo_bytecode_instr_jmp_if_not,
-
 	jo_bytecode_instr_store,
-
+	jo_bytecode_instr_load,
+	jo_bytecode_instr_get_sp,
 	jo_bytecode_instr_memcpy,
-
 	jo_bytecode_instr_mov,
 	jo_bytecode_instr_mov_imm,
 
-	jo_bytecode_instr_def_suite(load),
 	jo_bytecode_instr_def_suite(add),
 	jo_bytecode_instr_def_suite(sub),
 	jo_bytecode_instr_def_suite(mul),
@@ -62,19 +62,14 @@ typedef enum
 
 	jo_bytecode_inst_cast_suite(i8),
 	jo_bytecode_inst_cast_suite(u8),
-
 	jo_bytecode_inst_cast_suite(i16),
 	jo_bytecode_inst_cast_suite(u16),
-
 	jo_bytecode_inst_cast_suite(i32),
 	jo_bytecode_inst_cast_suite(u32),
-
 	jo_bytecode_inst_cast_suite(i64),
 	jo_bytecode_inst_cast_suite(u64),
-
 	jo_bytecode_inst_cast_suite(f32),
 	jo_bytecode_inst_cast_suite(f64),
-
 	jo_bytecode_inst_cast_suite(bool),
 
 	jo_bytecode_instr_ret,
@@ -113,25 +108,41 @@ typedef struct
 
 	union
 	{
+		struct 
+		{
+			jo_register_id to;
+		} get_sp;
+
+		struct
+		{
+			jo_u32 offset;
+		} push;
+		
+		struct
+		{
+			jo_u32 offset;
+		} pop;
+
+		struct 
+		{
+			jo_register_id to;
+			jo_register_id from_addr;
+			jo_u32 size;
+		} load;
+
+		struct
+		{	
+			jo_register_id to_addr;
+			jo_register_id from;
+			jo_u32 offset;
+			jo_u32 size;
+		} store;
+
 		struct
 		{
 			jo_register_id target;
 			jo_register_id dest;
 		} cast;
-
-
-		struct
-		{
-            jo_register_id to_reg;
-            jo_register_id from_mem;
-		} load;
-
-		struct
-		{
-            jo_register_id to_mem;
-            jo_register_id from_reg;
-    		jo_u32 size;
-		} store;
 
 		struct
 		{
@@ -141,22 +152,23 @@ typedef struct
 
 		struct
 		{
-            jo_register_id to;
-    		jo_register_id from;
+            jo_register_id to_addr;
+    		jo_register_id from_addr;
     		jo_u32 size;
 		} memcpy;
-
 
 		struct
 		{
             jo_register_id to;
 			jo_value64 value;
+			jo_u32 size;
 		} mov_imm;
 
 		struct
 		{
             jo_register_id from;
             jo_register_id to;
+			jo_u32 size;
 		} mov;
 
         struct
@@ -189,6 +201,7 @@ typedef struct
 			jo_register_id dest;
 			jo_u32 arg_count;
 			jo_u32 function_index;
+			bool intrinsic;
 			bool is_void_call;
 		}call;
 
@@ -215,16 +228,18 @@ jo_ada_declare(jo_bytecode_fn, jo_bytecode_fn_dyn_array)
 
 typedef struct
 {
-	jo_arena* arena;
+	jo_workspace* ws;
 	jo_bytecode_fn_dyn_array fns;
 	jo_bytecode bc;
 }jo_bytecode_context;
 
+
+void jo_dump_bytecode(jo_bytecode_context* bcc);
 void jo_bytecode_emit_function(jo_bytecode_context* bcc,  jo_bytecode_fn* bcfn,  jo_ast_node* node);
 jo_register_id jo_bytecode_emit_expr(jo_bytecode_context* bcc, jo_bytecode_fn* fn,  jo_ast_node* expr);
 void jo_bytecode_emit_block(jo_bytecode_context* bcc, jo_bytecode_fn* fn, jo_ast_block* ast_block);
 void jo_bytecode_dump_op(jo_bytecode_context* bcc, jo_bytecode_op* op);
 jo_u32 jo_bytecode_find_function_id(jo_bytecode_context* bcc, const char* identifier);
-void jo_make_bytecode(jo_bytecode_context* bcc, jo_ast_module* module);
+void jo_make_bytecode(jo_bytecode_context* bcc);
 
 #endif

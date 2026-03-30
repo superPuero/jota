@@ -2,6 +2,7 @@ main :: fn -> i64
 {
 	return power((factorial(5) + fibbonacci(10)) as f64, 3) as i64
 }
+
 power :: fn(base: f64, exp: i64) -> f64
 {
     if exp == 0 

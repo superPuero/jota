@@ -9,9 +9,8 @@ typedef jo_u32 jo_ast_node_id;
 
 typedef enum
 {
-	jo_ast_type_module,
+	jo_ast_type_file,
 
-	jo_ast_type_directive_load,
 	jo_ast_type_directive_intrinsic,
 
 	// jo_ast_type_type_struct,
@@ -80,18 +79,15 @@ typedef struct
 
 typedef struct
 {
-	jo_str_view path;
-} jo_ast_directive_load;
-
-typedef struct
-{
 	jo_ast_node_ptr_ada members;
+	jo_u32 size;
+	jo_u32 alignment;
 } jo_ast_type_struct;
 
 typedef struct
 {
 	jo_ast_node_ptr_ada content;
-}jo_ast_module;
+} jo_ast_file;
 
 typedef struct
 {
@@ -120,7 +116,7 @@ typedef struct
 {
 	jo_ast_node* left_expression;
 	jo_ast_node* right_expression;
-	jo_token_type operator_type;
+	jo_tok operator_type;
 	bool self;
 } jo_ast_expr_op_binary;
 
@@ -146,7 +142,7 @@ typedef struct
 typedef struct
 {
 	jo_ast_node* expression;
-	jo_token_type operator_type;
+	jo_tok operator_type;
 } jo_ast_expr_op_unary;
 
 typedef struct
@@ -254,13 +250,15 @@ struct jo_ast_node_s
 	jo_u32 line;
 	jo_u32 column;
 
+
+	// ---- resolved my sema ----
 	jo_ast_node* resolved_type;
 	jo_symbol* resolved_symbol;
 
 	union
 	{
-		jo_ast_module module;
-		jo_token_type type_primitive;
+		jo_ast_file file;
+		jo_tok type_primitive;
 
         jo_u64 literal_u64;
         jo_i64 literal_i64;
@@ -289,7 +287,6 @@ struct jo_ast_node_s
         jo_str_view				identifier;
 
 		jo_ast_decl_namespace 	decl_namesapce;
-		jo_ast_directive_load 	directive_load;
 
 		jo_ast_block 			block;
 

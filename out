@@ -1,0 +1,373 @@
+[jo_ast_type_file]
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] main
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_return]
+          [jo_ast_type_expr_as_cast]
+            [jo_ast_type_expr_op_call]
+              [jo_ast_type_identifier] power
+              [jo_ast_type_expr_as_cast]
+                [jo_ast_type_expr_op_binary] (Op: jo_token_plus)
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] factorial
+                    [jo_ast_type_literal_i64] 5
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] fibbonacci
+                    [jo_ast_type_literal_i64] 10
+                [jo_ast_type_type_primitive] (jo_token_keyword_f64)
+              [jo_ast_type_literal_i64] 3
+            [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] power
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] base
+        [jo_ast_type_type_primitive] (jo_token_keyword_f64)
+        <NULL>
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] exp
+        [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+        <NULL>
+      [jo_ast_type_type_primitive] (jo_token_keyword_f64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_ifelse]
+          [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+            [jo_ast_type_identifier] exp
+            [jo_ast_type_literal_i64] 0
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_literal_f64] 1.000000
+          <NULL>
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_expr_op_binary] (Op: jo_token_star)
+                [jo_ast_type_identifier] base
+                [jo_ast_type_expr_op_call]
+                  [jo_ast_type_identifier] power
+                  [jo_ast_type_identifier] base
+                  [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                    [jo_ast_type_identifier] exp
+                    [jo_ast_type_literal_i64] 1
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] fibbonacci
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] x
+        [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+        <NULL>
+      [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_ifelse]
+          [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+            [jo_ast_type_identifier] x
+            [jo_ast_type_literal_i64] 0
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_identifier] x
+          [jo_ast_type_stmt_ifelse]
+            [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+              [jo_ast_type_identifier] x
+              [jo_ast_type_literal_i64] 1
+            [jo_ast_type_block]
+              [jo_ast_type_stmt_return]
+                [jo_ast_type_literal_i64] 1
+            <NULL>
+            [jo_ast_type_block]
+              [jo_ast_type_stmt_return]
+                [jo_ast_type_expr_op_binary] (Op: jo_token_plus)
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] fibbonacci
+                    [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                      [jo_ast_type_identifier] x
+                      [jo_ast_type_literal_i64] 1
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] fibbonacci
+                    [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                      [jo_ast_type_identifier] x
+                      [jo_ast_type_literal_i64] 2
+          <NULL>
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] factorial
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] x
+        [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+        <NULL>
+      [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_ifelse]
+          [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+            [jo_ast_type_identifier] x
+            [jo_ast_type_literal_i64] 0
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_literal_i64] 1
+          <NULL>
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_expr_op_binary] (Op: jo_token_star)
+                [jo_ast_type_identifier] x
+                [jo_ast_type_expr_op_call]
+                  [jo_ast_type_identifier] factorial
+                  [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                    [jo_ast_type_identifier] x
+                    [jo_ast_type_literal_i64] 1
+sema:                     0.000s
+bytecode_generation:      0.000s
+program_runtime:          0.000s
+total:                    0.000s
+total memory usage: 0.03Mb[jo_ast_type_file]
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] main
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_return]
+          [jo_ast_type_expr_as_cast]
+            [jo_ast_type_expr_op_call]
+              [jo_ast_type_identifier] power
+              [jo_ast_type_expr_as_cast]
+                [jo_ast_type_expr_op_binary] (Op: jo_token_plus)
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] factorial
+                    [jo_ast_type_literal_i64] 5
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] fibbonacci
+                    [jo_ast_type_literal_i64] 10
+                [jo_ast_type_type_primitive] (jo_token_keyword_f64)
+              [jo_ast_type_literal_i64] 3
+            [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] power
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] base
+        [jo_ast_type_type_primitive] (jo_token_keyword_f64)
+        <NULL>
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] exp
+        [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+        <NULL>
+      [jo_ast_type_type_primitive] (jo_token_keyword_f64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_ifelse]
+          [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+            [jo_ast_type_identifier] exp
+            [jo_ast_type_literal_i64] 0
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_literal_f64] 1.000000
+          <NULL>
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_expr_op_binary] (Op: jo_token_star)
+                [jo_ast_type_identifier] base
+                [jo_ast_type_expr_op_call]
+                  [jo_ast_type_identifier] power
+                  [jo_ast_type_identifier] base
+                  [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                    [jo_ast_type_identifier] exp
+                    [jo_ast_type_literal_i64] 1
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] fibbonacci
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] x
+        [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+        <NULL>
+      [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_ifelse]
+          [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+            [jo_ast_type_identifier] x
+            [jo_ast_type_literal_i64] 0
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_identifier] x
+          [jo_ast_type_stmt_ifelse]
+            [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+              [jo_ast_type_identifier] x
+              [jo_ast_type_literal_i64] 1
+            [jo_ast_type_block]
+              [jo_ast_type_stmt_return]
+                [jo_ast_type_literal_i64] 1
+            <NULL>
+            [jo_ast_type_block]
+              [jo_ast_type_stmt_return]
+                [jo_ast_type_expr_op_binary] (Op: jo_token_plus)
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] fibbonacci
+                    [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                      [jo_ast_type_identifier] x
+                      [jo_ast_type_literal_i64] 1
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] fibbonacci
+                    [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                      [jo_ast_type_identifier] x
+                      [jo_ast_type_literal_i64] 2
+          <NULL>
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] factorial
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] x
+        [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+        <NULL>
+      [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_ifelse]
+          [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+            [jo_ast_type_identifier] x
+            [jo_ast_type_literal_i64] 0
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_literal_i64] 1
+          <NULL>
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_expr_op_binary] (Op: jo_token_star)
+                [jo_ast_type_identifier] x
+                [jo_ast_type_expr_op_call]
+                  [jo_ast_type_identifier] factorial
+                  [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                    [jo_ast_type_identifier] x
+                    [jo_ast_type_literal_i64] 1
+sema:                     0.000s
+bytecode_generation:      0.000s
+program_runtime:          0.000s
+total:                    0.000s
+total memory usage: 0.03Mb[jo_ast_type_file]
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] main
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_return]
+          [jo_ast_type_expr_as_cast]
+            [jo_ast_type_expr_op_call]
+              [jo_ast_type_identifier] power
+              [jo_ast_type_expr_as_cast]
+                [jo_ast_type_expr_op_binary] (Op: jo_token_plus)
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] factorial
+                    [jo_ast_type_literal_i64] 5
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] fibbonacci
+                    [jo_ast_type_literal_i64] 10
+                [jo_ast_type_type_primitive] (jo_token_keyword_f64)
+              [jo_ast_type_literal_i64] 3
+            [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] power
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] base
+        [jo_ast_type_type_primitive] (jo_token_keyword_f64)
+        <NULL>
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] exp
+        [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+        <NULL>
+      [jo_ast_type_type_primitive] (jo_token_keyword_f64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_ifelse]
+          [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+            [jo_ast_type_identifier] exp
+            [jo_ast_type_literal_i64] 0
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_literal_f64] 1.000000
+          <NULL>
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_expr_op_binary] (Op: jo_token_star)
+                [jo_ast_type_identifier] base
+                [jo_ast_type_expr_op_call]
+                  [jo_ast_type_identifier] power
+                  [jo_ast_type_identifier] base
+                  [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                    [jo_ast_type_identifier] exp
+                    [jo_ast_type_literal_i64] 1
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] fibbonacci
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] x
+        [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+        <NULL>
+      [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_ifelse]
+          [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+            [jo_ast_type_identifier] x
+            [jo_ast_type_literal_i64] 0
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_identifier] x
+          [jo_ast_type_stmt_ifelse]
+            [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+              [jo_ast_type_identifier] x
+              [jo_ast_type_literal_i64] 1
+            [jo_ast_type_block]
+              [jo_ast_type_stmt_return]
+                [jo_ast_type_literal_i64] 1
+            <NULL>
+            [jo_ast_type_block]
+              [jo_ast_type_stmt_return]
+                [jo_ast_type_expr_op_binary] (Op: jo_token_plus)
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] fibbonacci
+                    [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                      [jo_ast_type_identifier] x
+                      [jo_ast_type_literal_i64] 1
+                  [jo_ast_type_expr_op_call]
+                    [jo_ast_type_identifier] fibbonacci
+                    [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                      [jo_ast_type_identifier] x
+                      [jo_ast_type_literal_i64] 2
+          <NULL>
+  [jo_ast_type_decl]
+    [jo_ast_type_identifier] factorial
+    <NULL>
+    [jo_ast_type_literal_fn]
+      [jo_ast_type_decl]
+        [jo_ast_type_identifier] x
+        [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+        <NULL>
+      [jo_ast_type_type_primitive] (jo_token_keyword_i64)
+      [jo_ast_type_block]
+        [jo_ast_type_stmt_ifelse]
+          [jo_ast_type_expr_op_binary] (Op: jo_token_double_equals)
+            [jo_ast_type_identifier] x
+            [jo_ast_type_literal_i64] 0
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_literal_i64] 1
+          <NULL>
+          [jo_ast_type_block]
+            [jo_ast_type_stmt_return]
+              [jo_ast_type_expr_op_binary] (Op: jo_token_star)
+                [jo_ast_type_identifier] x
+                [jo_ast_type_expr_op_call]
+                  [jo_ast_type_identifier] factorial
+                  [jo_ast_type_expr_op_binary] (Op: jo_token_minus)
+                    [jo_ast_type_identifier] x
+                    [jo_ast_type_literal_i64] 1
+sema:                     0.000s
+bytecode_generation:      0.000s
+program_runtime:          0.000s
+total:                    0.000s
+total memory usage: 0.03Mb
