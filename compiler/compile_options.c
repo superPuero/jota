@@ -7,7 +7,7 @@ jo_compile_options jo_compile_options_parse_from_args(int argc, char** argv)
 
 	if(argc < 2)
 	{
-		printf("prodive soruce file to parse\n");
+		printf("provide soruce file to parse\n");
 		opt.success = false;
 		return opt;
 	}
@@ -16,65 +16,54 @@ jo_compile_options jo_compile_options_parse_from_args(int argc, char** argv)
 
 	for(jo_i32 i = 2; i < argc; i++)
 	{
-		if(strcmp(argv[i], "-t") == 0)
-		{
-			opt.tokens = true;
+		jo_bool found = false;
+		#define X(e)\
+		if(strcmp(argv[i], "-"#e) == 0)\
+		{\
+			opt.e = true;\
+			found = true;\
 		}
-		else if(strcmp(argv[i], "-dt") == 0)
+		jo_compile_options_list
+		#undef X
+	
+		if(!found)
 		{
-			opt.tokens = true;
-			opt.tokens_dump = true;
-		}
-		else if(strcmp(argv[i], "-ast") == 0)
-		{
-			opt.tokens = true;
-			opt.ast = true;
-		}
-		else if(strcmp(argv[i], "-dast") == 0)
-		{
-			opt.tokens = true;
-			opt.ast = true;
-			opt.ast_dump = true;
-		}
-		else if(strcmp(argv[i], "-sema") == 0)
-		{		
-			opt.tokens = true;
-			opt.ast = true;
-			opt.sema = true;
-		}
-		else if(strcmp(argv[i], "-bc") == 0)
-		{
-			opt.tokens = true;
-			opt.ast = true;
-			opt.sema = true;
-			opt.bytecode = true;
-		}
-		else if(strcmp(argv[i], "-dbc") == 0)
-		{
-			opt.tokens = true;
-			opt.ast = true;
-			opt.sema = true;
-			opt.bytecode = true;
-			opt.bytecode_dump = true;
-		}
-		else if(strcmp(argv[i], "-i") == 0)
-		{
-			opt.tokens = true;
-			opt.ast = true;
-			opt.sema = true;
-			opt.bytecode = true;
-			opt.interp = true;
-		}
-		else if(strcmp(argv[i], "-time") == 0)
-		{
-			opt.time = true;
-		}
-		else
-		{
-			printf("unrecognized argument: %s", argv[i]);
+			printf("unrecognized argument: %s\n", argv[i]);
 			opt.success = false;
 			break;
 		}
+	}
+
+	if(opt.ast)
+	{
+		#define X(e)\
+		opt.e = true;\
+		jo_compile_ast_propagate_list
+		#undef X
+	}
+
+	if(opt.sema)
+	{
+		#define X(e)\
+		opt.e = true;\
+		jo_compile_sema_propagate_list
+		#undef X
+	}
+	
+	if(opt.bc)
+	{
+		#define X(e)\
+		opt.e = true;\
+		jo_compile_bc_propagate_list
+		#undef X
+	}
+
+	if(opt.i)
+	{
+		#define X(e)\
+		opt.e = true;\
+		jo_compile_i_propagate_list
+		#undef X
 	}
 
 	return opt;

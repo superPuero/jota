@@ -36,12 +36,12 @@ int main(int argc, char** argv)
 	{
 		jo_profile(&workspace.arena, &profiler, lex_and_parse_time) { jo_workspace_begin(&workspace, compile_opt.filepath); }
 
-		if(compile_opt.tokens_dump)
+		if(compile_opt.dt)
 		{
 			jo_ada_foreach(&workspace.loaded_modules) { jo_dump_tokens(&workspace.loaded_modules.it->tokens); }
 		} 
 
-		if(compile_opt.ast_dump) 
+		if(compile_opt.dast) 
 		{
 			jo_ada_foreach(&workspace.loaded_modules) { jo_dump_ast_node(workspace.loaded_modules.it->file_node, 0); }
 		}
@@ -52,14 +52,14 @@ int main(int argc, char** argv)
 			jo_profile(&workspace.arena, &profiler, sema_time) { jo_sema_analyze(&sema); }
 		}
 
-		if(compile_opt.bytecode)
+		if(compile_opt.bc)
 		{
 			jo_profile(&workspace.arena, &profiler, bytecode_time) { jo_make_bytecode(&bcc); }	
-			if(compile_opt.bytecode_dump) { jo_dump_bytecode(&bcc); }
+			if(compile_opt.dbc) { jo_dump_bytecode(&bcc); }
 		}
 
 
-		if(compile_opt.interp)
+		if(compile_opt.i)
 		{			
 			jo_profile(&workspace.arena, &profiler, vm_time) { program_output = jo_run_bytecode(vm, &bcc); }
 		}
