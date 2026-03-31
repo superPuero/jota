@@ -29,11 +29,14 @@ int main(int argc, char** argv)
 
 	jo_profiler profiler = {0};
 	
-	jo_profile(&workspace.arena, &profiler, total_compiler_time)
+	if(compile_opt.file_provided)
 	{
-		jo_profile(&workspace.arena, &profiler, lex_and_parse_time) { jo_workspace_begin(&workspace, compile_opt.filepath); }
-		jo_profile(&workspace.arena, &profiler, sema_time) { jo_sema_analyze(&sema); }
-		jo_profile(&workspace.arena, &profiler, bytecode_time) { jo_make_bytecode(&bcc); }	
+		jo_profile(&workspace.arena, &profiler, total_compiler_time)
+		{
+			jo_profile(&workspace.arena, &profiler, lex_and_parse_time) { jo_workspace_begin(&workspace, compile_opt.file); }
+			jo_profile(&workspace.arena, &profiler, sema_time) { jo_sema_analyze(&sema); }
+			jo_profile(&workspace.arena, &profiler, bytecode_time) { jo_make_bytecode(&bcc); }	
+		}
 	}
 	
 	if(compile_opt.time)
@@ -42,6 +45,13 @@ int main(int argc, char** argv)
 		{
 			printf("%s:%*.3fs\n", profiler.it->name, 30 - (jo_i32)strlen(profiler.it->name), profiler.it->time); 
 		}
+	}
+
+	if(compile_opt.h)
+	{	
+		#define XY(opt, help_info) printf("%-10s %s\n", "-"#opt, help_info);
+		jo_compile_options_list
+		#undef XY
 	}
 
 	if(compile_opt.mem)

@@ -7,33 +7,39 @@ jo_compile_options jo_compile_options_parse_from_args(int argc, char** argv)
 
 	if(argc < 2)
 	{
-		printf("provide soruce file to parse\n");
+		fprintf(stderr, "provide soruce file to parse\n");
 		opt.success = false;
 		return opt;
 	}
 
-	opt.filepath = jo_str_view_from(argv[1]);
-
-	for(jo_i32 i = 2; i < argc; i++)
+	for(jo_i32 i = 1; i < argc; i++)
 	{
 		jo_bool found = false;
 
-		#define X(e)\
+		#define XY(e, help_info)\
 		if(strcmp(argv[i], "-"#e) == 0)\
 		{\
 			opt.e = true;\
 			found = true;\
 		}
 		jo_compile_options_list
-		#undef X
+		#undef XY
 
 		if(!found)
 		{
-			printf("unrecognized argument: %s\n", argv[i]);
-			opt.success = false;
-			break;
+			if(!opt.file_provided)
+			{								
+				opt.file = jo_str_view_from(argv[i]);	
+				opt.file_provided = true;			
+			}
+			else
+			{
+				printf("unrecognized argument: %s\n", argv[i]);
+				opt.success = false;
+				break;
+			}
 		}
 	}
-	
+
 	return opt;
 }

@@ -4,29 +4,26 @@
 #include "../core/core.h"
 
 #define jo_compile_options_list\
-	X(t)\
-	X(ast)\
-	X(sema)\
-	X(bc)\
-	X(i)\
-	X(time)\
-	X(mem)
+	XY(h, "compiler flags help")\
+	XY(t, "dump tokens into stdout")\
+	XY(ast, "dump ast into stdout")\
+	XY(bc, "dump bytecode into stdout")\
+	XY(i, "run/interperet the bytecode")\
+	XY(time, "output compiler timings report")\
+	XY(mem, "output compiler memory usage report")
 
 typedef struct
 {
-	#define X(e) jo_bool e;
-
+	#define XY(e, help_info) jo_bool e;
 	jo_compile_options_list
-
-	#undef X
+	#undef XY
 
 	jo_bool success;
-	jo_str_view filepath;
+	jo_bool file_provided;
+	jo_str_view file;
 
-}jo_compile_options;
+} jo_compile_options;
 
 jo_compile_options jo_compile_options_parse_from_args(int argc, char** argv);
 
-
 #endif
-
