@@ -1,6 +1,7 @@
 #ifndef jota_symbol
 #define jota_symbol
 
+#include "compiler_fwd.h"
 #include "token.h"
 
 typedef enum 
@@ -11,21 +12,17 @@ typedef enum
 } jo_symbol_kind;
 
 struct jo_ast_node;
-typedef struct jo_ast_node_s jo_ast_node;
-
-typedef struct 
+struct jo_symbol_s 
 {
 	jo_astr identifier;
     jo_symbol_kind kind;    
 	jo_u32 location;
 	jo_ast_node* ast_node;
-} jo_symbol;
+};
 
 jo_ada_declare(jo_symbol, jo_symbol_table);
 
-typedef struct jo_scope jo_scope;
-
-struct jo_scope
+struct jo_scope_s
 {
 	jo_astr identifier;
 	jo_symbol_table symbol_table;

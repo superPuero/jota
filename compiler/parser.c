@@ -706,7 +706,7 @@ jo_ast_node* jo_parse_file_content(jo_workspace* workspace, jo_parser* parser)
 {
 	switch (jo_parser_current(parser)->type)
 	{
-	case jo_tok_hash:
+	case jo_tok_at:
 		jo_parser_advance(parser);
 		if(jo_parser_current(parser)->type == jo_tok_identifier)
 		{

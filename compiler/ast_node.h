@@ -2,6 +2,7 @@
 #define jota_ast_node
 
 #include "../core/core.h"
+#include "compiler_fwd.h"
 #include "token.h"
 #include "symbol.h"
 
@@ -64,11 +65,10 @@ typedef enum
 	jo_ast_type_expr_continue,
 
 	jo_ast_type_block
+	
 } jo_ast_node_type;
 
 const char* jo_ast_node_type_to_stirng(jo_ast_node_type type);
-
-typedef struct jo_ast_node_s jo_ast_node;
 
 jo_ada_declare(jo_ast_node*, jo_ast_node_ptr_ada);
 

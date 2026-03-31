@@ -71,9 +71,10 @@ jo_astr jo_sema_type_astr(jo_arena* arena, jo_ast_node* t1)
 		break;
 
 	case jo_ast_type_type_fn:
+	{
 		jo_ast_type_fn* type_fn = &t1->data.type_fn;
 		jo_astr str = jo_astr_from(arena, "fn(");
-
+	
 		for(jo_uz param_i = 0; param_i < t1->data.type_fn.parameters.occupied; param_i++)
 		{
 			jo_astr param_str = jo_sema_type_astr(arena, t1->data.type_fn.parameters.data[param_i]);
@@ -85,21 +86,24 @@ jo_astr jo_sema_type_astr(jo_arena* arena, jo_ast_node* t1)
 				jo_astr_append(arena, &str, ", ");			
 			}
 		}
-
-
+	
+	
 		jo_astr_append(arena, &str, ")");
-
+	
 		
 		if(type_fn->return_type)
 		{
 			jo_astr_append(arena, &str, " -> ");
-
+	
 			jo_astr ret_str = jo_sema_type_astr(arena, t1->data.type_fn.return_type);
 			jo_astr_append(arena, &str, ret_str.data);
 		}
-
+	
 		return str;
 		break;
+	}
+
+
 	
 
 	default:

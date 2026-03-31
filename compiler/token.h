@@ -130,6 +130,7 @@ typedef enum
 	#define X(tok) jo_tok_##tok,
 	jo_tok_entry_list
 	#undef X
+	
 	jo_tok_add = jo_tok_plus,
 	jo_tok_sub = jo_tok_minus,
 	jo_tok_mul = jo_tok_star,

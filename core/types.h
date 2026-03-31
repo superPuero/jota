@@ -24,8 +24,9 @@ typedef size_t jo_uz;
 typedef ptrdiff_t jo_iz;
 typedef uintptr_t jo_ptr;
 
-typedef uint8_t bool;
+typedef jo_u8 bool;
 typedef bool jo_bool;
+
 typedef jo_bool jo_success;
 
 #define true 1

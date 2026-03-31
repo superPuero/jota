@@ -2,6 +2,7 @@
 #define jota_bytecode
 
 #include "../core/core.h"
+#include "compiler_fwd.h"
 #include "ast_node.h"
 #include "symbol.h"
 
@@ -214,8 +215,6 @@ typedef struct
 }jo_bytecode_fn;
 
 jo_ada_declare(jo_bytecode_fn, jo_bytecode_fn_dyn_array)
-
-typedef struct jo_workspace_s jo_workspace;
 
 typedef struct
 {

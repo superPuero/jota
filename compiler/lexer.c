@@ -232,7 +232,7 @@ bool jo_lexer_try_match_content_make_token(jo_lexer* lexer, const char* str, jo_
 
 void jo_lexer_parse_identifier(jo_lexer* lexer)
 {
-	while(isalpha(jo_lexer_current(lexer))  || isdigit(jo_lexer_current(lexer)) 	|| jo_lexer_current(lexer) == '_')
+	while(isalpha(jo_lexer_current(lexer))  || isdigit(jo_lexer_current(lexer)) || jo_lexer_current(lexer) == '_')
 	{
 		jo_lexer_advance_one(lexer);
 	}
@@ -318,7 +318,7 @@ void jo_lexer_parse_next(jo_lexer* lexer)
 	
 	for(jo_uz i = 0; i < sizeof(jo_token_map)/sizeof(jo_token_map[0]); ++i)
 	{
-		if(jo_lexer_try_match_make_token(lexer, jo_token_map[i].content, jo_token_map[i].len, jo_token_map[i].type)){return;}
+		if(jo_lexer_try_match_make_token(lexer, jo_token_map[i].content, jo_token_map[i].len, jo_token_map[i].type)){ return; }
 	}
 
 	jo_lexer_advance_one(lexer);
@@ -341,7 +341,6 @@ void jo_lexer_lex(jo_lexer* lexer)
 		printf("lexer must be provide with out token ada\n");
 		assert(0);
 	}
-
 
 	jo_lexer_newline(lexer);
 

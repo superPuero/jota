@@ -27,8 +27,6 @@ struct jo_workspace_s
 	jo_scope global_scope;
 };
 
-typedef struct jo_workspace_s jo_workspace;
-
 jo_workspace jo_workspace_make(jo_str_view name, jo_uz memory);
 void jo_workspace_free(jo_workspace* ws);
 

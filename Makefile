@@ -1,8 +1,9 @@
-CC = gcc
+CC = clang
 
 COMMON_CC_OPT = -Wall -Wextra -std=c99 
 
-DEBUG_CC_OPT = -g -O0
+WIN_DEBUG_CC_OPT = -O0 -g -gcodeview -fuse-ld=lld -Wl,--pdb=
+
 RELEASE_CC_OPT = -O3 -march=native
 
 CORE_SRC = 	core/astr.c \
@@ -26,8 +27,8 @@ COMPILER_SRC = \
 
 
 	
-compile:
-	$(CC) $(COMMON_CC_OPT) $(DEBUG_CC_OPT) main.c $(CORE_SRC) $(COMPILER_SRC) -o jota.exe	
+win_debug:
+	$(CC) $(COMMON_CC_OPT) $(WIN_DEBUG_CC_OPT) main.c $(CORE_SRC) $(COMPILER_SRC) -o jota.exe	
 
 release:
 	$(CC) $(COMMON_CC_OPT) $(RELEASE_CC_OPT) main.c $(CORE_SRC) $(COMPILER_SRC) -o jota.exe	

@@ -2,6 +2,7 @@
 #define jota_parser
 
 #include <stdlib.h>
+#include "compiler_fwd.h"
 #include "ast_node.h"
 #include "lexer.h"
 
@@ -11,8 +12,6 @@ typedef struct
 	jo_token_ada* tokens;
 	jo_u32 current_token;
 } jo_parser;
-
-typedef struct jo_workspace_s jo_workspace;
 
 jo_ast_node* jo_parse_stmt_block(jo_parser* parser);
 jo_token* jo_parser_peek(jo_parser* parser, jo_u32 offset);

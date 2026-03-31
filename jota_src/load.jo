@@ -1,5 +1,5 @@
-#load "math.jo"
-#load "print.jo"
+@load "math.jo" 
+@load "print.jo"
 
 main :: fn -> i64
 {	

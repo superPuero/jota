@@ -7,14 +7,13 @@
 #include "compiler/bytecode.h"
 #include "compiler/vm.h"
 
-
 #define jo_workspace_memory jo_Mb(10)
 
 // for 1mil lines of code benchmark
 // #define jo_workspace_memory jo_Mb(1024)
 
 int main(int argc, char** argv)
-{	
+{			
 	jo_compile_options compile_opt = jo_compile_options_parse_from_args(argc, argv);	
 	if(!compile_opt.success) { return 1; }
 	
@@ -28,7 +27,6 @@ int main(int argc, char** argv)
 	jo_bytecode_context bcc = { .ws = &workspace };
 	jo_sema sema = { .ws = &workspace };
 
-
 	jo_profiler profiler = {0};
 	
 	jo_profile(&workspace.arena, &profiler, total_compiler_time)
@@ -38,7 +36,6 @@ int main(int argc, char** argv)
 		jo_profile(&workspace.arena, &profiler, bytecode_time) { jo_make_bytecode(&bcc); }	
 	}
 	
-
 	if(compile_opt.time)
 	{
 		jo_ada_foreach(&profiler)
@@ -55,12 +52,9 @@ int main(int argc, char** argv)
 		printf("memory usage: %.2lfMb (%.2lfMb including vm)\n", memory_usage_mb - vm_memory_usage_mb, memory_usage_mb);
 	}
 
-	
 	if(compile_opt.i)
 	{	
 		jo_i64* program_output = NULL;
-
-		printf("\n");		
 
 		program_output = jo_run_bytecode(vm, &bcc);
 

@@ -1,5 +1,5 @@
-#ifndef jota_areana
-#define jota_areana
+#ifndef jota_arena
+#define jota_arena
 
 #include <stdlib.h>
 #include "types.h"
