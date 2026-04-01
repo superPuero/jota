@@ -3,12 +3,12 @@
 
 #include "../core/core.h"
 
-#define jo_tok_literal_list\
+#define tok_literal_list\
 	X(literal_integer)\
 	X(literal_fp)\
 	X(literal_string)
 
-#define jo_tok_operator_list\
+#define tok_operator_list\
 	X(plus)\
 	X(minus)\
 	X(star)\
@@ -38,36 +38,36 @@
 
 
 
-#define jo_tok_unsigned_integer_type_primitive_list\
+#define tok_unsigned_integer_type_primitive_list\
 	X(u8)\
 	X(u16)\
 	X(u32)\
 	X(u64)
 
-#define jo_tok_signed_integer_type_primitive_list\
+#define tok_signed_integer_type_primitive_list\
 	X(i8)\
 	X(i16)\
 	X(i32)\
 	X(i64)
 
-#define jo_tok_floating_point_type_primitive_list\
+#define tok_floating_point_type_primitive_list\
 	X(f32)\
 	X(f64)
 
 
-#define jo_tok_numerical_type_primitive_list\
+#define tok_numerical_type_primitive_list\
 	X(bool)\
-	jo_tok_unsigned_integer_type_primitive_list\
-	jo_tok_signed_integer_type_primitive_list\
-	jo_tok_floating_point_type_primitive_list
+	tok_unsigned_integer_type_primitive_list\
+	tok_signed_integer_type_primitive_list\
+	tok_floating_point_type_primitive_list
 
 	
-#define jo_tok_type_primitive_list\
+#define tok_type_primitive_list\
 	X(type)\
 	X(void)\
-	jo_tok_numerical_type_primitive_list
+	tok_numerical_type_primitive_list
 
-#define jo_tok_keyword_list\
+#define tok_keyword_list\
 	X(true)\
 	X(false)\
 	X(as)\
@@ -89,9 +89,9 @@
 	X(break)\
 	X(continue)\
 	X(namespace)\
-	jo_tok_type_primitive_list
+	tok_type_primitive_list
 
-#define jo_tok_entry_list\
+#define tok_entry_list\
 	X(undefined)\
 	X(identifier)\
 	X(intrinsic)\
@@ -121,70 +121,70 @@
 	X(colon)\
 	X(semicolon)\
 	X(eof)\
-	jo_tok_operator_list\
-	jo_tok_keyword_list\
-	jo_tok_literal_list
+	tok_operator_list\
+	tok_keyword_list\
+	tok_literal_list
 
 typedef enum
 {
-	#define X(tok) jo_tok_##tok,
-	jo_tok_entry_list
+	#define X(tok) tok_##tok,
+	tok_entry_list
 	#undef X
 	
-	jo_tok_add = jo_tok_plus,
-	jo_tok_sub = jo_tok_minus,
-	jo_tok_mul = jo_tok_star,
-	jo_tok_div = jo_tok_slash,
+	tok_add = tok_plus,
+	tok_sub = tok_minus,
+	tok_mul = tok_star,
+	tok_div = tok_slash,
 
-	jo_tok_cmp_lt = jo_tok_open_angle_bracket,
-	jo_tok_cmp_lte = jo_tok_less_equals,
-	jo_tok_cmp_gt = jo_tok_close_angle_bracket,
-	jo_tok_cmp_gte = jo_tok_greater_equals,
-	jo_tok_cmp_eq = jo_tok_double_equals,
-	jo_tok_cmp_neq = jo_tok_not_equals,
-	jo_tok_caret = jo_tok_logical_xor,
-	jo_tok_bitwise_and = jo_tok_ampersand,	
-} jo_tok;
+	tok_cmp_lt = tok_open_angle_bracket,
+	tok_cmp_lte = tok_less_equals,
+	tok_cmp_gt = tok_close_angle_bracket,
+	tok_cmp_gte = tok_greater_equals,
+	tok_cmp_eq = tok_double_equals,
+	tok_cmp_neq = tok_not_equals,
+	tok_caret = tok_logical_xor,
+	tok_bitwise_and = tok_ampersand,	
+} tok;
 
 typedef struct
 {	
 	const char* identifier;
-	jo_u32 len;
-	jo_tok type;
-} jo_tok_keyword_entry;	
+	u32 len;
+	tok type;
+} tok_keyword_entry;	
 
 typedef struct
 {
 	const char* content;
-	jo_u32 len;
-	jo_tok type;
-} jo_token_basic_entry;
+	u32 len;
+	tok type;
+} token_basic_entry;
  
-const char* jo_tok_to_string(jo_tok token);
+const char* tok_to_string(tok token);
 
-jo_u32 jo_tok_binary_operator_precedence(jo_tok token);
+u32 tok_binary_operator_precedence(tok token);
 
 typedef struct
 {
-	jo_tok type;
+	tok type;
 	char* content;
-	jo_u32 content_len;	
-	jo_u32 line; 
-	jo_u32 column; 	
-} jo_token;
+	u32 content_len;	
+	u32 line; 
+	u32 column; 	
+} token;
 
 
-jo_uz jo_tok_get_type_primitive_size(jo_tok tok);
-jo_bool jo_tok_is_unsigned_integer_type_primitive(jo_tok tok);
-jo_bool jo_tok_is_signed_integer_type_primitive(jo_tok tok);
-jo_bool jo_tok_is_integer_type_primitive(jo_tok tok);
-jo_bool jo_tok_is_fp_type_primitive(jo_tok tok);
-jo_bool jo_tok_is_numerical(jo_tok tok);
-jo_bool jo_tok_is_literal(jo_tok tok);
-jo_bool jo_tok_is_type_primitive(jo_tok tok);
-jo_bool jo_tok_is_operator(jo_tok tok);
-jo_tok jo_tok_pick_primitive_upcast(jo_tok l, jo_tok r);
+uz tok_get_type_primitive_size(tok tok);
+bool8 tok_is_unsigned_integer_type_primitive(tok tok);
+bool8 tok_is_signed_integer_type_primitive(tok tok);
+bool8 tok_is_integer_type_primitive(tok tok);
+bool8 tok_is_fp_type_primitive(tok tok);
+bool8 tok_is_numerical(tok tok);
+bool8 tok_is_literal(tok tok);
+bool8 tok_is_type_primitive(tok tok);
+bool8 tok_is_operator(tok tok);
+tok tok_pick_primitive_upcast(tok l, tok r);
 
-jo_ada_declare(jo_token, jo_token_ada);
+ada_declare(token, token_ada);
 
 #endif

@@ -7,66 +7,66 @@
 #include "compiler/bytecode.h"
 #include "compiler/vm.h"
 
-#define jo_workspace_memory jo_Mb(10)
+#define workspace_memory Mb(10)
 
 // for 1mil lines of code benchmark
-// #define jo_workspace_memory jo_Mb(1024)
+// #define workspace_memory Mb(1024)
 
 int main(int argc, char** argv)
 {			
-	jo_compile_options compile_opt = jo_compile_options_parse_from_args(argc, argv);	
+	compile_options compile_opt = compile_options_parse_from_args(argc, argv);	
 	if(!compile_opt.success) { return 1; }
 	
-	jo_workspace workspace = jo_workspace_make(jo_str_view_from("main"), jo_workspace_memory);	
+	workspace ws = workspace_make(str_view_from("main"), workspace_memory);	
 
-	// @explain: jo_vm is huge that why its not stack allocated
+	// @explain: vm is huge that why its not stack allocated
 	// also preferrably should be allocated on demand
-	jo_vm* vm = jo_arena_palloc(&workspace.arena, jo_vm);
+	vm* virtual_machine = arena_ppush(&ws.arena, vm);
 
 	// @todo: bytecode_context and sema should be per workspace aka per build unit
-	jo_bytecode_context bcc = { .ws = &workspace };
-	jo_sema sema = { .ws = &workspace };
+	bytecode_context bcc = { .ws = &ws };
+	sema sema = { .ws = &ws };
 
-	jo_profiler profiler = {0};
+	profiler profiler = {0};
 	
 	if(compile_opt.file_provided)
 	{
-		jo_profile(&workspace.arena, &profiler, total_compiler_time)
+		profile(&ws.arena, &profiler, total_compiler_time)
 		{
-			jo_profile(&workspace.arena, &profiler, lex_and_parse_time) { jo_workspace_begin(&workspace, compile_opt.file); }
-			jo_profile(&workspace.arena, &profiler, sema_time) { jo_sema_analyze(&sema); }
-			jo_profile(&workspace.arena, &profiler, bytecode_time) { jo_make_bytecode(&bcc); }	
+			profile(&ws.arena, &profiler, lex_and_parse_time) { workspace_begin(&ws, compile_opt.file); }
+			profile(&ws.arena, &profiler, sema_time) { sema_analyze(&sema); }
+			profile(&ws.arena, &profiler, bytecode_time) { make_bytecode(&bcc); }	
 		}
 	}
 	
 	if(compile_opt.time)
 	{
-		jo_ada_foreach(&profiler)
+		ada_foreach(&profiler)
 		{
-			printf("%s:%*.3fs\n", profiler.it->name, 30 - (jo_i32)strlen(profiler.it->name), profiler.it->time); 
+			printf("%s:%*.3fs\n", profiler.it->name, 30 - (i32)strlen(profiler.it->name), profiler.it->time); 
 		}
 	}
 
 	if(compile_opt.h)
 	{	
 		#define XY(opt, help_info) printf("%-10s %s\n", "-"#opt, help_info);
-		jo_compile_options_list
+		compile_options_list
 		#undef XY
 	}
 
 	if(compile_opt.mem)
 	{
-		jo_f64 memory_usage_mb = workspace.arena.current / 1024.0 / 1024.0;
-		jo_f64 vm_memory_usage_mb = sizeof(jo_vm) / 1024.0 / 1024.0;
+		f64 memory_usage_mb = ws.arena.current / 1024.0 / 1024.0;
+		f64 vm_memory_usage_mb = sizeof(vm) / 1024.0 / 1024.0;
 
 		printf("memory usage: %.2lfMb (%.2lfMb including vm)\n", memory_usage_mb - vm_memory_usage_mb, memory_usage_mb);
 	}
 
 	if(compile_opt.i)
 	{	
-		jo_i64* program_output = NULL;
+		i64* program_output = NULL;
 
-		program_output = jo_run_bytecode(vm, &bcc);
+		program_output = run_bytecode(virtual_machine, &bcc);
 
 		printf("\n");		
 
@@ -75,17 +75,17 @@ int main(int argc, char** argv)
 
 	if(compile_opt.t)
 	{
-		jo_ada_foreach(&workspace.loaded_modules) { jo_dump_tokens(&workspace.loaded_modules.it->tokens); }
+		ada_foreach(&ws.loaded_modules) { dump_tokens(&ws.loaded_modules.it->tokens); }
 	} 
 
 	if(compile_opt.ast) 
 	{
-		jo_ada_foreach(&workspace.loaded_modules) { jo_dump_ast_node(workspace.loaded_modules.it->file_node, 0); }
+		ada_foreach(&ws.loaded_modules) { dump_ast_node(ws.loaded_modules.it->file_node, 0); }
 	}
 
-	if(compile_opt.bc) { jo_dump_bytecode(&bcc); }
+	if(compile_opt.bc) { dump_bytecode(&bcc); }
 
-	jo_workspace_free(&workspace);	
+	workspace_release(&ws);	
 
 	return 0;
 }

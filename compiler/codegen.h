@@ -1,5 +1,5 @@
-#ifndef jo_codegen
-#define jo_codegen
+#ifndef codegen
+#define codegen
 
 
 #endif

@@ -8,31 +8,31 @@
 
 typedef struct
 {	
-	jo_token_ada tokens;
-	jo_ast_node* file_node;
-	jo_astr name;
-}jo_module;
+	token_ada tokens;
+	ast_node* file_node;
+	astr name;
+}module;
 
-jo_ada_declare(jo_module, jo_modules_ada);
-jo_ada_declare(jo_astr, jo_load_queue);
+ada_declare(module, modules_ada);
+ada_declare(astr, load_queue);
 
-struct jo_workspace_s
+struct workspace_s
 {
-	jo_arena arena;
-	jo_astr name;
+	arena arena;
+	astr name;
 
-	jo_load_queue* load_queue;
-	jo_astr current_directory;
-	jo_modules_ada loaded_modules;	
-	jo_scope global_scope;
+	load_queue* load_queue;
+	astr current_directory;
+	modules_ada loaded_modules;	
+	scope global_scope;
 };
 
-jo_workspace jo_workspace_make(jo_str_view name, jo_uz memory);
-void jo_workspace_free(jo_workspace* ws);
+workspace workspace_make(str_view name, uz memory);
+void workspace_release(workspace* ws);
 
-void jo_workspace_begin(jo_workspace* workspace, jo_str_view entry_file);
-void jo_workspace_load(jo_workspace* workspace, const jo_astr* file_path);
-void jo_workspace_load_queue(jo_workspace* workspace);
-jo_module* jo_workspace_lookup_module(jo_workspace* workspace, const jo_astr* name); 
+void workspace_begin(workspace* workspace, str_view entry_file);
+void workspace_load(workspace* workspace, str_view file_path);
+void workspace_load_queue(workspace* workspace);
+module* workspace_lookup_module(workspace* workspace, str_view name); 
 
 #endif

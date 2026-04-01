@@ -6,19 +6,19 @@
 #include "utils.h"
 #include "ada.h"
 
-jo_ada_declare(char, jo_astr);
+ada_declare(char, astr);
 
-#define jo_astr_fmt(astr) (jo_i32)(astr)->occupied, (astr)->data
+#define astr_fmt(astr) (i32)(astr)->occupied, (astr)->data
 
-jo_str_view jo_str_view_from_astr(const jo_astr* astr);
-jo_astr jo_astr_from(jo_arena* arena, const char* str);
-jo_astr jo_astr_from_nt(jo_arena* arena, const char* str);
-jo_astr jo_astr_from_view(jo_arena* arena, jo_str_view view);
-jo_astr jo_astr_from_view_nt(jo_arena* arena, jo_str_view view);
-jo_astr jo_astr_clone(jo_arena* arena, const jo_astr* str);
-void jo_astr_append(jo_arena* arena, jo_astr* str, const char* cstr);
-void jo_astr_append_astr(jo_arena* arena, jo_astr* str, jo_astr* astr);
-void jo_astr_append_view(jo_arena* arena, jo_astr* str, jo_str_view view);
+str_view str_view_from_astr(const astr* astr);
+astr astr_from(arena* arena, const char* str);
+astr astr_from_nt(arena* arena, const char* str);
+astr astr_from_view(arena* arena, str_view view);
+astr astr_from_view_nt(arena* arena, str_view view);
+astr astr_clone(arena* arena, const astr* str);
+void astr_append(arena* arena, astr* str, const char* cstr);
+void astr_append_astr(arena* arena, astr* str, astr* astr);
+void astr_append_view(arena* arena, astr* str, str_view view);
 
 #endif
 

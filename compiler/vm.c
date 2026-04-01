@@ -1,237 +1,237 @@
 #include "vm.h"
 
-#define jo_binary_op_case(operation, type)\
-*(type*)(vm->registers + call_frame->base_register + op.as.binary_op.dest) = \
-                    (*(type*)(vm->registers + call_frame->base_register + op.as.binary_op.a) operation \
-                    *(type*)(vm->registers + call_frame->base_register + op.as.binary_op.b))
+#define binary_op_case(operation, type)\
+*(type*)(vm->registers + current_frame->base_register + op.as.binary_op.dest) = \
+                    (*(type*)(vm->registers + current_frame->base_register + op.as.binary_op.a) operation \
+                    *(type*)(vm->registers + current_frame->base_register + op.as.binary_op.b))
 
-#define jo_cast_case(to_type, from_type)\
-*(jo_##to_type*)(vm->registers + call_frame->base_register + op.as.cast.dest) = \
-                   (jo_##to_type)*(from_type*)(vm->registers + call_frame->base_register + op.as.cast.target)
+#define cast_case(to_type, from_type)\
+*(to_type*)(vm->registers + current_frame->base_register + op.as.cast.dest) = \
+                   (to_type)*(from_type*)(vm->registers + current_frame->base_register + op.as.cast.target)
 
 
-#define jo_binary_op_suite(opnampe, op)\
-case jo_bc_##opnampe##_u64:\
-	jo_binary_op_case(op, jo_u64);\
+#define binary_op_suite(opnampe, op)\
+case bc_##opnampe##_u64:\
+	binary_op_case(op, u64);\
 	break;\
-case jo_bc_##opnampe##_i64:\
-	jo_binary_op_case(op, jo_i64);\
+case bc_##opnampe##_i64:\
+	binary_op_case(op, i64);\
 	break;\
-case jo_bc_##opnampe##_u32:\
-	jo_binary_op_case(op, jo_u32);\
+case bc_##opnampe##_u32:\
+	binary_op_case(op, u32);\
 	break;\
-case jo_bc_##opnampe##_i32:\
-	jo_binary_op_case(op, jo_i32);\
+case bc_##opnampe##_i32:\
+	binary_op_case(op, i32);\
 	break;\
-case jo_bc_##opnampe##_u16:\
-	jo_binary_op_case(op, jo_u16);\
+case bc_##opnampe##_u16:\
+	binary_op_case(op, u16);\
 	break;\
-case jo_bc_##opnampe##_i16:\
-	jo_binary_op_case(op, jo_i16);\
+case bc_##opnampe##_i16:\
+	binary_op_case(op, i16);\
 	break;\
-case jo_bc_##opnampe##_u8:\
-	jo_binary_op_case(op, jo_u8);\
+case bc_##opnampe##_u8:\
+	binary_op_case(op, u8);\
 	break;\
-case jo_bc_##opnampe##_i8:\
-	jo_binary_op_case(op, jo_i8);\
+case bc_##opnampe##_i8:\
+	binary_op_case(op, i8);\
 	break;\
-case jo_bc_##opnampe##_f64:\
-	jo_binary_op_case(op, jo_f64);\
+case bc_##opnampe##_f64:\
+	binary_op_case(op, f64);\
 	break;\
-case jo_bc_##opnampe##_f32:\
-	jo_binary_op_case(op, jo_f32);\
+case bc_##opnampe##_f32:\
+	binary_op_case(op, f32);\
 	break;\
-case jo_bc_##opnampe##_bool:\
-	jo_binary_op_case(op, bool);\
+case bc_##opnampe##_bool:\
+	binary_op_case(op, bool);\
 	break;\
 
-#define jo_cast_op_suite(to_type)\
-case jo_bc_cast_u64_##to_type:\
-	jo_cast_case(to_type, jo_u64);\
+#define cast_op_suite(to_type)\
+case bc_cast_u64_##to_type:\
+	cast_case(to_type, u64);\
 	break;\
-case jo_bc_cast_i64_##to_type:\
-	jo_cast_case(to_type, jo_i64);\
+case bc_cast_i64_##to_type:\
+	cast_case(to_type, i64);\
 	break;\
-case jo_bc_cast_u32_##to_type:\
-	jo_cast_case(to_type, jo_u32);\
+case bc_cast_u32_##to_type:\
+	cast_case(to_type, u32);\
 	break;\
-case jo_bc_cast_i32_##to_type:\
-	jo_cast_case(to_type, jo_i32);\
+case bc_cast_i32_##to_type:\
+	cast_case(to_type, i32);\
 	break;\
-case jo_bc_cast_u16_##to_type:\
-	jo_cast_case(to_type, jo_u16);\
+case bc_cast_u16_##to_type:\
+	cast_case(to_type, u16);\
 	break;\
-case jo_bc_cast_i16_##to_type:\
-	jo_cast_case(to_type, jo_i16);\
+case bc_cast_i16_##to_type:\
+	cast_case(to_type, i16);\
 	break;\
-case jo_bc_cast_u8_##to_type:\
-	jo_cast_case(to_type, jo_u8);\
+case bc_cast_u8_##to_type:\
+	cast_case(to_type, u8);\
 	break;\
-case jo_bc_cast_i8_##to_type:\
-	jo_cast_case(to_type, jo_i8);\
+case bc_cast_i8_##to_type:\
+	cast_case(to_type, i8);\
 	break;\
-case jo_bc_cast_f64_##to_type:\
-	jo_cast_case(to_type, jo_f64);\
+case bc_cast_f64_##to_type:\
+	cast_case(to_type, f64);\
 	break;\
-case jo_bc_cast_f32_##to_type:\
-	jo_cast_case(to_type, jo_f32);\
+case bc_cast_f32_##to_type:\
+	cast_case(to_type, f32);\
 	break;\
-case jo_bc_cast_bool_##to_type:\
-	jo_cast_case(to_type, bool);\
+case bc_cast_bool_##to_type:\
+	cast_case(to_type, bool);\
 	break;
 
 
-jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
+register_id vm_run(vm* vm, bytecode_context* bcc)
 {
-	jo_call_frame* call_frame = &vm->frames[vm->fc - 1];
+	call_frame* current_frame = &vm->frames[vm->fc - 1];
 
 	while(true)
 	{
-		jo_bytecode_op op = bcc->bc.data[vm->ip];
+		bytecode_op op = bcc->bc.data[vm->ip];
         switch (op.instr)
         {
-			case jo_bc_get_sp:
-				vm->registers[call_frame->base_register + op.as.get_sp.to] = vm->stack_pointer;
+			case bc_get_sp:
+				vm->registers[current_frame->base_register + op.as.get_sp.to] = vm->stack_pointer;
 				break;
 
-			case jo_bc_push:
+			case bc_push:
 				vm->stack_pointer += op.as.push.offset;
 				break;
 					
-			case jo_bc_store:
-				memcpy(&vm->stack[vm->registers[call_frame->base_register + op.as.store.to_addr] + op.as.store.offset], &vm->registers[call_frame->base_register + op.as.store.from], op.as.store.size);
+			case bc_store:
+				memcpy(&vm->stack[vm->registers[current_frame->base_register + op.as.store.to_addr] + op.as.store.offset], &vm->registers[current_frame->base_register + op.as.store.from], op.as.store.size);
 				break;
 
-			case jo_bc_jmp:
+			case bc_jmp:
 				vm->ip += op.as.jmp.offset;
 				continue; // skip ip increment
 				break;
-			case jo_bc_jmp_if:
-				if (vm->registers[call_frame->base_register + op.as.jmp_if.cond_reg])
+			case bc_jmp_if:
+				if (vm->registers[current_frame->base_register + op.as.jmp_if.cond_reg])
 				{
 					vm->ip += op.as.jmp_if.offset;
 					continue; // skip ip increment
 				}
 				break;
-			case jo_bc_jmp_if_not:		
-				if (!vm->registers[call_frame->base_register + op.as.jmp_if_not.cond_reg])
+			case bc_jmp_if_not:		
+				if (!vm->registers[current_frame->base_register + op.as.jmp_if_not.cond_reg])
 				{
 					vm->ip += op.as.jmp_if_not.offset;
 					continue; // skip ip increment
 				}
 				break;
-            case jo_bc_mov_imm:
+            case bc_mov_imm:
 				
-				memcpy(vm->registers + call_frame->base_register + op.as.mov_imm.to, &op.as.mov_imm.value, op.as.mov_imm.size);
+				memcpy(vm->registers + current_frame->base_register + op.as.mov_imm.to, &op.as.mov_imm.value, op.as.mov_imm.size);
                 break;
-			case jo_bc_mov:
-				memcpy(vm->registers + call_frame->base_register + op.as.mov.to, vm->registers + call_frame->base_register + op.as.mov.from, sizeof(jo_value64));
+			case bc_mov:
+				memcpy(vm->registers + current_frame->base_register + op.as.mov.to, vm->registers + current_frame->base_register + op.as.mov.from, sizeof(value64));
                 break;
 
-            jo_binary_op_suite(add, +);
-            jo_binary_op_suite(sub, -);
-            jo_binary_op_suite(div, /);
-            jo_binary_op_suite(mul, *);
-            jo_binary_op_suite(cmp_lt, <);
-            jo_binary_op_suite(cmp_lte, <=);
-            jo_binary_op_suite(cmp_gt, >);
-            jo_binary_op_suite(cmp_gte, >=);
-            jo_binary_op_suite(cmp_eq, ==);
-            jo_binary_op_suite(cmp_neq, !=);
+            binary_op_suite(add, +);
+            binary_op_suite(sub, -);
+            binary_op_suite(div, /);
+            binary_op_suite(mul, *);
+            binary_op_suite(cmp_lt, <);
+            binary_op_suite(cmp_lte, <=);
+            binary_op_suite(cmp_gt, >);
+            binary_op_suite(cmp_gte, >=);
+            binary_op_suite(cmp_eq, ==);
+            binary_op_suite(cmp_neq, !=);
 
-			jo_cast_op_suite(i8);
-			jo_cast_op_suite(u8);
+			cast_op_suite(i8);
+			cast_op_suite(u8);
 
-			jo_cast_op_suite(i16);
-			jo_cast_op_suite(u16);
+			cast_op_suite(i16);
+			cast_op_suite(u16);
 
-			jo_cast_op_suite(i32);
-			jo_cast_op_suite(u32);
+			cast_op_suite(i32);
+			cast_op_suite(u32);
 
-			jo_cast_op_suite(i64);
-			jo_cast_op_suite(u64);
+			cast_op_suite(i64);
+			cast_op_suite(u64);
 
-			jo_cast_op_suite(f32);
-			jo_cast_op_suite(f64);
+			cast_op_suite(f32);
+			cast_op_suite(f64);
 
-			case jo_bc_cast_u64_bool:
-				jo_cast_case(bool, jo_u64);
+			case bc_cast_u64_bool:
+				cast_case(bool, u64);
 				break;
-			case jo_bc_cast_i64_bool:
-				jo_cast_case(bool, jo_i64);
+			case bc_cast_i64_bool:
+				cast_case(bool, i64);
 				break;
-			case jo_bc_cast_u32_bool:
-				jo_cast_case(bool, jo_u32);
+			case bc_cast_u32_bool:
+				cast_case(bool, u32);
 				break;
-			case jo_bc_cast_i32_bool:
-				jo_cast_case(bool, jo_i32);
+			case bc_cast_i32_bool:
+				cast_case(bool, i32);
 				break;
-			case jo_bc_cast_u16_bool:
-				jo_cast_case(bool, jo_u16);
+			case bc_cast_u16_bool:
+				cast_case(bool, u16);
 				break;
-			case jo_bc_cast_i16_bool:
-				jo_cast_case(bool, jo_i16);
+			case bc_cast_i16_bool:
+				cast_case(bool, i16);
 				break;
-			case jo_bc_cast_u8_bool:
-				jo_cast_case(bool, jo_u8);
+			case bc_cast_u8_bool:
+				cast_case(bool, u8);
 				break;
-			case jo_bc_cast_i8_bool:
-				jo_cast_case(bool, jo_i8);
+			case bc_cast_i8_bool:
+				cast_case(bool, i8);
 				break;
-			case jo_bc_cast_f64_bool:
-				jo_cast_case(bool, jo_f64);
+			case bc_cast_f64_bool:
+				cast_case(bool, f64);
 				break;
-			case jo_bc_cast_f32_bool:
-				jo_cast_case(bool, jo_f32);
+			case bc_cast_f32_bool:
+				cast_case(bool, f32);
 				break;
 
-			case jo_bc_call:
+			case bc_call:
 			{
 				if(op.as.call.intrinsic)
 				{
-					printf((char*)(vm->stack + *(jo_u64*)&vm->registers[call_frame->base_register + op.as.call.first_arg]), *(jo_u64*)&vm->registers[call_frame->base_register + op.as.call.first_arg + 1]);
+					printf((char*)(vm->stack + *(u64*)&vm->registers[current_frame->base_register + op.as.call.first_arg]), *(u64*)&vm->registers[current_frame->base_register + op.as.call.first_arg + 1]);
 					vm->ip++;
 					continue;
 				}
 
-			 	jo_bytecode_fn* target_fn = bcc->fns.data + op.as.call.function_index;
+			 	bytecode_fn* target_fn = bcc->fns.data + op.as.call.function_index;
 
-                // call_frame->ip++;
+                // current_frame->ip++;
 
-                jo_call_frame new_frame = {0};
+                call_frame new_frame = {0};
                 new_frame.fn = target_fn;
 
-                new_frame.base_register = call_frame->base_register + call_frame->fn->reg_counter;
+                new_frame.base_register = current_frame->base_register + current_frame->fn->reg_counter;
                 new_frame.ret_reg = op.as.call.dest;
 				new_frame.ret_ip = vm->ip + 1;
 
-				for(jo_uz i = 0; i < op.as.call.arg_count; i++)
+				for(uz i = 0; i < op.as.call.arg_count; i++)
 				{
-					memcpy(&vm->registers[new_frame.base_register + i], &vm->registers[call_frame->base_register + op.as.call.first_arg + i], sizeof(jo_value64));
+					memcpy(&vm->registers[new_frame.base_register + i], &vm->registers[current_frame->base_register + op.as.call.first_arg + i], sizeof(value64));
 				}
 
                 vm->frames[vm->fc++] = new_frame;
-                call_frame = &vm->frames[vm->fc - 1];
+                current_frame = &vm->frames[vm->fc - 1];
 				vm->ip = target_fn->entry_ip;
 
                 continue;	
 			}
-            case jo_bc_ret:
+            case bc_ret:
 			{
-				jo_u64 return_ip = call_frame->ret_ip;				
-				jo_register_id ret_reg = call_frame->base_register + op.as.ret.reg;
-				jo_register_id target_reg = call_frame->ret_reg;
+				u64 return_ip = current_frame->ret_ip;				
+				register_id ret_reg = current_frame->base_register + op.as.ret.reg;
+				register_id target_reg = current_frame->ret_reg;
 				
 				vm->fc--;
 				
 				if(vm->fc == 0) { return ret_reg; }
 				
-				call_frame = &vm->frames[vm->fc - 1];
+				current_frame = &vm->frames[vm->fc - 1];
 				
 				
 				if(!op.as.ret.is_void)
 				{
-					memcpy(vm->registers + call_frame->base_register + target_reg, vm->registers + ret_reg, sizeof(jo_value64));
+					memcpy(vm->registers + current_frame->base_register + target_reg, vm->registers + ret_reg, sizeof(value64));
 				}
 
 				vm->ip = return_ip;
@@ -241,7 +241,7 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 
             default:
                 printf("unknown instruction at ip: %llu\n", vm->ip);
-                return jo_null_register;
+                return null_register;
         }
 
 		vm->ip++;
@@ -250,18 +250,18 @@ jo_register_id jo_vm_run(jo_vm* vm, jo_bytecode_context* bcc)
 }
 
 
-jo_i64* jo_run_bytecode(jo_vm* vm, jo_bytecode_context* bcc)
+i64* run_bytecode(vm* vm, bytecode_context* bcc)
 {
-	jo_call_frame* frame = vm->frames + vm->fc++;
-	frame->fn = bcc->fns.data + jo_bytecode_find_function_id(bcc, "main");
+	call_frame* frame = vm->frames + vm->fc++;
+	frame->fn = bcc->fns.data + bytecode_find_function_id(bcc, "main");
 	frame->base_register = 0;
 	frame->ret_reg = 0;
 	vm->ip = frame->fn->entry_ip;
 
-	jo_register_id ret_reg = jo_vm_run(vm, bcc);
+	register_id ret_reg = vm_run(vm, bcc);
 
-	if(ret_reg != jo_null_register)
-		return (jo_i64*)&vm->registers[ret_reg];
+	if(ret_reg != null_register)
+		return (i64*)&vm->registers[ret_reg];
 
 	return NULL;
 }

@@ -5,29 +5,28 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef uint8_t jo_u8;
-typedef int8_t jo_i8;
+typedef uint8_t u8;
+typedef int8_t i8;
 
-typedef uint16_t jo_u16;
-typedef int16_t jo_i16;
+typedef uint16_t u16;
+typedef int16_t i16;
 
-typedef uint32_t jo_u32;
-typedef int32_t jo_i32;
+typedef uint32_t u32;
+typedef int32_t i32;
 
-typedef uint64_t jo_u64;
-typedef int64_t jo_i64;
+typedef uint64_t u64;
+typedef int64_t i64;
 
-typedef float jo_f32;
-typedef double jo_f64;
+typedef float f32;
+typedef double f64;
 
-typedef size_t jo_uz;
-typedef ptrdiff_t jo_iz;
-typedef uintptr_t jo_ptr;
+typedef size_t uz;
+typedef ptrdiff_t iz;
+typedef uintptr_t ptr;
 
-typedef jo_u8 bool;
-typedef bool jo_bool;
+typedef u8 bool8;
+typedef bool8 bool;
 
-typedef jo_bool jo_success;
 
 #define true 1
 #define false 0

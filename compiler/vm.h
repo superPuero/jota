@@ -6,22 +6,22 @@
 
 typedef struct 
 {
-	jo_bytecode_fn* fn;
-	jo_register_id base_register;
-	jo_register_id ret_reg;
-	jo_u64 ret_ip;
-} jo_call_frame;
+	bytecode_fn* fn;
+	register_id base_register;
+	register_id ret_reg;
+	u64 ret_ip;
+} call_frame;
 
 typedef struct
 {
-	jo_u8  stack[jo_Mb(1)];
-	jo_u64 stack_pointer;
-	jo_value64 registers[65565];
-	jo_u64 ip;
-	jo_call_frame frames[64];
-	jo_u64 fc;	
-} jo_vm;
+	u8  stack[Mb(1)];
+	u64 stack_pointer;
+	value64 registers[65565];
+	u64 ip;
+	call_frame frames[64];
+	u64 fc;	
+} vm;
 
-jo_i64* jo_run_bytecode(jo_vm* vm, jo_bytecode_context* bcc);
+i64* run_bytecode(vm* vm, bytecode_context* bcc);
 
 #endif

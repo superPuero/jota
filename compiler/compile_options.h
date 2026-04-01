@@ -3,7 +3,7 @@
 
 #include "../core/core.h"
 
-#define jo_compile_options_list\
+#define compile_options_list\
 	XY(h, "compiler flags help")\
 	XY(t, "dump tokens into stdout")\
 	XY(ast, "dump ast into stdout")\
@@ -14,16 +14,16 @@
 
 typedef struct
 {
-	#define XY(e, help_info) jo_bool e;
-	jo_compile_options_list
+	#define XY(e, help_info) bool8 e;
+	compile_options_list
 	#undef XY
 
-	jo_bool success;
-	jo_bool file_provided;
-	jo_str_view file;
+	bool8 success;
+	bool8 file_provided;
+	str_view file;
 
-} jo_compile_options;
+} compile_options;
 
-jo_compile_options jo_compile_options_parse_from_args(int argc, char** argv);
+compile_options compile_options_parse_from_args(int argc, char** argv);
 
 #endif

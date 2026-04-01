@@ -1,32 +1,32 @@
 #include "file.h"
 
-jo_file* jo_file_load(jo_arena* arena, const jo_astr* filename)
+file* file_load(arena* arena, str_view filename)
 {
-	FILE* file = NULL;
+	FILE* cfile = NULL;
 
-	jo_arena_scope(arena)
-	{
-		jo_astr filename_nt = jo_astr_clone(arena, filename);		
-		jo_astr_append(arena, &filename_nt, "\0"); // fopen only takes null terminated strings
-		file = fopen(filename_nt.data, "rb");	
-	}
+	marker marker = arena_mark(arena);
 
-	if (!file)
+	astr filename_nt = astr_from_view_nt(arena, filename);		
+	cfile = fopen(filename_nt.data, "rb");	
+
+	arena_pop_to_marker(marker);
+
+	if (!cfile)
 	{
-		printf("error: could not open file '%.*s'\n", jo_astr_fmt(filename));
+		printf("error: could not open file '%.*s'\n", str_view_fmt(&filename));
 		return NULL; 
 	}
 
-	jo_file* out = jo_arena_palloc(arena, jo_file);
-	fseek(file, 0, SEEK_END);
-	out->len = ftell(file);
-	rewind(file);
+	file* out = arena_ppush(arena, file);
+	fseek(cfile, 0, SEEK_END);
+	out->len = ftell(cfile);
+	rewind(cfile);
 
-	out->data = jo_arena_alloc(arena, out->len);
+	out->data = arena_push(arena, out->len, 1, false);
 
-	fread(out->data, 1, out->len, file);
+	fread(out->data, 1, out->len, cfile);
 	
-	fclose(file);
+	fclose(cfile);
 
 	return out;
 }

@@ -1,8 +1,8 @@
 #include "compile_options.h"	
 
-jo_compile_options jo_compile_options_parse_from_args(int argc, char** argv)
+compile_options compile_options_parse_from_args(int argc, char** argv)
 {
-	jo_compile_options opt = {0};
+	compile_options opt = {0};
 	opt.success = true;
 
 	if(argc < 2)
@@ -12,9 +12,9 @@ jo_compile_options jo_compile_options_parse_from_args(int argc, char** argv)
 		return opt;
 	}
 
-	for(jo_i32 i = 1; i < argc; i++)
+	for(i32 i = 1; i < argc; i++)
 	{
-		jo_bool found = false;
+		bool8 found = false;
 
 		#define XY(e, help_info)\
 		if(strcmp(argv[i], "-"#e) == 0)\
@@ -22,14 +22,14 @@ jo_compile_options jo_compile_options_parse_from_args(int argc, char** argv)
 			opt.e = true;\
 			found = true;\
 		}
-		jo_compile_options_list
+		compile_options_list
 		#undef XY
 
 		if(!found)
 		{
 			if(!opt.file_provided)
 			{								
-				opt.file = jo_str_view_from(argv[i]);	
+				opt.file = str_view_from(argv[i]);	
 				opt.file_provided = true;			
 			}
 			else

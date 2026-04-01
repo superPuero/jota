@@ -6,33 +6,33 @@
 
 typedef enum 
 {
-    jo_symbol_kind_variable,
-    jo_symbol_kind_function,
-    // jo_symbol_kind_type
-} jo_symbol_kind;
+    symbol_kind_variable,
+    symbol_kind_function,
+    // symbol_kind_type
+} symbol_kind;
 
-struct jo_ast_node;
-struct jo_symbol_s 
+struct ast_node;
+struct symbol_s 
 {
-	jo_astr identifier;
-    jo_symbol_kind kind;    
-	jo_u32 location;
-	jo_ast_node* ast_node;
+	astr identifier;
+    symbol_kind kind;    
+	u32 location;
+	ast_node* ast_node;
 };
 
-jo_ada_declare(jo_symbol, jo_symbol_table);
+ada_declare(symbol, symbol_table);
 
-struct jo_scope_s
+struct scope_s
 {
-	jo_astr identifier;
-	jo_symbol_table symbol_table;
-	jo_scope* parent;
+	astr identifier;
+	symbol_table symbol_table;
+	scope* parent;
 };	
 
-jo_symbol jo_make_symbol(jo_arena* arena,  jo_str_view identifier, jo_symbol_kind kind);
-jo_symbol* jo_scope_lookup_symbol(jo_scope* scope, jo_str_view identifier);
-jo_scope* jo_scope_push(jo_arena* arena, jo_scope* scope,  jo_str_view identifier);
-jo_scope* jo_scope_pop(jo_scope* scope);
-jo_symbol* jo_scope_add_symbol(jo_arena* arena, jo_scope* scope, jo_symbol symbol);
+symbol make_symbol(arena* arena,  str_view identifier, symbol_kind kind);
+symbol* scope_lookup_symbol(scope* scope, str_view identifier);
+scope* scope_push(arena* arena, scope* scope,  str_view identifier);
+scope* scope_pop(scope* scope);
+symbol* scope_add_symbol(arena* arena, scope* scope, symbol symbol);
 
 #endif

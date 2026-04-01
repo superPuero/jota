@@ -7,37 +7,37 @@
 #include "arena.h"
 
 // @perf: tweakin these migh be benefitial 
-#define jo_ada_growth_coef 2
-#define jo_ada_initial_capacity 8
+#define ada_growth_coef 2
+#define ada_initial_capacity 8
 
-#define jo_ada_declare(data_type, decl_type)\
+#define ada_declare(data_type, decl_type)\
 typedef struct\
 {\
 	data_type* it;\
 	data_type* data;\
-	jo_uz occupied;\
-	jo_uz capacity;\
+	uz occupied;\
+	uz capacity;\
 } decl_type;
 
-#define jo_ada_append(arena, arr, ...)\
+#define ada_append(arena, arr, ...)\
 do{\
 	if((arr)->occupied == (arr)->capacity)\
 	{\
-		jo_uz elem_size = sizeof((arr)->data[0]);\
-		(arr)->capacity = !(arr)->capacity ? jo_ada_initial_capacity : (arr)->capacity * jo_ada_growth_coef;\
-		void* new_data = jo_arena_alloc_aligned_zeroed(arena, (arr)->capacity * elem_size, 8);\
+		uz elem_size = sizeof((arr)->data[0]);\
+		(arr)->capacity = !(arr)->capacity ? ada_initial_capacity : (arr)->capacity * ada_growth_coef;\
+		void* new_data = arena_push(arena, (arr)->capacity * elem_size, 8, true);\
 		if((arr)->occupied) { memcpy(new_data, (arr)->data, elem_size * (arr)->occupied); }\
 		(arr)->data = new_data;\
 	}\
 	(arr)->data[(arr)->occupied++] = __VA_ARGS__;\
 }while(0)
 
-#define jo_ada_last(arr) ((arr)->data + (arr)->occupied - 1)
+#define ada_last(arr) ((arr)->data + (arr)->occupied - 1)
 
-#define jo_ada_foreach(ada)\
-for(jo_uz _i = ((ada)->it = NULL, 0); _i < (ada)->occupied && ((ada)->it = (ada)->data + _i, 1); ++_i)
+#define ada_foreach(ada)\
+for(uz _i = ((ada)->it = NULL, 0); _i < (ada)->occupied && ((ada)->it = (ada)->data + _i, 1); ++_i)
 
-#define jo_ada_foreach_named(ada, _it)\
-for(jo_uz _it = ((ada)->it = NULL, 0); _it < (ada)->occupied && ((ada)->it = (ada)->data + _it, 1); ++_it)
+#define ada_foreach_named(ada, _it)\
+for(uz _it = ((ada)->it = NULL, 0); _it < (ada)->occupied && ((ada)->it = (ada)->data + _it, 1); ++_it)
 
 #endif

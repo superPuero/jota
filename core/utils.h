@@ -7,30 +7,30 @@
 #include <time.h>
 #include "types.h"
 
-#define jo_alignof(type) offsetof(struct { char c; type d; }, d)
+#define alignof(type) offsetof(struct { char c; type d; }, d)
 
-#define jo_expand(x) x 
+#define expand(x) x 
 
-#define jo_stringify(x) #x
+#define stringify(x) #x
 
-#define jo_stringify_case(value)\
+#define stringify_case(value)\
 case value:\
 return #value
 
-#define jo_stringify_expand_case(x)\
-case jo_expand(x):\
-return jo_stringify(jo_expand(x))
+#define stringify_expand_case(x)\
+case expand(x):\
+return stringify(expand(x))
 
 typedef struct
 {
 	const char* data;
-	jo_i32 len;
-} jo_str_view;
+	i32 len;
+} str_view;
 
-jo_str_view jo_str_view_make(const char* data, jo_uz len);
-jo_str_view jo_str_view_from(const char* data);
+str_view str_view_make(const char* data, uz len);
+str_view str_view_from(const char* data);
 
-#define jo_str_view_fmt(view) (view)->len, (view)->data
+#define str_view_fmt(view) (view)->len, (view)->data
 
 
 

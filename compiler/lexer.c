@@ -3,137 +3,137 @@
 #include <stdio.h>
 
 
-const jo_tok_keyword_entry jo_keyword_map[] = {
-	#define X(tok) {#tok, sizeof(#tok) - 1, jo_tok_##tok},
-	jo_tok_keyword_list
+const tok_keyword_entry keyword_map[] = {
+	#define X(tok) {#tok, sizeof(#tok) - 1, tok_##tok},
+	tok_keyword_list
 	#undef x
 };
 
-jo_token_basic_entry jo_token_map[] =
+token_basic_entry token_map[] =
 {
 	// multi-char tokens first
-	{"<<=", 3, jo_tok_shift_left_equals},
-	{">>=", 3, jo_tok_shift_right_equals},
-	{"..", 2, jo_tok_double_dot},
-	{"==", 2, jo_tok_double_equals},
-	{"!=", 2, jo_tok_not_equals},
-	{"<=", 2, jo_tok_less_equals},
-	{">=", 2, jo_tok_greater_equals},
-	{"&&", 2, jo_tok_logical_and},
-	{"||", 2, jo_tok_logical_or},
-	{"<<", 2, jo_tok_shift_left},
-	{">>", 2, jo_tok_shift_right},
-	{"->", 2, jo_tok_arrow},
-	{"=>", 2, jo_tok_fat_arrow},
-	{"+=", 2, jo_tok_plus_equals},
-	{"-=", 2, jo_tok_minus_equals},
-	{"*=", 2, jo_tok_star_equals},
-	{"/=", 2, jo_tok_slash_equals},
-	{"%=", 2, jo_tok_modulo_equals},
-	{"&=", 2, jo_tok_bitwise_and_equals},
-	{"|=", 2, jo_tok_bitwise_or_equals},
-	{"^=", 2, jo_tok_bitwise_xor_equals},
-	{"::", 2, jo_tok_bridge},
-	{":=", 2, jo_tok_walrus},
-	{"(", 1, jo_tok_open_parenthesis},
-	{")", 1, jo_tok_close_parenthesis},
-	{"{", 1, jo_tok_open_curly_bracket},
-	{"}", 1, jo_tok_close_curly_bracket},
-	{"[", 1, jo_tok_open_square_bracket},
-	{"]", 1, jo_tok_close_square_bracket},
-	{"<", 1, jo_tok_open_angle_bracket},
-	{">", 1, jo_tok_close_angle_bracket},
-	{"+", 1, jo_tok_plus},
-	{"-", 1, jo_tok_minus},
-	{"*", 1, jo_tok_star},
-	{"/", 1, jo_tok_slash},
-	{"%", 1, jo_tok_modulo},
-	{"=", 1, jo_tok_equals},
-	{"!", 1, jo_tok_exclamation_mark},
-	{"^", 1, jo_tok_caret},
-	{"~", 1, jo_tok_tilde},
-	{",", 1, jo_tok_comma},
-	{".", 1, jo_tok_dot},
-	{"&", 1, jo_tok_ampersand},
-	{";", 1, jo_tok_semicolon},
-	{":", 1, jo_tok_colon},
-	{"#", 1, jo_tok_hash},
-	{"@", 1, jo_tok_at},
-	{"$", 1, jo_tok_dollar},
+	{"<<=", 3, tok_shift_left_equals},
+	{">>=", 3, tok_shift_right_equals},
+	{"..", 2, tok_double_dot},
+	{"==", 2, tok_double_equals},
+	{"!=", 2, tok_not_equals},
+	{"<=", 2, tok_less_equals},
+	{">=", 2, tok_greater_equals},
+	{"&&", 2, tok_logical_and},
+	{"||", 2, tok_logical_or},
+	{"<<", 2, tok_shift_left},
+	{">>", 2, tok_shift_right},
+	{"->", 2, tok_arrow},
+	{"=>", 2, tok_fat_arrow},
+	{"+=", 2, tok_plus_equals},
+	{"-=", 2, tok_minus_equals},
+	{"*=", 2, tok_star_equals},
+	{"/=", 2, tok_slash_equals},
+	{"%=", 2, tok_modulo_equals},
+	{"&=", 2, tok_bitwise_and_equals},
+	{"|=", 2, tok_bitwise_or_equals},
+	{"^=", 2, tok_bitwise_xor_equals},
+	{"::", 2, tok_bridge},
+	{":=", 2, tok_walrus},
+	{"(", 1, tok_open_parenthesis},
+	{")", 1, tok_close_parenthesis},
+	{"{", 1, tok_open_curly_bracket},
+	{"}", 1, tok_close_curly_bracket},
+	{"[", 1, tok_open_square_bracket},
+	{"]", 1, tok_close_square_bracket},
+	{"<", 1, tok_open_angle_bracket},
+	{">", 1, tok_close_angle_bracket},
+	{"+", 1, tok_plus},
+	{"-", 1, tok_minus},
+	{"*", 1, tok_star},
+	{"/", 1, tok_slash},
+	{"%", 1, tok_modulo},
+	{"=", 1, tok_equals},
+	{"!", 1, tok_exclamation_mark},
+	{"^", 1, tok_caret},
+	{"~", 1, tok_tilde},
+	{",", 1, tok_comma},
+	{".", 1, tok_dot},
+	{"&", 1, tok_ampersand},
+	{";", 1, tok_semicolon},
+	{":", 1, tok_colon},
+	{"#", 1, tok_hash},
+	{"@", 1, tok_at},
+	{"$", 1, tok_dollar},
 };
 
-void jo_dump_tokens(jo_token_ada* tokens)
+void dump_tokens(token_ada* tokens)
 {
-	jo_ada_foreach(tokens)
+	ada_foreach(tokens)
 	{
 		switch (tokens->it->type)
 		{
-		case jo_tok_identifier:
-		case jo_tok_literal_integer:
-		case jo_tok_literal_fp:
-			printf("line: %u colum: %u type: %u %s (%.*s)\n", tokens->it->line, tokens->it->column, tokens->it->type, jo_tok_to_string(tokens->it->type), tokens->it->content_len, tokens->it->content);
+		case tok_identifier:
+		case tok_literal_integer:
+		case tok_literal_fp:
+			printf("line: %u colum: %u type: %u %s (%.*s)\n", tokens->it->line, tokens->it->column, tokens->it->type, tok_to_string(tokens->it->type), tokens->it->content_len, tokens->it->content);
 			break;
 
 		default:
-			printf("line: %u colum: %u type: %u %s\n", tokens->it->line,  tokens->it->column, tokens->it->type, jo_tok_to_string(tokens->it->type));
+			printf("line: %u colum: %u type: %u %s\n", tokens->it->line,  tokens->it->column, tokens->it->type, tok_to_string(tokens->it->type));
 			break;
 		}
 	}
 }
 
-char jo_lexer_peek(jo_lexer* lexer, jo_u32 offset)
+char lexer_peek(lexer* lexer, u32 offset)
 {
 	return lexer->file->data[lexer->current + offset];
 }
 
-char jo_lexer_peek_next(jo_lexer* lexer)
+char lexer_peek_next(lexer* lexer)
 {
-	return jo_lexer_peek(lexer, 0);
+	return lexer_peek(lexer, 0);
 }
 
-char jo_lexer_current(jo_lexer* lexer)
+char lexer_current(lexer* lexer)
 {
 	return lexer->file->data[lexer->current];
 }
 
-void jo_lexer_advance(jo_lexer* lexer, jo_u32 by)
+void lexer_advance(lexer* lexer, u32 by)
 {
 	lexer->column_counter += by;
 	lexer->current += by;
 	lexer->token_len += by;
 }
 
-void jo_lexer_advance_one(jo_lexer* lexer)
+void lexer_advance_one(lexer* lexer)
 {
-	jo_lexer_advance(lexer, 1);
+	lexer_advance(lexer, 1);
 }
 
-void jo_lexer_reset_token(jo_lexer* lexer)
+void lexer_reset_token(lexer* lexer)
 {
 	lexer->token_len = 0;
 }
 
-void jo_lexer_make_token(jo_lexer* lexer, jo_tok type)
+void lexer_make_token(lexer* lexer, tok type)
 {
-	jo_token tok = {0};		
+	token tok = {0};		
 	tok.type = type;
 	tok.column = lexer->column_counter;
 	tok.line = lexer->line_counter;
 	tok.content = lexer->token_start;
 	tok.content_len = lexer->token_len;
 
-	jo_lexer_reset_token(lexer);
+	lexer_reset_token(lexer);
 
-	jo_ada_append(lexer->arena, lexer->out, tok);
+	ada_append(lexer->arena, lexer->out, tok);
 }
 
-void jo_lexer_newline(jo_lexer* lexer)
+void lexer_newline(lexer* lexer)
 {
 	lexer->line_counter++;
 	lexer->column_counter = 0;
 }
 
-void jo_lexer_skip_whitespace_and_comments(jo_lexer* lexer)
+void lexer_skip_whitespace_and_comments(lexer* lexer)
 {
     while (true)
     {
@@ -195,18 +195,18 @@ void jo_lexer_skip_whitespace_and_comments(jo_lexer* lexer)
     }
 }
 
-bool jo_lexer_match_consume(jo_lexer* lexer, const char* str, jo_u32 len)
+bool8 lexer_match_consume(lexer* lexer, const char* str, u32 len)
 {
 	if(strncmp(lexer->token_start, str, len) == 0)
 	{
-		jo_lexer_advance(lexer, len);
+		lexer_advance(lexer, len);
 		return true;
 	}
 
 	return false;
 }
 
-bool jo_lexer_match_content_not_consume(jo_lexer* lexer, const char* str, jo_u32 len)
+bool8 lexer_match_content_not_consume(lexer* lexer, const char* str, u32 len)
 {
 	if(strncmp(lexer->token_start, str, len) == 0)
 	{
@@ -217,41 +217,41 @@ bool jo_lexer_match_content_not_consume(jo_lexer* lexer, const char* str, jo_u32
 }
 
 
-bool jo_lexer_try_match_make_token(jo_lexer* lexer, const char* str, jo_u32 len, jo_tok type)
+bool8 lexer_try_match_make_token(lexer* lexer, const char* str, u32 len, tok type)
 {
-	if(jo_lexer_match_consume(lexer, str, len))  { jo_lexer_make_token(lexer, type); return true; }
+	if(lexer_match_consume(lexer, str, len))  { lexer_make_token(lexer, type); return true; }
 	else { return false; }
 }
 
-bool jo_lexer_try_match_content_make_token(jo_lexer* lexer, const char* str, jo_u32 len, jo_tok type)
+bool8 lexer_try_match_content_make_token(lexer* lexer, const char* str, u32 len, tok type)
 {
-	if(jo_lexer_match_content_not_consume(lexer, str, len))  { jo_lexer_make_token(lexer, type); return true; }
+	if(lexer_match_content_not_consume(lexer, str, len))  { lexer_make_token(lexer, type); return true; }
 	else { return false; }
 }
 
 
-void jo_lexer_parse_identifier(jo_lexer* lexer)
+void lexer_parse_identifier(lexer* lexer)
 {
-	while(isalpha(jo_lexer_current(lexer))  || isdigit(jo_lexer_current(lexer)) || jo_lexer_current(lexer) == '_')
+	while(isalpha(lexer_current(lexer))  || isdigit(lexer_current(lexer)) || lexer_current(lexer) == '_')
 	{
-		jo_lexer_advance_one(lexer);
+		lexer_advance_one(lexer);
 	}
 
-	for(jo_uz i = 0; i < sizeof(jo_keyword_map)/sizeof(jo_keyword_map[0]); i++)
+	for(uz i = 0; i < sizeof(keyword_map)/sizeof(keyword_map[0]); i++)
 	{
-		if(lexer->token_len == jo_keyword_map[i].len && jo_lexer_try_match_content_make_token(lexer, jo_keyword_map[i].identifier,  jo_keyword_map[i].len, jo_keyword_map[i].type)) return;
+		if(lexer->token_len == keyword_map[i].len && lexer_try_match_content_make_token(lexer, keyword_map[i].identifier,  keyword_map[i].len, keyword_map[i].type)) return;
 	}
 
-	jo_lexer_make_token(lexer, jo_tok_identifier);
+	lexer_make_token(lexer, tok_identifier);
 }
 
-void jo_lexer_parse_number(jo_lexer* lexer)
+void lexer_parse_number(lexer* lexer)
 {
-	bool has_dot = false;
+	bool8 has_dot = false;
 
-	while(isdigit(jo_lexer_current(lexer)) || jo_lexer_current(lexer) == '.')
+	while(isdigit(lexer_current(lexer)) || lexer_current(lexer) == '.')
 	{
-		if(jo_lexer_current(lexer) == '.')
+		if(lexer_current(lexer) == '.')
 		{
 			if(has_dot)
 			{
@@ -263,68 +263,68 @@ void jo_lexer_parse_number(jo_lexer* lexer)
 			}
 		}
 
-	 	jo_lexer_advance_one(lexer);
+	 	lexer_advance_one(lexer);
 	}
 
 	if(has_dot)
 	{
-		jo_lexer_make_token(lexer, jo_tok_literal_fp);
+		lexer_make_token(lexer, tok_literal_fp);
 	}
 	else
 	{
-		jo_lexer_make_token(lexer, jo_tok_literal_integer);
+		lexer_make_token(lexer, tok_literal_integer);
 	}
 }
 
-void jo_lexer_parse_string(jo_lexer* lexer)
+void lexer_parse_string(lexer* lexer)
 {
-	jo_lexer_advance_one(lexer);
+	lexer_advance_one(lexer);
 
-	char curr = jo_lexer_current(lexer);
+	char curr = lexer_current(lexer);
 
 	lexer->token_start++;
 
 	while(true)
 	{				
 		//@todo: this is very brittle and straight up wrong
-		curr = jo_lexer_current(lexer);	
+		curr = lexer_current(lexer);	
 		if(curr == '"') 
 		{
-			jo_lexer_advance_one(lexer);
+			lexer_advance_one(lexer);
 			break; 
 		}		
-		jo_lexer_advance_one(lexer);
+		lexer_advance_one(lexer);
 	}
 	
 	lexer->token_len--;
 	lexer->token_len--;
 
-	jo_lexer_make_token(lexer, jo_tok_literal_string);
+	lexer_make_token(lexer, tok_literal_string);
 }
 
-void jo_lexer_parse_next(jo_lexer* lexer)
+void lexer_parse_next(lexer* lexer)
 {
-	jo_lexer_skip_whitespace_and_comments(lexer);
+	lexer_skip_whitespace_and_comments(lexer);
 
 	if(lexer->current == lexer->file->len || lexer->current == lexer->file->len + 1) { lexer->done = true; return; }
 
 	lexer->token_start = lexer->file->data + lexer->current;
 
-	char c = jo_lexer_current(lexer);
+	char c = lexer_current(lexer);
 
-	if(isalpha(c) || c == '_') { jo_lexer_parse_identifier(lexer); return;}
-	if(isdigit(c)) { jo_lexer_parse_number(lexer); return; }
-	if(c == '"') { jo_lexer_parse_string(lexer); return; }
+	if(isalpha(c) || c == '_') { lexer_parse_identifier(lexer); return;}
+	if(isdigit(c)) { lexer_parse_number(lexer); return; }
+	if(c == '"') { lexer_parse_string(lexer); return; }
 	
-	for(jo_uz i = 0; i < sizeof(jo_token_map)/sizeof(jo_token_map[0]); ++i)
+	for(uz i = 0; i < sizeof(token_map)/sizeof(token_map[0]); ++i)
 	{
-		if(jo_lexer_try_match_make_token(lexer, jo_token_map[i].content, jo_token_map[i].len, jo_token_map[i].type)){ return; }
+		if(lexer_try_match_make_token(lexer, token_map[i].content, token_map[i].len, token_map[i].type)){ return; }
 	}
 
-	jo_lexer_advance_one(lexer);
+	lexer_advance_one(lexer);
 }
 
-void jo_lexer_lex(jo_lexer* lexer)
+void lexer_lex(lexer* lexer)
 {
 	if(!lexer->arena)
 	{
@@ -342,13 +342,13 @@ void jo_lexer_lex(jo_lexer* lexer)
 		assert(0);
 	}
 
-	jo_lexer_newline(lexer);
+	lexer_newline(lexer);
 
 	while(!lexer->done)
 	{
-		jo_lexer_parse_next(lexer);
+		lexer_parse_next(lexer);
 	}
 
-	jo_lexer_make_token(lexer, jo_tok_eof);
+	lexer_make_token(lexer, tok_eof);
 }
 

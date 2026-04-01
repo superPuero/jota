@@ -1,20 +1,20 @@
 #include "symbol.h"
 
-jo_symbol jo_make_symbol(jo_arena* arena, jo_str_view identifier, jo_symbol_kind kind)
+symbol make_symbol(arena* arena, str_view identifier, symbol_kind kind)
 {
-	jo_symbol symbol ={0};
+	symbol symbol ={0};
 
 	symbol.kind = kind;
-	symbol.identifier = jo_astr_from_view(arena, identifier);
+	symbol.identifier = astr_from_view(arena, identifier);
 
 	return symbol;
 }
 
-jo_symbol* jo_scope_lookup_symbol(jo_scope* scope, jo_str_view identifier)
+symbol* scope_lookup_symbol(scope* scope, str_view identifier)
 {
 	if(!scope) return NULL;
 
-	jo_ada_foreach(&scope->symbol_table)
+	ada_foreach(&scope->symbol_table)
 	{
 		if (strncmp(scope->symbol_table.it->identifier.data, identifier.data, scope->symbol_table.it->identifier.occupied) == 0) 
 		{
@@ -22,20 +22,20 @@ jo_symbol* jo_scope_lookup_symbol(jo_scope* scope, jo_str_view identifier)
 		}
     }
 
-	return jo_scope_lookup_symbol(scope->parent, identifier);
+	return scope_lookup_symbol(scope->parent, identifier);
 }
 
-jo_scope* jo_scope_push(jo_arena* arena, jo_scope* scope, jo_str_view identifier)
+scope* scope_push(arena* arena, scope* outer_scope, str_view identifier)
 {
-	jo_scope* new_scope = jo_arena_palloc(arena, jo_scope);
-	new_scope->parent = scope;
-	new_scope->identifier = jo_astr_from_view(arena, identifier);
+	scope* new_scope = arena_ppush(arena, scope);
+	new_scope->parent = outer_scope;
+	new_scope->identifier = astr_from_view(arena, identifier);
 	return new_scope;
 }
 
-jo_symbol* jo_scope_add_symbol(jo_arena* arena, jo_scope* scope, jo_symbol symbol)
+symbol* scope_add_symbol(arena* arena, scope* outer_scope, symbol symbol)
 {
-	jo_ada_append(arena, &scope->symbol_table, symbol);
+	ada_append(arena, &outer_scope->symbol_table, symbol);
 
-	return &scope->symbol_table.data[scope->symbol_table.occupied - 1];
+	return &outer_scope->symbol_table.data[outer_scope->symbol_table.occupied - 1];
 }

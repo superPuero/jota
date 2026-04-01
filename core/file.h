@@ -6,11 +6,11 @@
 
 typedef struct
 {
-	jo_astr name;
+	astr name;
 	char* data;
-	jo_uz 	len;
-}jo_file;
+	uz 	len;
+}file;
 
-jo_file* jo_file_load(jo_arena* arena, const jo_astr* name);
+file* file_load(arena* arena, str_view name);
 
 #endif
