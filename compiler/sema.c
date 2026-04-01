@@ -60,46 +60,46 @@ u32 get_primitive_type_size(tok type)
 	return size;
 }
 
-astr sema_type_astr(arena* arena, ast_node* t1)
+str sema_type_str(arena* arena, ast_node* t1)
 {
 	if(!t1) assert(0);
 
 	switch (t1->type)
 	{
 	case ast_type_type_primitive:
-		return astr_from(arena, tok_to_string(t1->data.type_primitive) + 7); // @explain: 7 is to remove tok_* prefix from tok stirng
+		return str_from_cstr(arena, tok_to_string(t1->data.type_primitive) + 7); // @explain: 7 is to remove tok_* prefix from tok stirng
 		break;
 
 	case ast_type_type_fn:
 	{
 		ast_type_fn* type_fn = &t1->data.type_fn;
-		astr str = astr_from(arena, "fn(");
+		str out = str_from_cstr(arena, "fn(");
 	
 		for(uz param_i = 0; param_i < t1->data.type_fn.parameters.occupied; param_i++)
 		{
-			astr param_str = sema_type_astr(arena, t1->data.type_fn.parameters.data[param_i]);
+			str param_str = sema_type_str(arena, t1->data.type_fn.parameters.data[param_i]);
 	
-			astr_append_astr(arena, &str, &param_str);
+			str_append_str(arena, &out, &param_str);
 	
 			if(param_i != t1->data.type_fn.parameters.occupied - 1)
 			{
-				astr_append(arena, &str, ", ");			
+				str_append_cstr(arena, &out, ", ");			
 			}
 		}
 	
 	
-		astr_append(arena, &str, ")");
+		str_append_cstr(arena, &out, ")");
 	
 		
 		if(type_fn->return_type)
 		{
-			astr_append(arena, &str, " -> ");
+			str_append_cstr(arena, &out, " -> ");
 	
-			astr ret_str = sema_type_astr(arena, t1->data.type_fn.return_type);
-			astr_append(arena, &str, ret_str.data);
+			str ret_str = sema_type_str(arena, t1->data.type_fn.return_type);
+			str_append_cstr(arena, &out, ret_str.data);
 		}
 		
-		return str;
+		return out;
 		break;
 	}
 
@@ -232,13 +232,13 @@ void sema_resolve_expr_op_call(sema* sema, scope* outer_scope, ast_node* expr)
 		{
 			marker marker = arena_mark(&sema->ws->arena);
 
-			astr expr_str = sema_type_astr(&sema->ws->arena, sym->ast_node->resolved_type->data.type_fn.parameters.data[arg_i]);
-			astr resolved_str = sema_type_astr(&sema->ws->arena, expr->data.expr_op_call.arguments.data[arg_i]->resolved_type);
+			str expr_str = sema_type_str(&sema->ws->arena, sym->ast_node->resolved_type->data.type_fn.parameters.data[arg_i]);
+			str resolved_str = sema_type_str(&sema->ws->arena, expr->data.expr_op_call.arguments.data[arg_i]->resolved_type);
 			printf("argument provided for %.*s call at index %llu has unexpected type, expected %.*s got %.*s",
-				astr_fmt(&sym->identifier),
+				str_fmt(&sym->identifier),
 				arg_i,
-				astr_fmt(&expr_str),
-				astr_fmt(&resolved_str)
+				str_fmt(&expr_str),
+				str_fmt(&resolved_str)
 			);
 
 			arena_pop_to_marker( marker);
@@ -317,7 +317,7 @@ void sema_resolve_expr_assigment(sema* sema, scope* outer_scope, ast_node* node)
 
 	if(!sym)
 	{
-		printf("undeclared identifier %.*s", str_view_fmt(&node->data.expr_assignment.target->data.identifier));
+		printf("undeclared identifier %.*s", strv_fmt(&node->data.expr_assignment.target->data.identifier));
 		assert(0);
 	}
 
@@ -326,12 +326,12 @@ void sema_resolve_expr_assigment(sema* sema, scope* outer_scope, ast_node* node)
 	{
 		marker marker = arena_mark(&sema->ws->arena);
 
-		astr gtsrt = sema_type_astr(&sema->ws->arena, sym->ast_node->resolved_type);
-		astr rtstr = sema_type_astr(&sema->ws->arena, node->data.expr_assignment.expression->resolved_type);
+		str gtsrt = sema_type_str(&sema->ws->arena, sym->ast_node->resolved_type);
+		str rtstr = sema_type_str(&sema->ws->arena, node->data.expr_assignment.expression->resolved_type);
 		printf("can not assign expression of a type %.*s to variable %.*s of type %.*s"
-				, astr_fmt(&rtstr)
-				, str_view_fmt(&node->data.expr_assignment.target->data.identifier)
-				, astr_fmt(&gtsrt)
+				, str_fmt(&rtstr)
+				, strv_fmt(&node->data.expr_assignment.target->data.identifier)
+				, str_fmt(&gtsrt)
 			);
 
 		arena_pop_to_marker( marker);
@@ -371,9 +371,9 @@ void sema_resolve_expr(sema* sema, scope* outer_scope, ast_node* node)
         ast_node* type_node = ast_node_make(&sema->ws->arena,ast_type_type_fn);
         type_node->data.type_fn.return_type = node->data.literal_fn.return_type;
 
-		ada_foreach(&node->data.literal_fn.parameters)
+		da_foreach(&node->data.literal_fn.parameters)
 		{
-			ada_append(&sema->ws->arena, &type_node->data.type_fn.parameters, (*node->data.literal_fn.parameters.it)->data.decl.specified_type);
+			da_append(&sema->ws->arena, &type_node->data.type_fn.parameters, (*node->data.literal_fn.parameters.it)->data.decl.specified_type);
 		}
 
         node->resolved_type = type_node;
@@ -384,10 +384,10 @@ void sema_resolve_expr(sema* sema, scope* outer_scope, ast_node* node)
     {
         ast_node* type_node = ast_node_make(&sema->ws->arena,ast_type_type_struct);
 
-		ada_foreach(&node->data.literal_struct.members)
+		da_foreach(&node->data.literal_struct.members)
 		{
 			sema_resolve_expr(sema, outer_scope, *node->data.literal_struct.members.it);																					
-			ada_append(&sema->ws->arena, &type_node->data.type_struct.members, (*node->data.literal_struct.members.it)->resolved_type);
+			da_append(&sema->ws->arena, &type_node->data.type_struct.members, (*node->data.literal_struct.members.it)->resolved_type);
 		}
 
         node->resolved_type = type_node;
@@ -408,7 +408,7 @@ void sema_resolve_expr(sema* sema, scope* outer_scope, ast_node* node)
 
 		symbol sym = {0};
 		sym.ast_node = node;
-		sym.identifier = astr_from_view(&sema->ws->arena, node->data.decl.identifier->data.identifier);		
+		sym.identifier = str_from_view(&sema->ws->arena, node->data.decl.identifier->data.identifier);		
 		scope_add_symbol(&sema->ws->arena, outer_scope, sym);		
 
 		//@TODO: maybe there is a better way 
@@ -420,7 +420,7 @@ void sema_resolve_expr(sema* sema, scope* outer_scope, ast_node* node)
 		symbol* sym = scope_lookup_symbol(outer_scope, node->data.identifier);
 		if(!sym)
 		{
-			printf("undeclared identifier %.*s", str_view_fmt(&node->data.identifier));
+			printf("undeclared identifier %.*s", strv_fmt(&node->data.identifier));
 			assert(0);
 		}
 		
@@ -486,12 +486,12 @@ void sema_resolve_stmt(sema* sema, scope* outer_scope, ast_node* stmt, ast_node*
 			{
 				marker marker = arena_mark(&sema->ws->arena);
 
-				astr estr = sema_type_astr(&sema->ws->arena, literal_parent_fn->return_type);					
-				astr gstr = sema_type_astr(&sema->ws->arena, stmt->data.stmt_return.expression->resolved_type);
+				str estr = sema_type_str(&sema->ws->arena, literal_parent_fn->return_type);					
+				str gstr = sema_type_str(&sema->ws->arena, stmt->data.stmt_return.expression->resolved_type);
 
 				printf("function return type %.*s does not match return expression type %.*s\n"
-					, astr_fmt(&estr)
-					, astr_fmt(&gstr)
+					, str_fmt(&estr)
+					, str_fmt(&gstr)
 				);
 
 				arena_pop_to_marker( marker);
@@ -505,10 +505,10 @@ void sema_resolve_stmt(sema* sema, scope* outer_scope, ast_node* stmt, ast_node*
 			{
 				marker marker = arena_mark(&sema->ws->arena);
 
-				astr estr = sema_type_astr(&sema->ws->arena, literal_parent_fn->return_type);
+				str estr = sema_type_str(&sema->ws->arena, literal_parent_fn->return_type);
 
 				printf("function return type %.*s cant have void return\n"
-					, astr_fmt(&estr)
+					, str_fmt(&estr)
 				);
 				
 				arena_pop_to_marker( marker);
@@ -532,7 +532,7 @@ void sema_resolve_stmt(sema* sema, scope* outer_scope, ast_node* stmt, ast_node*
 
 void sema_resolve_block(sema* sema, scope* outer_scope, ast_node* block, ast_node* literal_parent_fn_node)
 {
-	scope* fn_block_scope = scope_push(&sema->ws->arena, outer_scope, str_view_from("block"));
+	scope* fn_block_scope = scope_push(&sema->ws->arena, outer_scope, strv_from_cstr("block"));
 	
 	for(uz i = 0; i < block->data.block.statements.occupied; i++)
 	{
@@ -548,13 +548,13 @@ void sema_analyze_literal_fn(sema* sema, scope* fn_scope, ast_node* literal_fn_n
 	
 	if(literal_fn->intrinsic) return;
 
-    ada_foreach(&literal_fn->parameters)
+    da_foreach(&literal_fn->parameters)
 	{			
 		ast_node* param_node = *literal_fn->parameters.it;
 		sema_resolve_decl(sema, fn_scope, param_node);
 
 		symbol sym = {0};
-		sym.identifier = astr_from_view(&sema->ws->arena, param_node->data.decl.identifier->data.identifier);
+		sym.identifier = str_from_view(&sema->ws->arena, param_node->data.decl.identifier->data.identifier);
 
 		sym.kind = symbol_kind_variable;
 		sym.ast_node = param_node;
@@ -594,7 +594,7 @@ void analyze_decl(sema* sema, scope* outer_scope, ast_node* decl_node)
 
 void sema_analyze_workspace(sema* sema, scope* outer_scope)
 {
-	ada_foreach(&sema->ws->loaded_modules)
+	da_foreach(&sema->ws->loaded_modules)
 	{
 		ast_file* module = &sema->ws->loaded_modules.it->file_node->data.file;
 		
@@ -613,7 +613,7 @@ void sema_analyze_workspace(sema* sema, scope* outer_scope)
 					symbol sym = {0};
 					sym.kind = symbol_kind_function;
 					sym.ast_node = current_content;
-					sym.identifier = astr_from_view(&sema->ws->arena ,current_content->data.decl.identifier->data.identifier);				
+					sym.identifier = str_from_view(&sema->ws->arena ,current_content->data.decl.identifier->data.identifier);				
 					current_content->resolved_symbol = scope_add_symbol(&sema->ws->arena,outer_scope, sym);
 					break;
 				}
@@ -624,7 +624,7 @@ void sema_analyze_workspace(sema* sema, scope* outer_scope)
 		}
 	}
 
-	ada_foreach(&sema->ws->loaded_modules)
+	da_foreach(&sema->ws->loaded_modules)
 	{
 		ast_file* module = &sema->ws->loaded_modules.it->file_node->data.file;
 		
@@ -670,13 +670,13 @@ void sema_resolve_decl(sema* sema, scope* outer_scope, ast_node* decl_node)
 			{
 				marker marker = arena_mark(&sema->ws->arena);
 
-				astr spec_type_str = sema_type_astr(&sema->ws->arena, decl->specified_type);
-				astr resolved_type_str = sema_type_astr(&sema->ws->arena, decl->initialize_expression->resolved_type);
+				str spec_type_str = sema_type_str(&sema->ws->arena, decl->specified_type);
+				str resolved_type_str = sema_type_str(&sema->ws->arena, decl->initialize_expression->resolved_type);
 			
 				printf("declaration of %.*s has specified type %.*s but has initilize expression type %.*s\n", 
-					str_view_fmt(&decl->identifier->data.identifier), 
-					astr_fmt(&spec_type_str),
-					astr_fmt(&resolved_type_str)
+					strv_fmt(&decl->identifier->data.identifier), 
+					str_fmt(&spec_type_str),
+					str_fmt(&resolved_type_str)
 				);
 
 				arena_pop_to_marker( marker);

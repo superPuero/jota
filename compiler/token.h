@@ -185,6 +185,6 @@ bool8 tok_is_type_primitive(tok tok);
 bool8 tok_is_operator(tok tok);
 tok tok_pick_primitive_upcast(tok l, tok r);
 
-ada_declare(token, token_ada);
+da_declare(token, token_da);
 
 #endif

@@ -9,7 +9,7 @@
 typedef struct
 {
 	arena* arena;
-	token_ada* tokens;
+	token_da* tokens;
 	u32 current_token;
 } parser;
 
@@ -20,12 +20,12 @@ void parser_advance(parser* parser);
 token* parser_current(parser* parser);
 void parser_unexpected(parser* parser, const char* err);
 token* parser_consume(parser* parser, tok expected);
-ast_node_ptr_ada parse_construct_fn_parameters(parser* parser);
+ast_node_ptr_da parse_construct_fn_parameters(parser* parser);
 ast_node* parse_type_primitive(parser* parser);
-ast_node_ptr_ada parse_type_extent(parser* parser);
-ast_node_ptr_ada parse_type_function_parameters(parser* parser);
-ast_node_ptr_ada parse_expression_list(parser* parser);
-ast_node_ptr_ada parse_declaration_list(parser* parser);
+ast_node_ptr_da parse_type_extent(parser* parser);
+ast_node_ptr_da parse_type_function_parameters(parser* parser);
+ast_node_ptr_da parse_expression_list(parser* parser);
+ast_node_ptr_da parse_declaration_list(parser* parser);
 ast_node* parse_type_fn(parser* parser);
 ast_node* parse_type(parser* parser);
 ast_node* parser_construct_fn_return_type(parser* parser);
@@ -43,8 +43,8 @@ ast_node* parse_construct_non_variable(parser* parser);
 ast_node* parse_construct_fn(parser* parser);
 ast_node* parse_identifier(parser* parser);
 ast_node* parse_declaration(parser* parser);
-ast_node_ptr_ada parse_declarations(parser* parser);
-ast_node_ptr_ada parse_namespace_content(parser* parser);
+ast_node_ptr_da parse_declarations(parser* parser);
+ast_node_ptr_da parse_namespace_content(parser* parser);
 ast_node* parse(workspace* workspace, parser* parser);
 
 #endif

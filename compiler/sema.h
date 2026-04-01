@@ -12,12 +12,12 @@ typedef struct
 	char err[sema_max_err_len];
 }sema_err;
 
-ada_declare(sema_err, sema_err_ada)
+da_declare(sema_err, sema_err_da)
 
 typedef struct
 {
 	workspace* ws;
-	sema_err_ada errors;
+	sema_err_da errors;
 } sema;
 
 bool8 sema_types_are_equal(ast_node* t1, ast_node* t2);

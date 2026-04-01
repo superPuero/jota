@@ -62,9 +62,9 @@ token_basic_entry token_map[] =
 	{"$", 1, tok_dollar},
 };
 
-void dump_tokens(token_ada* tokens)
+void dump_tokens(token_da* tokens)
 {
-	ada_foreach(tokens)
+	da_foreach(tokens)
 	{
 		switch (tokens->it->type)
 		{
@@ -124,7 +124,7 @@ void lexer_make_token(lexer* lexer, tok type)
 
 	lexer_reset_token(lexer);
 
-	ada_append(lexer->arena, lexer->out, tok);
+	da_append(lexer->arena, lexer->out, tok);
 }
 
 void lexer_newline(lexer* lexer)
@@ -338,7 +338,7 @@ void lexer_lex(lexer* lexer)
 	}
 	if(!lexer->out)
 	{
-		printf("lexer must be provide with out token ada\n");
+		printf("lexer must be provide with out token da\n");
 		assert(0);
 	}
 

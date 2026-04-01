@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "arena.h"
 
-arena arena_make(uz capacity, str_view name)
+arena arena_make(uz capacity, strv name)
 {
 	arena arena = {.mem = malloc(capacity), .name = {0}, .current_marker = 0, .current = 0 , .capacity = capacity};
 	memcpy(arena.name, name.data, name.len);

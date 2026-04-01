@@ -2,15 +2,15 @@
 #define jota_file
 
 #include "utils.h"
-#include "astr.h"
+#include "str.h"
 
 typedef struct
 {
-	astr name;
+	str name;
 	char* data;
 	uz 	len;
 }file;
 
-file* file_load(arena* arena, str_view name);
+file* file_load(arena* arena, strv name);
 
 #endif

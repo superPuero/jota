@@ -25,12 +25,12 @@ typedef struct
 {
 	const char* data;
 	i32 len;
-} str_view;
+} strv;
 
-str_view str_view_make(const char* data, uz len);
-str_view str_view_from(const char* data);
+strv strv_make(const char* data, uz len);
+strv strv_from_cstr(const char* data);
 
-#define str_view_fmt(view) (view)->len, (view)->data
+#define strv_fmt(view) (view)->len, (view)->data
 
 
 

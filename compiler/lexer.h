@@ -15,7 +15,7 @@ typedef struct
 	// --- must be provided ---
 	arena* arena;
 	file* file;
-	token_ada* out;
+	token_da* out;
 	// ------------------------
 
 	u32 line_counter;
@@ -30,7 +30,7 @@ typedef struct
 } lexer;
 
 
-void dump_tokens(token_ada* tokens);
+void dump_tokens(token_da* tokens);
 void lexer_push_content(lexer* lexer);
 bool8 lexer_content_is(lexer* lexer, const char* keyword);
 void lexer_reset_content(lexer*lexer);

@@ -6,7 +6,7 @@ WIN_DEBUG_CC_OPT = -O0 -g -gcodeview -fuse-ld=lld -Wl,--pdb=
 
 RELEASE_CC_OPT = -O3 -march=native
 
-CORE_SRC = 	core/astr.c \
+CORE_SRC = 	core/str.c \
        		core/arena.c \
        		core/utils.c \
        		core/file.c \

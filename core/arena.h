@@ -31,7 +31,7 @@ typedef struct
 #define arena_scope(arena)\
 for(i32 _i = (marker(arena), 0); _i < 1; arena_pop_to_marker(arena), ++_i)
 
-arena arena_make(uz capacity, str_view name);
+arena arena_make(uz capacity, strv name);
 
 void arena_release(arena* arena);
 marker arena_mark(arena* arena); 

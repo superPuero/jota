@@ -29,7 +29,7 @@ compile_options compile_options_parse_from_args(int argc, char** argv)
 		{
 			if(!opt.file_provided)
 			{								
-				opt.file = str_view_from(argv[i]);	
+				opt.file = strv_from_cstr(argv[i]);	
 				opt.file_provided = true;			
 			}
 			else

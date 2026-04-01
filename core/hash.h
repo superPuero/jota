@@ -7,6 +7,6 @@
 #define fnv1_offset_bias 14695981039346656037ull
 #define fnv1_prime 1099511628211ull
 
-u64 fnv1_hash_str(str_view str_view);
+u64 fnv1_hash_str(strv strv);
 
 #endif

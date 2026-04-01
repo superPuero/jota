@@ -14,24 +14,24 @@ typedef enum
 struct ast_node;
 struct symbol_s 
 {
-	astr identifier;
+	str identifier;
     symbol_kind kind;    
 	u32 location;
 	ast_node* ast_node;
 };
 
-ada_declare(symbol, symbol_table);
+da_declare(symbol, symbol_table);
 
 struct scope_s
 {
-	astr identifier;
+	str identifier;
 	symbol_table symbol_table;
 	scope* parent;
 };	
 
-symbol make_symbol(arena* arena,  str_view identifier, symbol_kind kind);
-symbol* scope_lookup_symbol(scope* scope, str_view identifier);
-scope* scope_push(arena* arena, scope* scope,  str_view identifier);
+symbol make_symbol(arena* arena,  strv identifier, symbol_kind kind);
+symbol* scope_lookup_symbol(scope* scope, strv identifier);
+scope* scope_push(arena* arena, scope* scope,  strv identifier);
 scope* scope_pop(scope* scope);
 symbol* scope_add_symbol(arena* arena, scope* scope, symbol symbol);
 

@@ -94,7 +94,7 @@ case ast_type_literal_##type:\
 		op.as.mov_imm.to = out_reg;\
 		op.as.mov_imm.size = 8;\
 		memcpy(&op.as.mov_imm.value, &expr->data.literal_##type, sizeof(type));   \
-		ada_append(&bcc->ws->arena,&bcc->bc, op);\
+		da_append(&bcc->ws->arena,&bcc->bc, op);\
 		return out_reg;\
 		break;\
 	}
@@ -106,11 +106,11 @@ const char* intrinsic_map[] = {
 void dump_bytecode(bytecode_context* bcc)	
 {
 	uz inst = 0;
-	ada_foreach(&bcc->bc)
+	da_foreach(&bcc->bc)
 	{
 		bytecode_op* op = bcc->bc.it;
 
-		ada_foreach(&bcc->fns)
+		da_foreach(&bcc->fns)
 		{
 			if(inst == bcc->fns.it->entry_ip)
 			{
@@ -225,7 +225,7 @@ void bytecode_dump_op(bytecode_context* bcc, bytecode_op* op)
 u32 bytecode_find_function_id(bytecode_context* bcc, const char* identifier)
 {
 	u32 i = 0;
-	ada_foreach(&bcc->fns)
+	da_foreach(&bcc->fns)
 	{
 		if(strncmp(bcc->fns.it->label.data, identifier, bcc->fns.it->label.len) == 0)
 		{
@@ -250,7 +250,7 @@ register_id bytecode_emit_expr(bytecode_context* bcc, bytecode_fn* fn, ast_node*
 			bytecode_fn bc_fn = {0};
             bc_fn.label = expr->data.decl.identifier->data.identifier;
             bc_fn.entry_ip = -1; // patched in later
-            ada_append(&bcc->ws->arena, &bcc->fns, bc_fn);
+            da_append(&bcc->ws->arena, &bcc->fns, bc_fn);
 
 			bytecode_emit_function(bcc, &bcc->fns.data[bcc->fns.occupied - 1], expr);
 		}
@@ -265,7 +265,7 @@ register_id bytecode_emit_expr(bytecode_context* bcc, bytecode_fn* fn, ast_node*
 				
 				mov.as.mov.from = from_reg;
 				mov.as.mov.to = to_reg;
-				ada_append(&bcc->ws->arena, &bcc->bc, mov);
+				da_append(&bcc->ws->arena, &bcc->bc, mov);
 
 				decl_identifier_node->resolved_symbol->location = mov.as.mov.to;
 			}
@@ -320,7 +320,7 @@ register_id bytecode_emit_expr(bytecode_context* bcc, bytecode_fn* fn, ast_node*
 				}
 	
 				op.instr = instr;
-				ada_append(&bcc->ws->arena, &bcc->bc, op);
+				da_append(&bcc->ws->arena, &bcc->bc, op);
 				return op.as.cast.dest;
 			}
 
@@ -360,7 +360,7 @@ register_id bytecode_emit_expr(bytecode_context* bcc, bytecode_fn* fn, ast_node*
 						mov.instr = bc_mov;
 						mov.as.mov.to = left_reg;
 						mov.as.mov.from = right_reg;
-						ada_append(&bcc->ws->arena, &bcc->bc, mov);
+						da_append(&bcc->ws->arena, &bcc->bc, mov);
 						return left_reg;
 						break;
 					}
@@ -374,7 +374,7 @@ register_id bytecode_emit_expr(bytecode_context* bcc, bytecode_fn* fn, ast_node*
             op.as.binary_op.a = left_reg;
             op.as.binary_op.b = right_reg;
 
-            ada_append(&bcc->ws->arena,&bcc->bc, op);
+            da_append(&bcc->ws->arena,&bcc->bc, op);
             return dest_reg;
 		}
 		break;
@@ -393,12 +393,12 @@ register_id bytecode_emit_expr(bytecode_context* bcc, bytecode_fn* fn, ast_node*
 		get_sp_op.instr = bc_get_sp;
 		get_sp_op.as.get_sp.to = base_addr_reg;
 
-		ada_append(&bcc->ws->arena, &bcc->bc, get_sp_op);
+		da_append(&bcc->ws->arena, &bcc->bc, get_sp_op);
 
 		bytecode_op alloc_op = {0};
 		alloc_op.instr = bc_push; 
 		alloc_op.as.push.offset = len + 1; 
-		ada_append(&bcc->ws->arena, &bcc->bc, alloc_op);
+		da_append(&bcc->ws->arena, &bcc->bc, alloc_op);
 
 
 		for(uz i = 0; i <= len; i++)
@@ -410,7 +410,7 @@ register_id bytecode_emit_expr(bytecode_context* bcc, bytecode_fn* fn, ast_node*
 			mov_imm.as.mov_imm.to = chunk_reg;
 			mov_imm.as.mov_imm.value = i==len ? '\0' : expr->data.literal_string.data[i];
 			mov_imm.as.mov_imm.size = 1;	
-			ada_append(&bcc->ws->arena, &bcc->bc, mov_imm);
+			da_append(&bcc->ws->arena, &bcc->bc, mov_imm);
 			
 			bytecode_op store_op = {0};
 			store_op.instr = bc_store; 
@@ -419,7 +419,7 @@ register_id bytecode_emit_expr(bytecode_context* bcc, bytecode_fn* fn, ast_node*
 			store_op.as.store.size = 1;
 			store_op.as.store.offset = i;
 
-			ada_append(&bcc->ws->arena, &bcc->bc, store_op);		
+			da_append(&bcc->ws->arena, &bcc->bc, store_op);		
 		}   
 
 		return base_addr_reg;
@@ -474,10 +474,10 @@ register_id bytecode_emit_expr(bytecode_context* bcc, bytecode_fn* fn, ast_node*
 			op.instr = bc_mov;
 			op.as.mov.to = fn->reg_counter++;
 			op.as.mov.from = args_ids[i];
-			ada_append(&bcc->ws->arena,&bcc->bc, op);
+			da_append(&bcc->ws->arena,&bcc->bc, op);
 		}
 
-		ada_append(&bcc->ws->arena,&bcc->bc, op);
+		da_append(&bcc->ws->arena,&bcc->bc, op);
 
 
 		return dest_reg;
@@ -512,7 +512,7 @@ void bytecode_emit_stmt(bytecode_context* bcc,  bytecode_fn* fn, ast_node* stmt_
 				{
 					ret_op.as.ret.is_void = true;
 				}
-				ada_append(&bcc->ws->arena,&bcc->bc, ret_op);
+				da_append(&bcc->ws->arena,&bcc->bc, ret_op);
 				break;
 			}
 		case ast_type_stmt_ifelse:
@@ -521,7 +521,7 @@ void bytecode_emit_stmt(bytecode_context* bcc,  bytecode_fn* fn, ast_node* stmt_
 				jmp_in_not_op.instr = bc_jmp_if_not;
 				jmp_in_not_op.as.jmp_if_not.cond_reg = bytecode_emit_expr(bcc, fn, stmt_node->data.stmt_ifelse.condition);
 				jmp_in_not_op.as.jmp_if_not.offset = -1; // patched later after we generate the {success} block to know how much instrucitons to jump over
-				ada_append(&bcc->ws->arena,&bcc->bc, jmp_in_not_op);
+				da_append(&bcc->ws->arena,&bcc->bc, jmp_in_not_op);
 				u32 cond_jmp_instr_id = bcc->bc.occupied - 1;
 
 				bytecode_emit_block(bcc, fn, &stmt_node->data.stmt_ifelse.true_block->data.block);
@@ -529,7 +529,7 @@ void bytecode_emit_stmt(bytecode_context* bcc,  bytecode_fn* fn, ast_node* stmt_
 				bytecode_op jmp_out_op = {0};
 				jmp_out_op.instr = bc_jmp;
 				jmp_out_op.as.jmp.offset = -1; // patched later after we generate the {else} block to know how much instrucitons to jump over
-				ada_append(&bcc->ws->arena,&bcc->bc, jmp_out_op);
+				da_append(&bcc->ws->arena,&bcc->bc, jmp_out_op);
 				u32 if_out_jmp_instr_id = bcc->bc.occupied - 1;
 
 				bcc->bc.data[cond_jmp_instr_id].as.jmp_if_not.offset = bcc->bc.occupied - cond_jmp_instr_id;
@@ -586,24 +586,24 @@ void bytecode_emit_function(bytecode_context* bcc, bytecode_fn* bcfn, ast_node* 
 
 void make_bytecode(bytecode_context* bcc)
 {
-	ada_foreach_named(&bcc->ws->loaded_modules, i)
+	da_foreach_named(&bcc->ws->loaded_modules, i)
 	{
 
-		ada_foreach_named(&bcc->ws->loaded_modules.it->file_node->data.file.content, j)
+		da_foreach_named(&bcc->ws->loaded_modules.it->file_node->data.file.content, j)
 		{
 			ast_node* node = (*bcc->ws->loaded_modules.it->file_node->data.file.content.it);
 			if(node->data.decl.initialize_expression->resolved_type->type == ast_type_type_fn) {
 				bytecode_fn bc_fn = {0};
 				bc_fn.label = node->data.decl.identifier->data.identifier;
 				bc_fn.entry_ip = -1; // patched in later
-				ada_append(&bcc->ws->arena, &bcc->fns, bc_fn);
+				da_append(&bcc->ws->arena, &bcc->fns, bc_fn);
 			}
 		}
     }
 
-	ada_foreach_named(&bcc->ws->loaded_modules, i)
+	da_foreach_named(&bcc->ws->loaded_modules, i)
 	{
-		ada_foreach_named(&bcc->ws->loaded_modules.it->file_node->data.file.content, j)
+		da_foreach_named(&bcc->ws->loaded_modules.it->file_node->data.file.content, j)
 		{
 			ast_node* node = (*bcc->ws->loaded_modules.it->file_node->data.file.content.it);
 			if(node->data.decl.initialize_expression->resolved_type->type == ast_type_type_fn) 

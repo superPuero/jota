@@ -9,11 +9,11 @@
     #define jota_max_path PATH_MAX
 #endif
 
-workspace workspace_make(str_view name, uz memory)
+workspace workspace_make(strv name, uz memory)
 {
 	workspace out = {0};
 	out.arena = arena_make(memory, name);
-	out.name = astr_from_view(&out.arena, name);
+	out.name = str_from_view(&out.arena, name);
 	return out;
 }
 
@@ -23,14 +23,14 @@ void workspace_release(workspace* ws)
 }
 
 // @TODO: move to separate place
-astr get_absolute_path(workspace* ws, str_view relative) 
+str get_absolute_path(workspace* ws, strv relative) 
 {
 	marker mark = arena_mark(&ws->arena);
 
     char temp[jota_max_path];
     
-	astr nullt_str = astr_from_view_nt(&ws->arena, relative);
-	astr_append(&ws->arena, &nullt_str, "\0");
+	str nullt_str = str_from_view_nt(&ws->arena, relative);
+	str_append_cstr(&ws->arena, &nullt_str, "\0");
 
 	char* res = NULL;
 
@@ -43,19 +43,19 @@ astr get_absolute_path(workspace* ws, str_view relative)
 	arena_pop_to_marker( mark);
 	if (res) 
 	{       
-        return astr_from(&ws->arena, temp); 
+        return str_from_cstr(&ws->arena, temp); 
     }
 
-    return astr_from(&ws->arena, "");
+    return str_from_cstr(&ws->arena, "");
 }
 
-astr get_file_directory(workspace* ws, str_view relative) 
+str get_file_directory(workspace* ws, strv relative) 
 {
 	marker mark = arena_mark(&ws->arena);
 
     char temp_full[jota_max_path];
     
-    astr nullt_str = astr_from_view_nt(&ws->arena, relative);
+    str nullt_str = str_from_view_nt(&ws->arena, relative);
 
     char* res = NULL;
     #ifdef jota_platform_windows
@@ -75,51 +75,51 @@ astr get_file_directory(workspace* ws, str_view relative)
             _makepath_s(final_dir, jota_max_path, drive, dir, NULL, NULL);			
 			arena_pop_to_marker( mark);
 
-            return astr_from(&ws->arena, final_dir);
+            return str_from_cstr(&ws->arena, final_dir);
         #else
             char* dir_part = dirname(temp_full); 
 			arena_pop_to_marker(ws->arena, mark);
 
-            return astr_from(ws->arena, dir_part);
+            return str_from(ws->arena, dir_part);
         #endif
     }
 
 	arena_pop_to_marker( mark);
 
-    return astr_from(&ws->arena, "");
+    return str_from_cstr(&ws->arena, "");
 }
 
-void workspace_begin(workspace* workspace, str_view entry_file)
+void workspace_begin(workspace* workspace, strv entry_file)
 {
-	astr abs = get_absolute_path(workspace, entry_file);
+	str abs = get_absolute_path(workspace, entry_file);
 	
 	workspace->load_queue = arena_ppush(&workspace->arena, load_queue);
-	workspace->current_directory = get_file_directory(workspace, str_view_from_astr(&abs));
+	workspace->current_directory = get_file_directory(workspace, strv_from_str(&abs));
 	
-	workspace_load(workspace, str_view_from_astr(&abs));
+	workspace_load(workspace, strv_from_str(&abs));
 
 	while(workspace->load_queue->occupied) { workspace_load_queue(workspace); }
 }
 
-void workspace_load(workspace* workspace, str_view file_path)
+void workspace_load(workspace* workspace, strv file_path)
 {	
-	// printf("loading %.*s into workspace(\"%.*s\")\n", astr_fmt(file_path),  astr_fmt(&workspace->name));
+	// printf("loading %.*s into workspace(\"%.*s\")\n", str_fmt(file_path),  str_fmt(&workspace->name));
 	workspace->current_directory = get_file_directory(workspace, file_path);
 
-	ada_append(
+	da_append(
 		&workspace->arena, 
 		&workspace->loaded_modules, 
 		(module) {
-			.name = astr_from_view(&workspace->arena, file_path)
+			.name = str_from_view(&workspace->arena, file_path)
 		}
 	);
 	
-	module* current_module = ada_last(&workspace->loaded_modules);
+	module* current_module = da_last(&workspace->loaded_modules);
 	file* file = file_load(&workspace->arena, file_path);
 
 	if(!file)
 	{
-		printf("%.*s file was not found\n", str_view_fmt(&file_path));
+		printf("%.*s file was not found\n", strv_fmt(&file_path));
 		assert(0);
 	}
 
@@ -144,21 +144,21 @@ void workspace_load_queue(workspace* workspace)
 	load_queue* old_queue = workspace->load_queue;
 	workspace->load_queue = arena_ppush(&workspace->arena, load_queue);
 
-	ada_foreach(old_queue)
+	da_foreach(old_queue)
 	{		
-		astr abs_path = get_absolute_path(workspace, str_view_from_astr(old_queue->it));
-		str_view abs_view = str_view_from_astr(&abs_path);
+		str abs_path = get_absolute_path(workspace, strv_from_str(old_queue->it));
+		strv abs_view = strv_from_str(&abs_path);
 
 		if(!workspace_lookup_module(workspace, abs_view)) { workspace_load(workspace, abs_view); }
-		else { printf("%.*s is already loaded\n", astr_fmt(&abs_path)); }
+		else { printf("%.*s is already loaded\n", str_fmt(&abs_path)); }
 	}
 }
 
-module* workspace_lookup_module(workspace* workspace, str_view name)
+module* workspace_lookup_module(workspace* workspace, strv name)
 {
-	modules_ada* modules = &workspace->loaded_modules;
+	modules_da* modules = &workspace->loaded_modules;
 
-	ada_foreach(modules)
+	da_foreach(modules)
 	{	
 		if(strncmp(modules->it->name.data, name.data, name.len) == 0) { return modules->it; }
 	};

@@ -70,7 +70,7 @@ typedef enum
 
 const char* ast_node_type_to_stirng(ast_node_type type);
 
-ada_declare(ast_node*, ast_node_ptr_ada);
+da_declare(ast_node*, ast_node_ptr_da);
 
 typedef struct 
 {
@@ -79,24 +79,24 @@ typedef struct
 
 typedef struct
 {
-	ast_node_ptr_ada members;
+	ast_node_ptr_da members;
 	u32 size;
 	u32 alignment;
 } ast_type_struct;
 
 typedef struct
 {
-	ast_node_ptr_ada content;
+	ast_node_ptr_da content;
 } ast_file;
 
 typedef struct
 {
-	str_view path;
+	strv path;
 } ast_literal_import;
 
 typedef struct
 {
-	ast_node_ptr_ada statements;
+	ast_node_ptr_da statements;
 }ast_block;
 
 typedef struct
@@ -130,7 +130,7 @@ typedef struct
 typedef struct
 {
 	ast_node* target;
-	str_view member_identifier;
+	strv member_identifier;
 } ast_expr_member_access;
 
 typedef struct
@@ -171,14 +171,14 @@ typedef struct
 typedef struct
 {
 	ast_node* target;
-	ast_node_ptr_ada arguments;
+	ast_node_ptr_da arguments;
 } ast_expr_op_call;
 
 
 typedef struct
 {
 	ast_node* target;
-	ast_node_ptr_ada arguments;
+	ast_node_ptr_da arguments;
 } ast_expr_op_index;
 
 typedef struct
@@ -191,7 +191,7 @@ typedef struct
 
 typedef struct
 {
-	ast_node_ptr_ada parameters;
+	ast_node_ptr_da parameters;
 	ast_node* return_type;
 	ast_node* block;
 	bool8 intrinsic;
@@ -199,7 +199,7 @@ typedef struct
 
 typedef struct
 {
-	ast_node_ptr_ada members;
+	ast_node_ptr_da members;
 } ast_literal_struct;
 
 typedef struct
@@ -210,7 +210,7 @@ typedef struct
 typedef struct
 {
 	ast_node* identifier;
-	ast_node_ptr_ada decls_and_directives;
+	ast_node_ptr_da decls_and_directives;
 } ast_decl_namespace;
 
 typedef struct
@@ -234,13 +234,13 @@ typedef struct
 
 typedef struct
 {
-	ast_node_ptr_ada parameters;
+	ast_node_ptr_da parameters;
 	ast_node* return_type;
 } ast_type_fn;
 
 typedef struct
 {
-	ast_node_ptr_ada entries;
+	ast_node_ptr_da entries;
 } ast_type_tuple;
 
 struct ast_node_s
@@ -266,7 +266,7 @@ struct ast_node_s
 
         bool8 literal_bool;
 
-        str_view literal_string;
+        strv literal_string;
 		
 		ast_expr_op_unary 				expr_op_unary;
         ast_expr_op_binary               expr_op_binary;
@@ -284,7 +284,7 @@ struct ast_node_s
 		ast_literal_import 		literal_import;
 		ast_literal_type 		literal_type;
 
-        str_view				identifier;
+        strv				identifier;
 
 		ast_decl_namespace 	decl_namesapce;
 

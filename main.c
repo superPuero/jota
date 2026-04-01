@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 	compile_options compile_opt = compile_options_parse_from_args(argc, argv);	
 	if(!compile_opt.success) { return 1; }
 	
-	workspace ws = workspace_make(str_view_from("main"), workspace_memory);	
+	workspace ws = workspace_make(strv_from_cstr("main"), workspace_memory);	
 
 	// @explain: vm is huge that why its not stack allocated
 	// also preferrably should be allocated on demand
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	
 	if(compile_opt.time)
 	{
-		ada_foreach(&profiler)
+		da_foreach(&profiler)
 		{
 			printf("%s:%*.3fs\n", profiler.it->name, 30 - (i32)strlen(profiler.it->name), profiler.it->time); 
 		}
@@ -75,12 +75,12 @@ int main(int argc, char** argv)
 
 	if(compile_opt.t)
 	{
-		ada_foreach(&ws.loaded_modules) { dump_tokens(&ws.loaded_modules.it->tokens); }
+		da_foreach(&ws.loaded_modules) { dump_tokens(&ws.loaded_modules.it->tokens); }
 	} 
 
 	if(compile_opt.ast) 
 	{
-		ada_foreach(&ws.loaded_modules) { dump_ast_node(ws.loaded_modules.it->file_node, 0); }
+		da_foreach(&ws.loaded_modules) { dump_ast_node(ws.loaded_modules.it->file_node, 0); }
 	}
 
 	if(compile_opt.bc) { dump_bytecode(&bcc); }

@@ -96,10 +96,10 @@ void dump_ast_node(ast_node* node, u32 indent)
 		dump_ast_node(node->data.literal_type.type, indent + 1);
 		break;
 	case ast_type_literal_string:
-		printf(" \"%.*s\"\n", str_view_fmt(&node->data.literal_string));
+		printf(" \"%.*s\"\n", strv_fmt(&node->data.literal_string));
 		break;
 	case ast_type_identifier:
-		printf(" %.*s\n", str_view_fmt(&node->data.identifier));
+		printf(" %.*s\n", strv_fmt(&node->data.identifier));
 		break;
 	case ast_type_type_primitive:
 		printf(" (%s)\n", tok_to_string(node->data.type_primitive));
@@ -112,14 +112,14 @@ void dump_ast_node(ast_node* node, u32 indent)
 
 	case ast_type_file:
 		printf("\n");
-		ada_foreach(&node->data.file.content)
+		da_foreach(&node->data.file.content)
 		{
 			dump_ast_node(*node->data.file.content.it, indent + 1);
 		};
 		break;
 	case ast_type_decl_namespace:
 		printf("\n");
-		ada_foreach(&node->data.decl_namesapce.decls_and_directives)
+		da_foreach(&node->data.decl_namesapce.decls_and_directives)
 		{
 			dump_ast_node(*node->data.decl_namesapce.decls_and_directives.it, indent + 1);
 		};
@@ -140,7 +140,7 @@ void dump_ast_node(ast_node* node, u32 indent)
 		break;
 	case ast_type_type_fn:
 		printf("\n");
-		ada_foreach(&node->data.type_fn.parameters)
+		da_foreach(&node->data.type_fn.parameters)
 		{
 			dump_ast_node(*node->data.type_fn.parameters.it, indent + 1);
 		};
@@ -148,7 +148,7 @@ void dump_ast_node(ast_node* node, u32 indent)
 		break;
 	case ast_type_type_tuple:
 		printf("\n");
-		ada_foreach(&node->data.type_tuple.entries)
+		da_foreach(&node->data.type_tuple.entries)
 		{
 			dump_ast_node(*node->data.type_tuple.entries.it, indent + 1);
 		};
@@ -162,7 +162,7 @@ void dump_ast_node(ast_node* node, u32 indent)
 		break;
 	case ast_type_literal_fn:
 		printf("\n");
-		ada_foreach(&node->data.literal_fn.parameters)
+		da_foreach(&node->data.literal_fn.parameters)
 		{
 			dump_ast_node(*node->data.literal_fn.parameters.it, indent + 1);
 		};
@@ -171,7 +171,7 @@ void dump_ast_node(ast_node* node, u32 indent)
 		break;
 	case ast_type_literal_struct:
 		printf("\n");
-		ada_foreach(&node->data.literal_struct.members)
+		da_foreach(&node->data.literal_struct.members)
 		{
 			dump_ast_node(*node->data.literal_struct.members.it, indent + 1);
 		};
@@ -190,7 +190,7 @@ void dump_ast_node(ast_node* node, u32 indent)
 	case ast_type_expr_op_call:
 		printf("\n");
 		dump_ast_node(node->data.expr_op_call.target, indent + 1);
-		ada_foreach(&node->data.expr_op_call.arguments)
+		da_foreach(&node->data.expr_op_call.arguments)
 		{
 			dump_ast_node(*node->data.expr_op_call.arguments.it, indent + 1);
 		};
@@ -198,7 +198,7 @@ void dump_ast_node(ast_node* node, u32 indent)
 	case ast_type_expr_op_index:
 		printf("\n");
 		dump_ast_node(node->data.expr_op_index.target, indent + 1);
-		ada_foreach(&node->data.expr_op_index.arguments)
+		da_foreach(&node->data.expr_op_index.arguments)
 		{
 			dump_ast_node(*node->data.expr_op_index.arguments.it, indent + 1);
 		};
@@ -232,7 +232,7 @@ void dump_ast_node(ast_node* node, u32 indent)
 		break;
 	case ast_type_block:
 		printf("\n");
-		ada_foreach(&node->data.block.statements)
+		da_foreach(&node->data.block.statements)
 		{
 			dump_ast_node(*node->data.block.statements.it, indent + 1);
 		};

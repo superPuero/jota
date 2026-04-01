@@ -205,16 +205,16 @@ typedef struct
     } as;
 }bytecode_op;
 
-ada_declare(bytecode_op, bytecode);
+da_declare(bytecode_op, bytecode);
 
 typedef struct
 {
-	str_view label;
+	strv label;
 	u32 entry_ip;
 	register_id reg_counter;
 }bytecode_fn;
 
-ada_declare(bytecode_fn, bytecode_fn_dyn_array)
+da_declare(bytecode_fn, bytecode_fn_dyn_array)
 
 typedef struct
 {

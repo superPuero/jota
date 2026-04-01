@@ -20,7 +20,7 @@ typedef struct
 
 	bool8 success;
 	bool8 file_provided;
-	str_view file;
+	strv file;
 
 } compile_options;
 

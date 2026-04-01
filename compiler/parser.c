@@ -54,9 +54,9 @@ token* parser_consume(parser* parser, tok expected)
 	return current;
 }
 
-ast_node_ptr_ada parse_type_function_parameters(parser* parser)
+ast_node_ptr_da parse_type_function_parameters(parser* parser)
 {
-	ast_node_ptr_ada parameter_nodes = {0};
+	ast_node_ptr_da parameter_nodes = {0};
 
 	parser_consume(parser, tok_open_parenthesis);
 
@@ -78,7 +78,7 @@ ast_node_ptr_ada parse_type_function_parameters(parser* parser)
 			parser_consume(parser, tok_comma);
 		}
 
-		ada_append(parser->arena,
+		da_append(parser->arena,
 			&parameter_nodes,
 			parse_declaration(parser)
 		);
@@ -147,9 +147,9 @@ ast_node* parse_type(parser* parser)
 	return type_node;
 }
 
-ast_node_ptr_ada parse_expression_list(parser* parser)
+ast_node_ptr_da parse_expression_list(parser* parser)
 {
-	ast_node_ptr_ada expression_list = {0};
+	ast_node_ptr_da expression_list = {0};
 	while(true)
 	{
 		if(expression_list.occupied > 0)
@@ -164,13 +164,13 @@ ast_node_ptr_ada parse_expression_list(parser* parser)
 			}
 		}
 
-		ada_append(parser->arena,&expression_list, parse_expression(parser));
+		da_append(parser->arena,&expression_list, parse_expression(parser));
 	}
 }
 
-ast_node_ptr_ada parse_type_list(parser* parser)
+ast_node_ptr_da parse_type_list(parser* parser)
 {
-	ast_node_ptr_ada type_list = {0};
+	ast_node_ptr_da type_list = {0};
 
 	while(true)
 	{
@@ -186,13 +186,13 @@ ast_node_ptr_ada parse_type_list(parser* parser)
 			}
 		}
 
-		ada_append(parser->arena,&type_list, parse_type(parser));
+		da_append(parser->arena,&type_list, parse_type(parser));
 	}
 }
 
-ast_node_ptr_ada parse_declaration_list(parser* parser)
+ast_node_ptr_da parse_declaration_list(parser* parser)
 {
-	ast_node_ptr_ada declaration_list = {0};
+	ast_node_ptr_da declaration_list = {0};
 
 	while(true)
 	{
@@ -208,7 +208,7 @@ ast_node_ptr_ada parse_declaration_list(parser* parser)
 			}
 		}
 
-		ada_append(parser->arena,&declaration_list, parse_declaration(parser));
+		da_append(parser->arena,&declaration_list, parse_declaration(parser));
 	}
 }
 
@@ -308,7 +308,7 @@ ast_node* parse_literal_expression(parser* parser)
 	{
 		case tok_literal_string:
 			literal_node = ast_node_make(parser->arena, ast_type_literal_string);
-			literal_node->data.literal_string = str_view_make(parser_current(parser)->content, parser_current(parser)->content_len);
+			literal_node->data.literal_string = strv_make(parser_current(parser)->content, parser_current(parser)->content_len);
 			break;
 
 		case tok_literal_integer:
@@ -554,7 +554,7 @@ ast_node* parse_identifier(parser* parser)
 
 	token* t = parser_consume(parser, tok_identifier);
 
-	identifier_node->data.identifier = str_view_make(t->content, t->content_len);
+	identifier_node->data.identifier = strv_make(t->content, t->content_len);
 
 	return identifier_node;
 }
@@ -634,7 +634,7 @@ ast_node* parse_block(parser* parser)
 
 	while(parser_current(parser)->type != tok_close_curly_bracket)
 	{
-		ada_append(parser->arena, &block_node->data.block.statements, parse_stmt(parser));
+		da_append(parser->arena, &block_node->data.block.statements, parse_stmt(parser));
 
 		if(parser_current(parser)->type == tok_semicolon)
 		{
@@ -689,13 +689,13 @@ ast_node* parse_declaration(parser* parser)
 }
 
 
-ast_node_ptr_ada parse_declarations(parser* parser)
+ast_node_ptr_da parse_declarations(parser* parser)
 {
-	ast_node_ptr_ada declaration_nodes = {0};
+	ast_node_ptr_da declaration_nodes = {0};
 
 	while(parser_current(parser)->type != tok_eof)
 	{
-		ada_append(parser->arena,&declaration_nodes, parse_declaration(parser));
+		da_append(parser->arena,&declaration_nodes, parse_declaration(parser));
 	}
 
 	return declaration_nodes;
@@ -714,12 +714,12 @@ ast_node* parse_file_content(workspace* workspace, parser* parser)
 			{
 				parser_advance(parser);
 				
-				astr path = astr_clone(&workspace->arena, &workspace->current_directory);
-				astr_append(&workspace->arena, &path, "\\");
-				astr_append_view(&workspace->arena, &path, str_view_make(parser_current(parser)->content, parser_current(parser)->content_len));		
+				str path = str_clone(&workspace->arena, &workspace->current_directory);
+				str_append_cstr(&workspace->arena, &path, "\\");
+				str_append_view(&workspace->arena, &path, strv_make(parser_current(parser)->content, parser_current(parser)->content_len));		
 
 				// @TODO: normalzing path on spot might be a good idea		
-				ada_append(
+				da_append(
 					&workspace->arena, 
 					workspace->load_queue, 
 					path
@@ -747,7 +747,7 @@ ast_node* parse_file(workspace* workspace, parser* parser)
 
 		if(node)
 		{
-			ada_append(parser->arena, &module->data.file.content, node);
+			da_append(parser->arena, &module->data.file.content, node);
 		}
 	}
 
